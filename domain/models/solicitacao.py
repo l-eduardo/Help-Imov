@@ -1,8 +1,8 @@
 from datetime import date
 import uuid
 
-from domain.enums.ocorrencia_status import Status
-from domain.enums.prioridade_solicitacao import Prioridade
+from domain.enums.status import Status
+from domain.enums.prioridade import Prioridade
 from domain.models.contrato import Contrato
 
 

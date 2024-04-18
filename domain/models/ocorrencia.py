@@ -3,8 +3,8 @@ from datetime import date
 from typing import List
 import uu
 import uuid
-from domain.enums.ocorrencia_status import Status
-from domain.enums.prioridade_solicitacao import Prioridade
+from domain.enums.status import Status
+from domain.enums.prioridade import Prioridade
 from domain.models.prestador_servico import PrestadorServico
 
 
