@@ -1,7 +1,6 @@
 
 from datetime import date
 from typing import List
-import uu
 import uuid
 from domain.enums.status import Status
 from domain.enums.prioridade import Prioridade

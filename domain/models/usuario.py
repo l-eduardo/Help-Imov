@@ -5,7 +5,12 @@ import uuid
 
 class Usuario(ABC):
 
-    def __init__(self, email: str, senha: str, nome: str, data_nascimento: date, id: uuid.UUID = uuid.UUID(int=0)):
+    def __init__(self,
+                 email: str,
+                 senha: str,
+                 nome: str,
+                 data_nascimento: date,
+                 id: uuid.UUID = uuid.UUID(int=0)):
         self._id = id
         if id == uuid.UUID(int=0):
             self._id = uuid.uuid4()
