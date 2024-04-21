@@ -1,0 +1,101 @@
+<ContratoScreen>:
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1  # Cor de fundo branco
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+        Image:
+            source: 'assets/help-imov-logo.png'  # Ajuste o caminho conforme necessário
+            size_hint: None, None
+            size: dp(50), dp(50)  # Ajuste o tamanho conforme necessário
+            pos_hint: {'x': 0, 'top': 1}
+            padding:
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: None, None
+            width: self.parent.width
+            height: self.parent.height * 0.5  # Ajuste aqui a proporção da tela que os componentes devem ocupar
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            padding: dp(50), 0
+
+            Label:
+                text: 'Cadastrar Contrato'
+                size_hint_y: None
+                height: '48dp'
+                font_size: '24sp'
+                color: 0, 0, 0, 1
+                halign: 'center'
+                valign: 'middle'
+                text_size: self.parent.width, None
+
+            BoxLayout:
+                size_hint_y: None
+                height: '40dp'
+                Spinner:
+                    text: 'Selecione o locatário...'
+                    values: ['Locatario 1', 'Locatário 2']
+                    id: locatario_spinner
+                    size_hint_x: 0.9
+                    pos_hint: {'center_x': 0.5}
+
+            BoxLayout:
+                size_hint_y: None
+                height: '40dp'
+                Spinner:
+                    text: 'Selecione o imóvel...'
+                    values: ['Imóvel 1', 'Imóvel 2']
+                    id: imovel_spinner
+                    size_hint_x: 0.9
+                    pos_hint: {'center_x': 0.5}
+
+            BoxLayout:
+                size_hint_y: None
+                height: '40dp'
+                TextInput:
+                    hint_text: 'Data Início'
+                    id: data_inicio_input
+                    size_hint_x: 0.45
+                    pos_hint: {'center_x': 0.5}
+                TextInput:
+                    hint_text: 'Data Fim'
+                    id: data_fim_input
+                    size_hint_x: 0.45
+                    pos_hint: {'center_x': 0.5}
+
+            BoxLayout:
+                size_hint_y: None
+                height: '40dp'
+                padding: 0, dp(5), 0, 0
+                Label:
+                    text: 'Ativo'
+                    color: 0, 0, 0, 1
+                    size_hint_x: None
+                    width: self.parent.width / 4
+                    pos_hint: {'x': 0.1}
+                Spinner:
+                    text: 'Sim'
+                    values: ['Sim', 'Não']
+                    size_hint_x: None
+                    width: self.parent.width / 4
+                    pos_hint: {'center_x': 0.75}
+
+            BoxLayout:
+                size_hint_y: None
+                height: '48dp'
+                padding: [0, 10, 0, 0]
+                Button:
+                    text: 'Voltar'
+                    size_hint_x: 0.45
+                    pos_hint: {'center_x': 0.5}
+                    on_release: app.root.current = 'listacontratos'
+                Button:
+                    text: 'Finalizar'
+                    on_release:
+                        root.retorna_contrato()
+                        app.root.current = 'listacontratos'
+                    size_hint_x: 0.45
+                    pos_hint: {'center_x': 0.5}
