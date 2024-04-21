@@ -8,14 +8,13 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.filechooser import FileChooserIconView
 from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
-
 from typing import List
 import uuid
-
 from kivy.uix.widget import Widget
-
 from domain.models import imovel
 
+
+#
 
 class Imovel:
     def __init__(self, codigo: int, endereco: str, imagens: List[List[bytes]], id: uuid.UUID = uuid.UUID(int=0)):
@@ -39,29 +38,32 @@ class TelaInicial(BoxLayout):
 
         # Layout do topo da tela
         topo = BoxLayout(size_hint=(1, 0.1))
-        # topo.spacing = 10
-        # topo.padding = 10
 
         logo = Image(source='help-imov-logo.png')
+
         titulo = Label(text='Imóveis',
                        halign='center',
                        valign='middle',
                        color=(0, 0, 0, 1),
                        font_size='24sp')
-        adicionar_btn = Button(text="Adicionar Imóvel",
-                               padding=(5, 5))
+
+        adicionar_btn = Button()
+        icone = Image(source="link do icone de add", size_hint=(None, None), size=(24, 24))
+        adicionar_btn.add_widget(icone)
+
         spacer = Widget(size_hint_x=2)
         spacer_2 = Widget(size_hint_x=2)
+        spacer_3 = Widget(size_hint=(1, 0.6))
 
         adicionar_btn.bind(on_release=self.adicionar_imovel)
+
         topo.add_widget(logo)
         topo.add_widget(spacer_2)
         topo.add_widget(titulo)
         topo.add_widget(spacer)
         topo.add_widget(adicionar_btn)
-        self.add_widget(topo)
 
-        spacer_3 = Widget(size_hint=(1, 0.6))
+        self.add_widget(topo)
         self.add_widget(spacer_3)
 
         scroll_view = ScrollView(size_hint=(1, 0.8))
@@ -79,13 +81,32 @@ class TelaInicial(BoxLayout):
         voltar_btn = Button(text="Voltar", size_hint=(1, 0.1))
         self.add_widget(voltar_btn)
 
+    # renderiza a lista para cada novo imovel criado
+    def atualizar_lista_imoveis(self):
+        # pega o layout com a lista de imoveis
+        lista = self.children[1].children[0]
+
+        # Limpa a lista
+        lista.clear_widgets()
+
+        # Re-adiciona novamente todos os imóveis
+        app = App.get_running_app()
+        for imovel in app.imoveis:
+            lista.add_widget(self.criar_linha_imovel(imovel))
+
+        # Ajustar a altura do layout com base no número de imóveis
+        lista.height = len(app.imoveis) * 100
+
+    # atualiza o tamanho do background color conforme a tela
     def update_bg(self, *args):
         self.bg.size = self.size
         self.bg.pos = self.pos
 
+    # Componente para cada imovel criado
     def criar_linha_imovel(self, imovel):
         linha = BoxLayout(orientation='horizontal', size_hint=(1, 0.1))
-        linha.add_widget(Label(text=f"Código: {imovel.codigo}"))
+        linha.add_widget(Label(text=f"Imovel: {imovel.codigo}",
+                               color=(0, 0, 0, 1)))
 
         visualizar_btn = Button(text="Visualizar")
         visualizar_btn.bind(on_release=lambda _: self.visualizar_imovel(imovel))
@@ -120,6 +141,21 @@ class TelaInicial(BoxLayout):
         self.popup.content = TelaImovel(self.popup, mode="edit", imovel=imovel)
         self.popup.open()
 
+    def buscar_imoveis(self):
+        # se um id for passado, retorna o correspondente
+        # se não, retorna todos
+        if id:
+            for imoveis in self.imoveis:
+                if imovel.id == id:
+                    return imovel
+            return None
+        else:
+            return self.imoveis
+
+    # metodo para impedir exclusão de imovel associado a contrato
+    def contrato_associado(self, imovel_id):
+        return imovel_id not in self.contratos.values()
+
     def excluir_imovel(self, imovel):
         # Lógica para excluir o imóvel
         app = App.get_running_app()
@@ -131,7 +167,6 @@ class TelaInicial(BoxLayout):
             lista.add_widget(self.criar_linha_imovel(imovel))
 
         lista.height = len(app.imoveis) * 100
-        self.add_widget(Button(text="Voltar", size_hint=(1, 0.1)))
 
 
 class TelaImovel(BoxLayout):
@@ -159,7 +194,8 @@ class TelaImovel(BoxLayout):
         self.add_widget(self.endereco_input)
 
         # Campo para adição de imagens
-        self.filechooser = FileChooserIconView()
+        self.filechooser = FileChooserIconView(filters=['*.png'])
+        self.filechooser.size_hint_y = 3
         self.filechooser.bind(on_selection=self.carregar_imagem)
         self.add_widget(self.filechooser)
 
@@ -177,7 +213,11 @@ class TelaImovel(BoxLayout):
     def carregar_imagem(self, filechooser, selection):
         if selection:
             image_path = selection[0]
+            print("Imagem selecionada:", image_path)
             self.imagens.append(image_path)
+
+            imagem = Image(source=image_path)
+            self.add_widget(imagem)
 
     def finalizar(self, instance):
         if self.mode == "add":
@@ -188,6 +228,10 @@ class TelaImovel(BoxLayout):
                 imagens=self.imagens,
             )
             app.imoveis.append(novo_imovel)
+
+            tela_inicial = app.root
+            tela_inicial.atualizar_lista_imoveis()
+
         elif self.mode == "edit":
             imovel.codigo = int(self.codigo_input.text)
             imovel.endereco = self.endereco_input.text
@@ -198,10 +242,12 @@ class TelaImovel(BoxLayout):
 
 class ImovelApp(App):
     def build(self):
-        self.imoveis = [
+        self.imoveis = [  # valores de teste
             Imovel(codigo=1, endereco="Rua 1", imagens=[]),
             Imovel(codigo=2, endereco="Rua 2", imagens=[]),
         ]
+
+        self.contratos = {}
 
         tela_inicial = TelaInicial(imoveis=self.imoveis)
         return tela_inicial
