@@ -1,4 +1,5 @@
 from typing import List
+import uuid
 from domain.models.contrato import Contrato
 
 
@@ -10,7 +11,9 @@ class Vistoria:
                  fechada: bool,
                  imagens: List[List[bytes]],
                  documento: List[bytes],
+                 id: uuid.UUID = uuid.uuid4()
                  ) -> None:
+        self._id = id
         self._vistoria = contra_vistoria
         self._contrato = contrato
         self._e_contestacao = e_contestacao
@@ -18,6 +21,9 @@ class Vistoria:
         self._imagens = imagens
         self._documento = documento
 
+    @property
+    def id(self) -> uuid.UUID:
+        return self._id
     @property
     def contra_vistoria(self) -> 'Vistoria':
         return self._vistoria

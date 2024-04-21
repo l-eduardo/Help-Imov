@@ -11,6 +11,10 @@ class Imovel:
         self._imagens = imagens
 
     @property
+    def id(self) -> uuid.UUID:
+        return self._id
+
+    @property
     def endereco(self) -> str:
         return self._endereco
 
