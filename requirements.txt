@@ -1,0 +1,5 @@
+sqlalchemy
+PyMySql
+alembic
+kivy
+python-dotenv

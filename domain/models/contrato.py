@@ -1,12 +1,28 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from domain.models.vistoria import Vistoria
+    from domain.models.solicitacao import Solicitacao
+    from domain.models.funcionario import Funcionario
+    from domain.models.locatario import Locatario
 from datetime import date
 from typing import List
+import uuid
 
-from domain.models.funcionario import Funcionario
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from domain.models.funcionario import Funcionario
+    from domain.models.imovel import Imovel
+    from domain.models.locatario import Locatario
+    from domain.models.ocorrencia import Ocorrencia
+    from domain.models.solicitacao import Solicitacao
+    from domain.models.vistoria import Vistoria
 from domain.models.imovel import Imovel
-from domain.models.locatario import Locatario
 from domain.models.ocorrencia import Ocorrencia
-from domain.models.solicitacao import Solicitacao
-from domain.models.vistoria import Vistoria
+
+
+
+
+
 
 
 class Contrato:
@@ -17,7 +33,10 @@ class Contrato:
     imovel: 'Imovel',
     criador: 'Funcionario',
     vistoria_inicial: 'Vistoria',
-    estaAtivo: bool):
+    estaAtivo: bool,
+    id: uuid.UUID = uuid.uuid4()
+    ):
+        self._id = id
         self._dataInicio = dataInicio
         self._dataFim = dataFim
         self._dataCadastro = date.today()
@@ -29,6 +48,11 @@ class Contrato:
         self._vistoria_inicial = vistoria_inicial
         self._vistoria_final = None
         self._estaAtivo = estaAtivo
+
+    @property
+    def id(self) -> uuid.UUID:
+        return self._id
+
 
     @property
     def dataInicio(self) -> date:

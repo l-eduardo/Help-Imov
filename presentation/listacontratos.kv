@@ -1,0 +1,87 @@
+
+<ListaContratosScreen>:
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1  # Cor de fundo branco
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+        Image:
+            source: 'assets/help-imov-logo.png'
+            size_hint: None, None
+            size: dp(50), dp(50)  # Defina o tamanho do logotipo
+            pos_hint: {'x': 0, 'top': 1}
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 1, None
+            height: root.height - dp(50)  # Ajuste a altura considerando a altura do logotipo
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+            BoxLayout:
+                size_hint_y: None
+                height: '50dp'
+                Label:
+                    text: 'Contratos'
+                    font_size: '24sp'
+                    size_hint_x: 9
+                    color: 0, 0, 0, 1
+
+                Button:
+                    background_normal: 'assets/add_icon.png'
+                    size_hint_x: 1
+                    size_hint_y: 1
+                    border: (0, 0, 0, 0) #remover bordas, para evitar distorção
+                    on_release: app.root.current = 'contrato'
+
+
+            ScrollView:
+                do_scroll_x: False
+                StackLayout:
+                    id: contracts_list
+                    orientation: 'lr-tb'
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    # Exemplo de itens da lista, que devem ser criados dinamicamente no Python
+                    BoxLayout:
+                        size_hint_y: None
+                        height: '50dp'
+                        Label:
+                            text: '99920'
+                            size_hint_x: 3
+                            color: 0, 0, 0, 1
+                        Button:
+                            text: 'Delete'
+                            size_hint_x: 1
+                        ToggleButton:
+                            id: toggle_1
+                            text: 'Ativo' if self.state == 'down' else 'Inativo'
+                            state: 'down'
+                            on_state:
+                                root.update_active_status('Contrato 1', self.state == 'down')
+                    BoxLayout:
+                        size_hint_y: None
+                        height: '50dp'
+                        Label:
+                            text: '23902'
+                            size_hint_x: 3
+                            color: 0, 0, 0, 1
+                        Button:
+                            text: 'Delete'
+                            size_hint_x: 1
+                        ToggleButton:
+                            id: toggle_1
+                            text: 'Ativo' if self.state == 'down' else 'Inativo'
+                            state: 'down'
+                            on_state:
+                                root.update_active_status('Contrato 1', self.state == 'down')
+                    # ... Mais contratos aqui
+
+            BoxLayout:
+                size_hint_y: None
+                height: '50dp'
+                Button:
+                    text: 'Voltar'
