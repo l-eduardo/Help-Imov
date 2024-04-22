@@ -31,6 +31,12 @@ presentation/.DS_Store
 .installed.cfg
 *.egg
 MANIFEST
+.idea/vcs.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/Help-Imov.iml
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
