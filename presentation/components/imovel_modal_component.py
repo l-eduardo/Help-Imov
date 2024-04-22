@@ -12,8 +12,8 @@ import uuid
 from domain.models.imovel import Imovel
 
 
-class TelaImovel(BoxLayout):
-    def __init__(self, popup, mode, imovel=None, **kwargs):
+class ImovelModal(BoxLayout):
+    def __init__(self, popup, mode, imovel: Imovel | None, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
         self.popup = popup
@@ -29,10 +29,10 @@ class TelaImovel(BoxLayout):
             self.codigo_input = TextInput(text=str(imovel.codigo), readonly=(mode == "view"))
             self.endereco_input = TextInput(text=imovel.endereco, readonly=(mode == "view"))
 
-            self.imagens = imovel.imagens if imovel else []
-            for img_path in self.imagens:
-                imagem_widget = Image(source=img_path)
-                self.add_widget(imagem_widget)
+            # self.imagens = imovel.imagens if imovel else []
+            # for img_path in self.imagens:
+            #     imagem_widget = Image(source=img_path)
+            #     self.add_widget(imagem_widget)
 
         # Campos para código e endereço
         self.add_widget(Label(text="Código"))
@@ -58,6 +58,7 @@ class TelaImovel(BoxLayout):
         self.add_widget(voltar_btn)
 
     def carregar_imagem(self, filechooser, selection):
+        print("Imagem selecionada:", selection)
         if selection:
             image_path = selection[0]
             print("Imagem selecionada:", image_path)

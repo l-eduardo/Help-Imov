@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -9,12 +10,14 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.widget import Widget
 from domain.models import imovel
 
-from presentation.tela_imovel import TelaImovel
+from infrastructure.models import imoveis
+from infrastructure.repositories.imoveis_repository import ImoveisRepository
+from presentation.components.imovel_modal_component import ImovelModal
 
 
-class TelaInicial(BoxLayout):
-    def __init__(self, imoveis, **kwargs):
-        super().__init__(**kwargs)
+class ListImoveisView(BoxLayout, Screen):
+    def __init__(self, imoveis_repository: ImoveisRepository, **kwargs):
+        super(ListImoveisView, self).__init__(**kwargs)
         self.orientation = 'vertical'
 
         with self.canvas.before:
@@ -57,6 +60,10 @@ class TelaInicial(BoxLayout):
         lista = BoxLayout(orientation='vertical', size_hint_y=None)
         lista.bind(minimum_height=scroll_view.setter('height'))
 
+        imoveis = imoveis_repository.get_all_with_images()
+        self.imoveis = imoveis
+        print("IMOVEIS(all_imoveis_View): - " + imoveis.__str__())
+
         # Lista de imóveis cadastrados
         for imovel in imoveis:
             lista.add_widget(self.criar_linha_imovel(imovel))
@@ -65,8 +72,11 @@ class TelaInicial(BoxLayout):
         self.add_widget(scroll_view)
 
         # Botão para voltar
-        voltar_btn = Button(text="Voltar", size_hint=(1, 0.1))
+        voltar_btn = Button(text="Voltar", size_hint=(1, 0.1), on_release=lambda instance: self.return_to_login())
         self.add_widget(voltar_btn)
+
+    def return_to_login(self):
+        self.manager.current = 'login'
 
     # renderiza a lista para cada novo imovel criado
     def atualizar_lista_imoveis(self):
@@ -116,19 +126,19 @@ class TelaInicial(BoxLayout):
     def adicionar_imovel(self, instance):
         # Abre a tela de cadastro de imóvel
         self.popup = Popup(title="Adicionar Imóvel", size_hint=(0.8, 0.8))
-        self.popup.content = TelaImovel(self.popup, mode="add")
+        self.popup.content = ImovelModal(self.popup, mode="add", imovel=None)
         self.popup.open()
 
     def visualizar_imovel(self, imovel):
         # Abre uma popup para visualizar o imóvel
         self.popup = Popup(title="Visualizar Imóvel", size_hint=(0.8, 0.8))
-        self.popup.content = TelaImovel(self.popup, mode="view", imovel=imovel)
+        self.popup.content = ImovelModal(self.popup, mode="view", imovel=imovel)
         self.popup.open()
 
     def editar_imovel(self, imovel):
         # Abre uma popup para editar o imóvel
         self.popup = Popup(title="Editar Imóvel", size_hint=(0.8, 0.8))
-        self.popup.content = TelaImovel(self.popup, mode="edit", imovel=imovel)
+        self.popup.content = ImovelModal(self.popup, mode="edit", imovel=imovel)
         self.popup.open()
 
     def buscar_imoveis(self):

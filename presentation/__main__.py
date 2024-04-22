@@ -1,12 +1,22 @@
 from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager, Screen
 from dotenv import load_dotenv
 
-from presentation.views.login.loginView import LoginWindow
+from infrastructure.repositories.imoveis_repository import ImoveisRepository
+from presentation.views.imoveis_list_view import ListImoveisView
+from presentation.views.login_view import LoginView
 
 load_dotenv()
 
 class LoginApp(App):
     def build(self):
-        return LoginWindow()
+        screen_manager = ScreenManager()
+        login_screen = LoginView(name='login')
+        main_screen = ListImoveisView(name='imoveis', imoveis_repository=ImoveisRepository())
+
+        screen_manager.add_widget(login_screen)
+        screen_manager.add_widget(main_screen)
+
+        return screen_manager
 
 LoginApp().run()
