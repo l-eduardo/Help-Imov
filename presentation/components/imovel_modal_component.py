@@ -41,10 +41,10 @@ class ImovelModal(BoxLayout):
         self.add_widget(self.endereco_input)
 
         # Campo para adição de imagens
-        self.filechooser = FileChooserIconView(filters=['*.png'])
-        self.filechooser.size_hint_y = 3
-        self.filechooser.bind(on_selection=self.carregar_imagem)
-        self.add_widget(self.filechooser)
+        # self.filechooser = FileChooserIconView(filters=['*.png'])
+        # self.filechooser.size_hint_y = 3
+        # self.filechooser.bind(on_selection=self.carregar_imagem)
+        # self.add_widget(self.filechooser)
 
         # Botão de finalizar
         if mode != "view":
