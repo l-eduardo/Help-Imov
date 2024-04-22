@@ -1,3 +1,9 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from domain.models.vistoria import Vistoria
+    from domain.models.solicitacao import Solicitacao
+    from domain.models.funcionario import Funcionario
+    from domain.models.locatario import Locatario
 from datetime import date
 from typing import List
 import uuid
@@ -10,6 +16,13 @@ if TYPE_CHECKING:
     from domain.models.ocorrencia import Ocorrencia
     from domain.models.solicitacao import Solicitacao
     from domain.models.vistoria import Vistoria
+from domain.models.imovel import Imovel
+from domain.models.ocorrencia import Ocorrencia
+
+
+
+
+
 
 
 class Contrato:

@@ -1,10 +1,12 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from domain.models.prestador_servico import PrestadorServico
 
 from datetime import date
 from typing import List
 import uuid
 from domain.enums.status import Status
 from domain.enums.prioridade import Prioridade
-from domain.models.prestador_servico import PrestadorServico
 
 
 class Ocorrencia:
