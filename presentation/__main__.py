@@ -3,6 +3,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from dotenv import load_dotenv
 
 from infrastructure.repositories.imoveis_repository import ImoveisRepository
+from presentation.contrato_view import ContratoScreen, ListaContratosScreen
 from presentation.views.imoveis_list_view import ListImoveisView
 from presentation.views.login_view import LoginView
 
@@ -16,6 +17,8 @@ class LoginApp(App):
 
         screen_manager.add_widget(login_screen)
         screen_manager.add_widget(main_screen)
+        screen_manager.add_widget(ListaContratosScreen(name='listacontratos'))
+        screen_manager.add_widget(ContratoScreen(name='contrato'))
 
         return screen_manager
 
