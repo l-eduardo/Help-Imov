@@ -13,8 +13,8 @@ class Administrador(Funcionario):
                  is_root: bool = False
                 ):
         super().__init__(email=email, senha=senha, nome=nome, data_nascimento=data_nascimento, id=id)
-        self._root: bool = is_root
+        self._is_root: bool = is_root
 
     @property
-    def root(self) -> bool:
-        return self._root
+    def is_root(self) -> bool:
+        return self._is_root

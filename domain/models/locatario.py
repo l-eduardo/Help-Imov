@@ -15,6 +15,10 @@ class Locatario(Usuario):
     @property
     def celular(self) -> str:
         return self._celular
+    
+    @celular.setter
+    def celular(self, celular) -> str:
+        self._celular = celular
 
     @property
     def contratos(self) -> 'List[Contrato]':

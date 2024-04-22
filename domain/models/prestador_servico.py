@@ -1,7 +1,8 @@
+
+from domain.models.ocorrencia import Ocorrencia
 from datetime import date
 from typing import List
 from uuid import UUID
-from domain.models.ocorrencia import Ocorrencia
 from domain.models.usuario import Usuario
 
 
@@ -15,8 +16,8 @@ class PrestadorServico(Usuario):
     data_nascimento: date,
     id: UUID = UUID(int=0)):
         super().__init__(nome=nome, email=email, senha=senha, data_nascimento=data_nascimento, id=id)
-        self._especialidade: str = especialidade
-        self._empresa: str = empresa
+        self._especialidade: especialidade
+        self._empresa: empresa
         self._ocorrencias: List[Ocorrencia] = []
 
     @property
