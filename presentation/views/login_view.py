@@ -1,51 +1,33 @@
-from kivy.app import App
-from kivy.uix.screenmanager import Screen
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
-from dotenv import load_dotenv
+import PySimpleGUI as sg
 
-from application.useCases.user_auth import UserAuth
-from infrastructure.repositories.auth_infos_repository import AuthInfosRepository
+from application.controllers.session_controller import SessionController
 
-class LoginView(BoxLayout, Screen):
-    def __init__(self, **kwargs):
-        super(LoginView, self).__init__(**kwargs)
 
-        self.orientation = 'vertical'
-        self.padding = [100, 50, 100, 50]
+class LoginView:
+    def open(self):
+        window = self.__init_layout()
 
-        self.add_widget(Label(text='Email'))
-        self.username_input = TextInput(multiline=False)
-        self.add_widget(self.username_input)
+        event, text = window.read()
 
-        self.add_widget(Label(text='Password'))
-        self.password_input = TextInput(multiline=False, password=True)
-        self.add_widget(self.password_input)
+        window.close()
+        return event, text
 
-        self.login_button = Button(text='Login', on_release=self.login)
-        self.add_widget(self.login_button)
+    def __init_layout(self):
+        centrilizedText = sg.Text("Login")
+        centrilizedButtons = [sg.Button("Ok", size=(10,1)), sg.Button("Cancel", size=(10,1))]
 
-    def login(self, instance):
-        username = self.username_input.text
-        password = self.password_input.text
+        layout = [  [sg.Column([[centrilizedText]], justification="center")],
+                    [sg.Text("Email", expand_x=True), sg.InputText(key="email", tooltip="email", size=(30,1))],
+                    [sg.Text("Senha", expand_x=True), sg.InputText(key="password" ,tooltip="teste",password_char="*", size=(30,1))],
+                    [sg.Column([centrilizedButtons], justification="center")] ]
 
-        # Add your login logic here
 
-        print(f'Username: {username}, Password: {password}')
-        autenticated = UserAuth(AuthInfosRepository=AuthInfosRepository()).login(username, password)
+        window = sg.Window("Help Imov", layout)
 
-        if autenticated:
-            print('Login successful')
-            self.manager.current = 'imoveis'
+        return window
 
-        self.username_input.text = ''
-        self.password_input.text = ''
+    def error_popup(self, message):
+        sg.popup_no_titlebar(message)
 
-class LoginApp(App):
-    def build(self):
-        return LoginView()
-
-if __name__ == '__main__':
-    LoginApp().run()
+    def __auth(self, email, password):
+        print(SessionController().autheticate(email, password))
