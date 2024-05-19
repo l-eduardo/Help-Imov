@@ -36,3 +36,6 @@ class Imovel:
         self._endereco = endereco
 
     # a parte de imagens vai ser uma classe separada pra lidar com a manipulação
+
+    def __str__(self):
+        return f'{self.codigo}'
