@@ -41,3 +41,9 @@ class ImoveisRepository:
             connection.session.add(imovel_output[1])
 
             return imovel_output[0]
+
+    def get_by_id(self, id: UUID) -> Imovel:
+        with Connection() as connection:
+            return connection.session.query(Imovel)\
+                .filter(Imovel.id == id)\
+                .first()
