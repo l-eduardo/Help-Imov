@@ -1,7 +1,8 @@
 from sqlalchemy import Column, ForeignKey, String, LargeBinary
-from sqlalchemy.ext.declarative import declarative_base
+from infrastructure.models import Base
 
-Base = declarative_base()
+
+#Base = declarative_base()
 
 class UsuariosOcorrencias(Base):
     __tablename__ = 'IMAGENS'

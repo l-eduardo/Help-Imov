@@ -1,7 +1,8 @@
 from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy.ext.declarative import declarative_base
+from infrastructure.models import Base
 
-Base = declarative_base()
+
+#Base = declarative_base()
 
 class Solicitacoes(Base):
     __tablename__ = 'SOLICITACOES'

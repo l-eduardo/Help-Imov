@@ -22,4 +22,6 @@ class ContratosRepositories:
     def insert(self, contrato: Contratos) -> Contratos:
         with Connection() as connection:
             connection.session.add(contrato)
+            connection.session.commit()
             return contrato
+
