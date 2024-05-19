@@ -15,7 +15,7 @@ class TelaContrato:
                 [sg.Text('Cadastrar Contrato', font=('Any', 18), justification='center', expand_x=True)],
                 [sg.Text('Locatário', size=(15, 1), justification='center'), sg.Combo(['Locatario 1', 'Locatario 2'], size=(20, 1), default_value='Selecione', key='locatario')],
                 [sg.Text('Imóvel', size=(15, 1), justification='center'), sg.Combo(imoveis, size=(20, 1), default_value='Selecione', key='imovel')],
-                [sg.Text('Data Início', size=(15, 1), justification='center'), sg.Input(key='data_inicio', size=(11, 1)), sg.CalendarButton('Selecionar', target='data_inicio', format='%d-%m-%Y')],
+                [sg.Text('Data Início', size=(15, 1), justification='center'), sg.Input(key='data_inicio', size=(11, 1)), sg.CalendarButton('Selecionar', target='data_inicio', format='%Y/%m/%d')],
                 [sg.Button('Voltar'), sg.Button('Finalizar')]
             ]
             icone_path = '../assets/help-imov-logo.png'
@@ -27,7 +27,8 @@ class TelaContrato:
             while True:
                 event, values = window.read()
                 if event == sg.WINDOW_CLOSED or event == 'Voltar':
-                    break
+                    window.close()
+                    self.__controlador.listar_contrato()
                 elif event == 'Finalizar':
                     locatario = values['locatario']
                     imovel = values['imovel']
@@ -70,11 +71,14 @@ class TelaContrato:
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED or event == "Voltar":
-                break
+                self.window.close()
+                exit(),'''REVISAAAAAAAAAARRRR DPS E ADICIONAR A TELA PRINCIPAL'''
+
             if event == "Selecionar":
                 if values["-TABELA-"]:
-                    contrato_selecionado = [(values["-TABELA-"][0], contratos_listados)]
-                    return contrato_selecionado
+                    contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+                    self.window.close()
+                    return self.__controlador.selecionar_contrato(contrato_selecionado)
                 else:
                     sg.popup("Nenhum contrato selecionado")
             if event == "Adicionar":
@@ -84,18 +88,25 @@ class TelaContrato:
 
 
     def mostra_contrato(self, contrato):
-        layout = [[sg.Text("Data Início:"), sg.Text(contrato["dataInicio"])],
-                  [sg.Text("Data Fim:"), sg.Text(contrato["dataFim"])],
-                  [sg.Text("Locatário:"), sg.Text(contrato["locatario"])],
-                  [sg.Text("Imóvel:"), sg.Text(contrato["imovel"])],
-                  [sg.Button("Ok")]]
+        layout = [
+            [sg.Text('Dados do Contrato', font=('Any', 18), justification='center', expand_x=True)],
+            [sg.Text("Data Início:", size=(15, 1), justification='left'), sg.Text(contrato["dataInicio"])],
+            [sg.Text("Data Fim:",  size=(15, 1), justification='left'), sg.Text(contrato["dataFim"])],
+            [sg.Text("Locatário:",  size=(20, 1), justification='left'), sg.Text(contrato["locatario"])],
+            [sg.Text("Imóvel:",  size=(22, 1), justification='left'), sg.Text(contrato["imovel"])],
+            [sg.Button("Voltar"), sg.Button("Solicitações"), sg.Button("Ocorrências")]]
 
-        window = sg.Window("Detalhes do Contrato", layout)
+        window = sg.Window('Cadastro de Contrato', layout, element_justification='center',
+                           size=(500, 400), font=('Arial', 18, 'bold'))
         while True:
             event, values = window.read()
-            if event == sg.WIN_CLOSED or event == "Ok":
-                break
-        window.close()
+            if event == sg.WIN_CLOSED or event == "Voltar":
+                window.close()
+                self.__controlador.listar_contrato()
+            if event == "Solicitações":
+                pass
+            if event == "Ocorrências":
+                pass
 
 
     def mostra_msg(self, msg):
@@ -103,7 +114,7 @@ class TelaContrato:
 
 
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     controlador = None  # Substitua pelo seu controlador
     tela = TelaContrato(controlador)
     dados_contrato = tela.PegaDadosContrato()
@@ -114,6 +125,6 @@ if __name__ == "__main__":
     ]
     tela.mostra_contratos(contratos_listados)
 
-    print(dados_contrato)
+    print(dados_contrato)'''
 
 
