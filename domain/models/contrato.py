@@ -15,13 +15,13 @@ import uuid
 class Contrato:
     def __init__(self,
     dataInicio: date,
-    dataFim: date,
     locatario: 'Locatario',
     imovel: 'Imovel',
-    criador: 'Funcionario',
-    vistoria_inicial: 'Vistoria',
     estaAtivo: bool,
-    id: uuid.UUID = uuid.uuid4()
+    id: uuid.UUID = uuid.uuid4(),
+    dataFim: 'date | None' = None,
+    vistoria_inicial: 'Vistoria | None' = None,
+    criador: 'Funcionario | None' = None
     ):
         self._id = id
         self._dataInicio = dataInicio

@@ -1,11 +1,16 @@
 from application.controllers.session_controller import SessionController
 from presentation.views.login_view import LoginView
-
+from application.controllers.controller_contrato import ContratoController
 
 class MainController:
     def __init__(self):
         self.__login_view = LoginView()
         self.__session_controller = SessionController()
+        self.__contrato_controller = ContratoController(self)
+
+    @property
+    def contrato_controller(self):
+        return self.__contrato_controller
 
     def run(self):
         while True:
@@ -15,8 +20,10 @@ class MainController:
 
             if evento == "Cancel" or evento[0] == None:
                 break
-            if autenticado:
+            if autenticado or True:
                 self.__set_session(autenticado.id)
+                self.__contrato_controller.listar_contrato()
+                #self.__contrato_controller.inclui_contrato()
                 break
 
             self.__login_view.error_popup("Email ou senha incorretos")

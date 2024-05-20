@@ -11,12 +11,14 @@ from infrastructure.models.imoveis import Imoveis
 class ImoveisRepository:
     def get_all_with_images(self) -> list[Imovel]:
         with Connection() as connection:
-            result = connection.session.query(Imoveis, Imagens)\
+            result = connection.session.query(Imoveis, Imagens).filter(Imoveis.id == Imagens.id) \
                 .all()
 
+            #connection.session.query(Imoveis, Imagens).filter(Imoveis.id == Imagens.id) \
             imovel_inputs_list = []
             for i in result:
                 imovel_inputs_list.append(ImovelInputMapper.map_imovel_input(i[0], i[1]))
+                print(i)
 
             return imovel_inputs_list
 
@@ -39,3 +41,9 @@ class ImoveisRepository:
             connection.session.add(imovel_output[1])
 
             return imovel_output[0]
+
+    def get_by_id(self, id: UUID) -> Imovel:
+        with Connection() as connection:
+            return connection.session.query(Imovel)\
+                .filter(Imovel.id == id)\
+                .first()
