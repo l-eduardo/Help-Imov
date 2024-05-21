@@ -18,7 +18,6 @@ class ImoveisRepository:
             imovel_inputs_list = []
             for i in result:
                 imovel_inputs_list.append(ImovelInputMapper.map_imovel_input(i[0], i[1]))
-                print(i)
 
             return imovel_inputs_list
 

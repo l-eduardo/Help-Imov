@@ -21,8 +21,6 @@ class LoginOptionsView:
             if event == sg.WINDOW_CLOSED:
                 break
             else:
-                print(values)
-                print('OK')
-
+                return event
         self.window.close()
 

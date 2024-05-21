@@ -62,7 +62,6 @@ class ListImoveisView(BoxLayout, Screen):
 
         imoveis = imoveis_repository.get_all_with_images()
         self.imoveis = imoveis
-        print("IMOVEIS(all_imoveis_View): - " + imoveis.__str__())
 
         # Lista de imóveis cadastrados
         for imovel in imoveis:

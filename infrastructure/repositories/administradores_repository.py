@@ -19,3 +19,15 @@ class AdministradoresRepository:
         with Connection() as connection:
             connection.session.add(administrador)
             return administrador
+
+    def is_root(self, id: UUID):
+        with Connection() as connection:
+            result = connection.session.query(Administradores)\
+            .filter(Administradores.id == id)\
+            .filter(Administradores.e_root == True)\
+            .first()
+
+            if result is None:
+                return False
+
+            return result.is_root

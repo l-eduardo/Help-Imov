@@ -5,7 +5,6 @@ from datetime import datetime
 class ContratosOutputMapper:
     @staticmethod
     def map_contrato(contrato: Contrato) -> Contratos:
-        print('mapper locatario', contrato.locatario)
         return Contratos(
             id=contrato._id,
             #data_inicio=datetime.strptime(contrato.dataInicio, "%d/%m/%Y"),

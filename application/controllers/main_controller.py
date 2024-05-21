@@ -20,10 +20,9 @@ class MainController:
 
             if evento == "Cancel" or evento[0] == None:
                 break
-            if autenticado or True:
+            if autenticado:
                 self.__set_session(autenticado.id)
-                self.__contrato_controller.listar_contrato()
-                #self.__contrato_controller.inclui_contrato()
+                teste(autenticado.id)
                 break
 
             self.__login_view.error_popup("Email ou senha incorretos")
@@ -31,3 +30,7 @@ class MainController:
     def __set_session(self, id):
         self.__session_controller.get_new_session(id)
         pass
+
+@SessionController.inject_session_data
+def teste(id, session=None):
+    print("Session: " + session.__str__())

@@ -8,7 +8,7 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def get_user_by_login_infos(self, email: str, senha: str):
+    def get_user_identity_by_login_infos(self, email: str, senha: str):
         pass
 
     @abstractmethod
