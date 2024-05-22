@@ -22,7 +22,6 @@ class ContratoController:
 
     def inclui_contrato(self):
         dados_contrato = self.__tela_contrato.PegaDadosContrato()
-        print(dados_contrato)
         contrato = Contrato(dados_contrato['data_inicio'], dados_contrato['imovel'],
                             dados_contrato['locatario'], estaAtivo=True)
         self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
@@ -42,14 +41,12 @@ class ContratoController:
             self.__tela_contrato.mostra_msg("Nenhum contrato cadastrado")
 
     def selecionar_contrato(self, contrato_selecionado):
-        print(contrato_selecionado)
         self.__tela_contrato.mostra_contrato(contrato_selecionado)
 
         pass
 
     def obter_contratos_do_banco(self):
         contratos = self.__contratos_repository.get_all()
-        print("Passei por aqui", contratos)
         return contratos
 
         '''contrato1 = Contrato('01-01-2024', '02-03-2024', 'locatrio1', 'IMV001', True)

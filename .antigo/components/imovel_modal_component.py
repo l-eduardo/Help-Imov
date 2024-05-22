@@ -58,10 +58,8 @@ class ImovelModal(BoxLayout):
         self.add_widget(voltar_btn)
 
     def carregar_imagem(self, filechooser, selection):
-        print("Imagem selecionada:", selection)
         if selection:
             image_path = selection[0]
-            print("Imagem selecionada:", image_path)
             self.imagens.append(image_path)
 
             imagem = Image(source=image_path)

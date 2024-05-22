@@ -177,7 +177,7 @@ class TelaUsuario(BoxLayout):
             self.celular_input = TextInput(hint_text="Celular")
             self.especialidade_input = TextInput(hint_text="Especialidade")
             self.empresa_input = TextInput(hint_text="Empresa")
-            
+
         elif mode == "view" or mode == "edit":
             self.id_usuario = usuario.id
             self.titulo = "Visualizar Usuário" if mode == "view" else "Editar Usuário"
@@ -216,7 +216,7 @@ class TelaUsuario(BoxLayout):
             self.add_widget(self.especialidade_input)
             self.add_widget(Label(text="Empresa"))
             self.add_widget(self.empresa_input)
-        
+
         # Botão de finalizar
         if self.mode == "add" or self.mode == "edit":
             finalizar_btn = Button(text="Finalizar", on_release=self.finalizar)
@@ -265,7 +265,6 @@ class TelaUsuario(BoxLayout):
                     especialidade = self.especialidade_input.text,
                     empresa = self.empresa_input.text
                 )
-                print(novo_usuario.especialidade)
             app.usuarios.append(novo_usuario)
 
         elif self.mode == "edit":
@@ -278,7 +277,7 @@ class TelaUsuario(BoxLayout):
                     elif isinstance(usuario, PrestadorServico):
                         usuario.especialidade = self.especialidade_input
                         usuario.empresa = self.empresa_input
-    
+
         tela_inicial = app.root
         tela_inicial.atualizar_lista_usuarios()
 

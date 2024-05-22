@@ -24,7 +24,6 @@ class Connection:
         password = os.environ.get('DB_PASSWORD')
 
         connection_string = f'mysql+pymysql://{username}:{password}@{host}:{port}/{database}'
-        print(connection_string)
         return connection_string
 
     def connect(self):

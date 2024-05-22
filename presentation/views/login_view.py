@@ -1,7 +1,5 @@
 import PySimpleGUI as sg
 
-from application.controllers.session_controller import SessionController
-
 
 class LoginView:
     def open(self):
@@ -28,6 +26,3 @@ class LoginView:
 
     def error_popup(self, message):
         sg.popup_no_titlebar(message)
-
-    def __auth(self, email, password):
-        print(SessionController().autheticate(email, password))

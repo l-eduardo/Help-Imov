@@ -1,33 +1,39 @@
 import functools
 
+from domain.models.session import Session
+from infrastructure.repositories.administradores_repository import AdministradoresRepository
 from infrastructure.repositories.user_identity_repository import UserIdentityRepository
 
 
 class SessionController:
+    session : Session | None = None
     def __init__(self):
-        self.__session = {}
         self.__session_repository = UserIdentityRepository()
         pass
 
-    def get_new_session(self, id):
-        return self.__session
+    def get_new_session(self, id) -> None:
+        user_identity_infos = self.__session_repository.get_user_identity_by_id(id)
+
+        role = self.__session_repository.check_user_table(id)
+        is_root = False
+        is_admin = False
+
+        if role == "Administrador":
+            is_admin = True
+            is_root = AdministradoresRepository().is_root(id)
+
+        SessionController.session = Session(id, user_identity_infos.email, role, is_root, is_admin, True)
 
     def autheticate(self, email, password):
-        return self.__session_repository.get_user_by_login_infos(email, password)
+        return self.__session_repository.get_user_identity_by_login_infos(email, password)
 
-    def method_wrapper(func):
+    def inject_session_data(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            # Code to be executed before calling the original method
-            print("Executing code before the method call")
+            kwargs['session'] = SessionController.session
 
-            # Call the original method
             result = func(*args, **kwargs)
 
-            # Code to be executed after calling the original method
-            print("Executing code after the method call")
-
-            # Return the result
             return result
 
         return wrapper
