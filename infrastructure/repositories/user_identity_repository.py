@@ -16,7 +16,12 @@ class UserIdentityRepository(UserRepository):
 
     def check_user_table(self, id: UUID):
         with Connection() as connection:
-            return connection.session.execute(PureSqlQueries.check_id_in_tables(id)).first()[0]
+            query_result = connection.session.execute(PureSqlQueries.check_id_in_tables(id)).first()
+
+            if query_result == None:
+                return None
+
+            return query_result[0]
 
     def get_user_identity_by_login_infos(self, email: str, senha: str):
         with Connection() as connection:
