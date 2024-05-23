@@ -19,3 +19,9 @@ class VistoriasRepositories:
             connection.session.add(vistoria)
             connection.session.commit()
             return vistoria
+
+    def delete(self, id: UUID) -> None:
+        with Connection() as connection:
+            connection.session.query(Vistorias).filter(Vistorias.id == id).delete()
+
+
