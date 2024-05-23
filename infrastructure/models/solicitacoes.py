@@ -8,7 +8,7 @@ class Solicitacoes(Base):
     __tablename__ = 'SOLICITACOES'
 
     id = Column(String(36), primary_key=True, name='id')
-    id_contrato = Column(String(36), ForeignKey('CONTRATOS.id') ,name='id_contrato')
+    id_contrato = Column(String(36), ForeignKey('CONTRATOS.id') ,name='contrato_id')
     titulo = Column(String(36),name='titulo')
     descricao = Column(String(36),name='descricao')
     status = Column(String(36),name='status')

@@ -1,6 +1,7 @@
 from application.controllers.session_controller import SessionController
 from presentation.views.login_view import LoginView
-from application.controllers.controller_contrato import ContratoController
+from application.controllers.contrato_controller import ContratoController
+from application.controllers.solicitacao_controller import SolicitacaoController
 
 class MainController:
     def __init__(self):

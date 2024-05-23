@@ -4,8 +4,8 @@ from domain.models.ocorrencia import Ocorrencia
 if TYPE_CHECKING:
     from domain.models.imovel import Imovel
     from domain.models.vistoria import Vistoria
-    from domain.models.solicitacao import Solicitacao
     from domain.models.funcionario import Funcionario
+    from domain.models.solicitacao import Solicitacao
     from domain.models.locatario import Locatario
 from datetime import date
 from typing import List
@@ -120,3 +120,6 @@ class Contrato:
     @estaAtivo.setter
     def estaAtivo(self, value: bool):
         self._estaAtivo = value
+
+    def incluir_solicitacao(self, titulo, descricao, status):
+        self._solicitacoes.append(Solicitacao(titulo, descricao, status))

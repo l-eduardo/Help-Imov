@@ -14,4 +14,4 @@ class Locatarios(Base):
     nome = Column(String(50), nullable=False, name='nome')
     data_nascimento = Column(Date, nullable=False, name='data_nascimento')
 
-    contrato = relationship()
+    #contrato = relationship()

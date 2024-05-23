@@ -18,7 +18,7 @@ class ContratosOutputMapper:
             imovel_id=4,
             funcionario_criador_id = 4545,
             #vistoria_inicial=contrato._vistoria_inicial.id,
-            vistoria_inicial_id="12/05/2024",
+            vistoria_inicial_id=None,
             vistoria_final_id=None,
             #estaAtivo=contrato.estaAtivo
         )

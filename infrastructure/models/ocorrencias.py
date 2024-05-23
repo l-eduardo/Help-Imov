@@ -13,3 +13,4 @@ class Ocorrencias(Base):
     status = Column(String(36), name='status')
     prioridade = Column(String(36), name='prioridade')
     data_criacao = Column(String(36), name='data_criacao')
+    id_contrato = Column(String(36), name='id_contrato')
