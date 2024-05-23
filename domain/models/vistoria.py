@@ -1,6 +1,7 @@
 from typing import List
 import uuid
 from domain.models.contrato import Contrato
+from datetime import date
 
 
 class Vistoria:
@@ -9,21 +10,23 @@ class Vistoria:
                  contrato: Contrato,
                  e_contestacao: bool,
                  fechada: bool,
-                 imagens: List[List[bytes]],
-                 documento: List[bytes],
+                 anexos: List[List[bytes]],
+                 descricao: str,
                  id: uuid.UUID = uuid.uuid4()
-                 ) -> None:
+                 ):
         self._id = id
         self._vistoria = contra_vistoria
         self._contrato = contrato
+        self._dataCadastro = date.today()
         self._e_contestacao = e_contestacao
         self._fechada = fechada
-        self._imagens = imagens
-        self._documento = documento
+        self._anexos = anexos
+        self._descricao = descricao
 
     @property
     def id(self) -> uuid.UUID:
         return self._id
+
     @property
     def contra_vistoria(self) -> 'Vistoria':
         return self._vistoria
@@ -49,9 +52,25 @@ class Vistoria:
         self._fechada = value
 
     @property
-    def imagens(self) -> List[List[bytes]]:
-        return self._imagens
+    def anexos(self) -> List[List[bytes]]:
+        return self._anexos
+
+    @anexos.setter
+    def anexos(self, value: List[bytes]) -> None:
+        self._anexos = value
 
     @property
-    def documento(self) -> List[bytes]:
-        return self._documento
+    def descricao(self) -> str:
+        return self._descricao
+
+    @descricao.setter
+    def descricao(self, descricao: str):
+        self._descricao = descricao
+
+    @property
+    def dataCadastro(self) -> date:
+        return self._dataCadastro
+
+    @dataCadastro.setter
+    def dataCadastro(self, value: date):
+        self._dataCadastro = value
