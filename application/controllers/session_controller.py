@@ -1,5 +1,6 @@
 import functools
 
+from domain.exceptions.UserWithNoInfosException import UserWithNoInfosException
 from domain.models.session import Session
 from infrastructure.repositories.administradores_repository import AdministradoresRepository
 from infrastructure.repositories.user_identity_repository import UserIdentityRepository
@@ -15,6 +16,10 @@ class SessionController:
         user_identity_infos = self.__session_repository.get_user_identity_by_id(id)
 
         role = self.__session_repository.check_user_table(id)
+
+        if role == None:
+            raise UserWithNoInfosException()
+
         is_root = False
         is_admin = False
 

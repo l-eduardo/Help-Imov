@@ -1,4 +1,5 @@
 from application.controllers.session_controller import SessionController
+from infrastructure.repositories.contratos_repository import ContratosRepositories
 from presentation.views.login_view import LoginView
 from application.controllers.controller_contrato import ContratoController
 
@@ -22,7 +23,6 @@ class MainController:
                 break
             if autenticado:
                 self.__set_session(autenticado.id)
-                teste(autenticado.id)
                 break
 
             self.__login_view.error_popup("Email ou senha incorretos")
