@@ -1,11 +1,33 @@
 from uuid import UUID
+
+from sqlalchemy.orm import joinedload
+
 from infrastructure.configs.connection import Connection
 from infrastructure.models.contratos import Contratos
+from infrastructure.mappers.ContratoInput import ContratoInputMapper
+from infrastructure.models.imoveis import Imoveis
+from infrastructure.models.locatarios import Locatarios
+from infrastructure.models.ocorrencias import Ocorrencias
+from infrastructure.models.solicitacoes import Solicitacoes
+
+
+from infrastructure.models.ocorrencias import Ocorrencias
 
 class ContratosRepositories:
     def get_all(self) -> list[Contratos]:
         with Connection() as connection:
-            return connection.session.query(Contratos).all()
+            result = connection.session.query(Contratos).all()
+            result_mapped = [ContratoInputMapper.map_contrato(x) for x in result]
+
+            return result_mapped
+
+    def get_all_with_ocorrencias(self) -> list[Contratos]:
+        with Connection() as connection:
+
+            resultado = connection.session.query(Contratos).all()
+            print([x.__str__() for x in resultado])
+
+
 
     def get_by_id(self, id: UUID) -> Contratos:
         with Connection() as connection:
@@ -24,4 +46,5 @@ class ContratosRepositories:
             connection.session.add(contrato)
             connection.session.commit()
             return contrato
+
 

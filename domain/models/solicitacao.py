@@ -2,25 +2,20 @@ from datetime import date
 import uuid
 
 from domain.enums.status import Status
-from domain.enums.prioridade import Prioridade
-from domain.models.contrato import Contrato
 
 
 class Solicitacao:
     def __init__(self,
                  titulo: str,
                  descricao: str,
-                 contrato: Contrato,
                  status: Status = Status.ABERTO,
-                 prioridade: Prioridade = Prioridade.BAIXA,
+                 data_criacao: date = date.today(),
                  id: uuid.UUID = uuid.uuid4()):
         self._id: uuid.UUID = id
         self._titulo: str = titulo
         self._descricao: str = descricao
         self._status: Status = status
-        self._prioridade: Prioridade = prioridade
-        self._data_criacao: date = date.today()
-        self._contrato: Contrato = contrato
+        self._data_criacao: date = data_criacao
 
     @property
     def id(self) -> uuid.UUID:
@@ -51,17 +46,6 @@ class Solicitacao:
         self._status = value
 
     @property
-    def prioridade(self) -> Prioridade:
-        return self._prioridade
-
-    @prioridade.setter
-    def prioridade(self, value: Prioridade):
-        self._prioridade = value
-
-    @property
     def data_criacao(self) -> date:
         return self._data_criacao
 
-    @property
-    def contrato(self) -> 'Contrato':
-        return self._contrato

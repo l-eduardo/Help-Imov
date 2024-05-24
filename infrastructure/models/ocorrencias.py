@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Date, ForeignKey, String
 from infrastructure.models import Base
+from sqlalchemy.orm import relationship, Mapped
 
 
-#Base = declarative_base()
 
 class Ocorrencias(Base):
     __tablename__ = 'OCORRENCIAS'
@@ -11,5 +11,6 @@ class Ocorrencias(Base):
     titulo = Column(String(36), name='titulo')
     descricao = Column(String(36), name='descricao')
     status = Column(String(36), name='status')
-    prioridade = Column(String(36), name='prioridade')
     data_criacao = Column(String(36), name='data_criacao')
+
+    contrato_id = Column(String(36), ForeignKey('CONTRATOS.id'), name='id_contrato')

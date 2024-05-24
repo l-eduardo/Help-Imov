@@ -2,7 +2,9 @@ from sqlalchemy import Column, Date, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+from infrastructure.models import Base
+
+# Base = declarative_base()
 
 class UsuariosIdentityInfos(Base):
     __tablename__ = 'USUARIOS_IDENTITY_INFOS'

@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING
 
 from domain.models.ocorrencia import Ocorrencia
+from domain.models.solicitacao import Solicitacao
+from domain.enums.status import Status
 if TYPE_CHECKING:
     from domain.models.imovel import Imovel
     from domain.models.vistoria import Vistoria
-    from domain.models.solicitacao import Solicitacao
     from domain.models.funcionario import Funcionario
     from domain.models.locatario import Locatario
 from datetime import date
@@ -17,11 +18,10 @@ class Contrato:
     dataInicio: date,
     locatario: 'Locatario',
     imovel: 'Imovel',
-    estaAtivo: bool,
+    estaAtivo: bool = True,
     id: uuid.UUID = uuid.uuid4(),
     dataFim: 'date | None' = None,
     vistoria_inicial: 'Vistoria | None' = None,
-    criador: 'Funcionario | None' = None
     ):
         self._id = id
         self._dataInicio = dataInicio
@@ -29,12 +29,15 @@ class Contrato:
         self._dataCadastro = date.today()
         self._locatario = locatario
         self._imovel = imovel
-        self._criador = criador
         self._ocorrencias = []
         self._solicitacoes = []
         self._vistoria_inicial = vistoria_inicial
         self._vistoria_final = None
         self._estaAtivo = estaAtivo
+
+    @property
+    def solicitacoes(self):
+        return self._solicitacoes
 
     @property
     def id(self) -> uuid.UUID:
@@ -82,14 +85,6 @@ class Contrato:
         self._imovel = value
 
     @property
-    def criador(self) -> 'Funcionario':
-        return self._criador
-
-    @criador.setter
-    def criador(self, value: 'Funcionario'):
-        self._criador = value
-
-    @property
     def ocorrencias(self) -> 'List[Ocorrencia]':
         return self._ocorrencias
 
@@ -120,3 +115,19 @@ class Contrato:
     @estaAtivo.setter
     def estaAtivo(self, value: bool):
         self._estaAtivo = value
+
+    def incluir_solicitacao(self,
+                            titulo: str,
+                            descricao: str,
+                            status: Status = Status.ABERTO,
+                            data_criacao: date = date.today(),
+                            id: uuid.UUID = uuid.uuid4()):
+        self._solicitacoes.append(Solicitacao(titulo, descricao, status, data_criacao=data_criacao, id=id))
+
+    def incluir_ocorrencia(self,
+                           titulo: str,
+                           descricao: str,
+                           status: Status = Status.ABERTO,
+                           data_criacao: date = date.today(),
+                           id: uuid.UUID = uuid.uuid4()):
+        self._ocorrencias.append(Ocorrencia(titulo, descricao, status, data_criacao=data_criacao, id=id))
