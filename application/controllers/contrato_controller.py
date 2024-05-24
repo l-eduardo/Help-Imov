@@ -18,7 +18,7 @@ class ContratoController:
         self.__tela_contrato = TelaContrato(self)
         self.__tela_solicitacao = TelaSolicitacao(self)
         self.__controlador_sistema = controlador_sistema
-        self.contratos = self.obter_contratos_do_banco()
+        self.contratos = []
         #self.solicitacoes = self.obter_solicitacoes_do_banco()
         #self.ocorrencias = self.obter_ocorrencias_do_banco()
 
@@ -36,11 +36,13 @@ class ContratoController:
         #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
 
     def listar_contrato(self):
+        self.contratos = self.obter_contratos_do_banco()
+
         contratos_listados = []
         for contrato in self.contratos:
-            contratos_listados.append({"idContrato": contrato.id,"dataInicio": contrato.data_inicio,
-                                       "dataFim": contrato.data_inicio,"locatario": contrato.locatario_id,
-                                       "imovel": contrato.imovel_id})
+            contratos_listados.append({"idContrato": contrato.id,"dataInicio": contrato.dataInicio,
+                                       "dataFim": contrato.dataFim,"locatario": contrato.locatario.id,
+                                       "imovel": contrato.imovel.id})
         if contratos_listados:
             contrato_selecionado = self.__tela_contrato.mostra_contratos(contratos_listados)
             contrato_instancia = None
@@ -57,25 +59,13 @@ class ContratoController:
         print(contrato_selecionado)
         self.__tela_contrato.mostra_contrato(contrato_selecionado)
 
-    def obter_contratos_do_banco(self):
+    def obter_contratos_do_banco(self) -> list[Contrato]:
         contratos = self.__contratos_repository.get_all()
-        solicitacoes = self.__solicitacao_repository.get_all()
-        ocorrencias = self.__ocorrencia_repository.get_all()
 
         '''instancia_contratos = []
         for contrato in contratos:
             instancia_contratos.append(ContratoInputMapper.map_contrato(contrato))'''
         return contratos
-
-
-
-    def obter_solicitacoes_do_banco(self):
-        solicitacoes = self.__solicitacao_repository.get_all()
-        return solicitacoes
-
-    def obter_ocorrencias_do_banco(self):
-        ocorrencias = self.__ocorrencia_repository.get_all()
-        return ocorrencias
 
     def get_id_contratos(self):
         return [contrato.id for contrato in self.contratos]
@@ -88,18 +78,24 @@ class ContratoController:
                                                dados_solicitacao["status"]])
 
 
-    def listar_relacionados_contrato(self, contrato_instancia):
-        #contrato vai ser passado pela view
-        solicitacoes_ocorrencias = []
-        vistoria_inicial = None
-        contra_vistoria = None
-        '''for solicitacao in contrato_instancia.solicitacoes:
-            #if solicitacao.id_contrato == contrato.id:
-            solicitacoes_ocorrencias.append({"tipo": solicitacao.__class__.__name__, "titulo": solicitacao.titulo,
-                                            "status": solicitacao.status, "dataCriacao": solicitacao.data_criacao})'''
+    def listar_relacionados_contrato(self, contrato_instancia: Contrato):
+        if contrato_instancia is None:
+            self.__tela_contrato.mostra_msg("Nenhum contrato selecionado")
+            return
 
-        '''for ocorrencia in self.ocorrencias:
-            solicitacoes_ocorrencias.append({"tipo": ocorrencia.__class__.__name__, "titulo": ocorrencia.titulo,
-                                            "status": ocorrencia.status, "dataCriacao": ocorrencia.data_criacao})'''
-        self.__tela_contrato.mostra_relacionados_contrato(vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias,
+        ocorrencias_para_tela = []
+        for ocorrencia in contrato_instancia.ocorrencias:
+            print(ocorrencia)
+            ocorrencias_para_tela.append({"tipo": "Ocorrência", "titulo": ocorrencia.titulo,
+                                          "status": ocorrencia.status, "dataCriacao": ocorrencia.data_criacao})
+
+        solicitacoes_para_tela = []
+        for solicitacao in contrato_instancia.solicitacoes:
+            solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
+                                          "status": solicitacao.status, "dataCriacao": solicitacao.data_criacao})
+
+        solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
+
+        #TODO: Implementar a passagem das vistorias
+        self.__tela_contrato.mostra_relacionados_contrato([], [], solicitacoes_ocorrencias,
                                                           contrato_instancia)

@@ -8,45 +8,37 @@ from domain.models.imovel import Imovel
 from domain.models.locatario import Locatario
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
+from infrastructure.models.contratos import Contratos
 from infrastructure.models.ocorrencias import Ocorrencias
 from infrastructure.models.solicitacoes import Solicitacoes
 
 
 class ContratoInputMapper:
     @staticmethod
-    def map_contrato(contrato, solicitacoes: List[Solicitacoes], locatario: Locatario, imovel: Imovel,
-                     ocorrencias: List[Ocorrencias], vistorias):
-        lista_solicitacoes = []
-        lista_ocorrencias = []
-        for solicitacao in solicitacoes:
-            lista_solicitacoes.append(Solicitacao(id=UUID(solicitacao.id),
-                                                  titulo=solicitacao.titulo,
-                                                  descricao=solicitacao.descricao,
-                                                  status=Status(solicitacao.status),
-                                                  data_criacao=datetime.strptime(solicitacao.data_criacao, "%d/%m/%Y")))
+    def map_contrato(contrato_from_db: Contratos):
+        contrato = Contrato(contrato_from_db.data_inicio,
+        locatario=contrato_from_db.locatario,
+        imovel=contrato_from_db.imovel,
+        estaAtivo=contrato_from_db.esta_ativo,
+        # TODO: Vistoria inicial, terminar
+        vistoria_inicial=None,
+        dataFim=contrato_from_db.data_fim,
+        id=UUID(contrato_from_db.id))
 
-        for ocorrencia in ocorrencias:
-            lista_ocorrencias.append(Ocorrencia(id=UUID(ocorrencia.id),
-                                                titulo=ocorrencia.titulo,
-                                                descricao=ocorrencia.descricao,
-                                                status=Status(ocorrencia.status),
-                                                data_criacao=datetime.strptime(ocorrencia.data_criacao, "%d/%m/%Y")))
+        for solicitacao in contrato_from_db.solicitacoes    :
+            contrato.incluir_solicitacao(
+                titulo=solicitacao.titulo,
+                descricao=solicitacao.descricao,
+                status=solicitacao.status,
+                data_criacao=solicitacao.data_criacao,
+                id=UUID(solicitacao.id))
 
-        locatario = Locatario(email=locatario.email,
-                              senha=locatario.senha,
-                              nome=locatario.nome,
-                              data_nascimento=locatario.data_nascimento,
-                              id=locatario.id)
-        imovel = Imovel(id=imovel.id,
-                        codigo=imovel.codigo,
-                        endereco=imovel.endereco,
-                        imagens=imovel.imagens,)
+        for ocorrencia in contrato_from_db.ocorrencias:
+            contrato.incluir_ocorrencia(
+                titulo=ocorrencia.titulo,
+                descricao=ocorrencia.descricao,
+                status=ocorrencia.status,
+                data_criacao=ocorrencia.data_criacao,
+                id=UUID(ocorrencia.id))
 
-        contrato = Contrato(id=UUID(contrato.id),
-                            dataInicio=contrato.data_inicio,
-                            locatario=locatario,
-                            imovel=imovel,
-                            estaAtivo=contrato.estaAtivo,
-                            vistoria_inicial=contrato.vistoria_inicial,
-                            criador=contrato.criador,
-                            dataFim=contrato.data_fim,)
+        return contrato

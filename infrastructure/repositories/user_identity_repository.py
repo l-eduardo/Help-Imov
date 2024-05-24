@@ -29,9 +29,6 @@ class UserIdentityRepository(UserRepository):
                 .filter(UsuariosIdentityInfos.email == email, UsuariosIdentityInfos.senha == senha)\
                 .first()
 
-            connection.session.query(UsuariosIdentityInfos)\
-            .options(joinedload(UsuariosIdentityInfos.administradores))\
-
             return user_login_infos
 
     def get_user_identity_by_id(self, user_id: UUID):

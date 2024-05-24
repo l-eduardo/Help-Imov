@@ -14,14 +14,12 @@ class Ocorrencia:
     titulo: str,
     descricao: str,
     status: Status = Status.ABERTO,
-    #prioridade: Prioridade = Prioridade.BAIXA,
     data_criacao: date = date.today(),
     id: uuid.UUID = uuid.uuid4()):
         self._id: uuid.UUID = id
         self._titulo: str = titulo
         self._descricao: str = descricao
         self._status: Status = status
-        #self._prioridade: Prioridade = prioridade
         self._data_criacao: date = data_criacao
         self._prestadores_servico: List[PrestadorServico] = []
 

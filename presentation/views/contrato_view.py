@@ -44,6 +44,7 @@ class TelaContrato:
             return None
 
     def mostra_contratos(self, contratos_listados):
+
         # Define the table header
         header = ["ID Contrato", "Data Início", "Data Fim", "Locatário", "Imóvel"]
 
@@ -90,6 +91,7 @@ class TelaContrato:
             if event == "Selecionar":
                 self.window.close()
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+                print(contrato_selecionado)
                 return contrato_selecionado
         #self.window.close()
 

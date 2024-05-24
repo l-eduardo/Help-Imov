@@ -5,8 +5,6 @@ from infrastructure.models import Base
 from infrastructure.models.usuarios_identity_infos import UsuariosIdentityInfos
 
 
-#Base = declarative_base()
-
 class Locatarios(Base):
     __tablename__ = 'LOCATARIOS'
 

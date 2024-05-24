@@ -24,6 +24,7 @@ class MainController:
                 break
             if autenticado:
                 self.__set_session(autenticado.id)
+                self.__contrato_controller.listar_contrato()
                 break
 
             self.__login_view.error_popup("Email ou senha incorretos")

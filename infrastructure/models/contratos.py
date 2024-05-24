@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, ForeignKey, String
+from sqlalchemy import Column, Date, ForeignKey, String, Boolean
 from sqlalchemy.orm import relationship, Mapped
 from infrastructure.models import Base
 from infrastructure.models.ocorrencias import Ocorrencias
@@ -16,6 +16,7 @@ class Contratos(Base):
     data_inicio = Column(Date, name='data_inicio')
     data_fim = Column(Date, name='data_fim')
     data_cadastro = Column(Date, name='data_cadastro')
+    esta_ativo = Column(Boolean, name='esta_ativo')
 
     imovel_id = Column(String(36), ForeignKey('IMOVEIS.id'), name='imovel_id')
     imovel = relationship('Imoveis')
