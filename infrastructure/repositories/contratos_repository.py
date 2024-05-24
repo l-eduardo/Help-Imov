@@ -13,17 +13,16 @@ from infrastructure.models.solicitacoes import Solicitacoes
 class ContratosRepositories:
     def get_all(self) -> list[Contratos]:
         with Connection() as connection:
-            self.get_todos_contratos_completos()
             return connection.session.query(Contratos).all()
 
 
-    def get_todos_contratos_completos(self):
+    '''def get_todos_contratos_completos(self):
         with Connection() as connection:
-            '''resultado = connection.session.query(Contratos, Solicitacoes, Ocorrencias, Locatarios, Imoveis)\
+            resultado = connection.session.query(Contratos, Solicitacoes, Ocorrencias, Locatarios, Imoveis)\
             .join(Solicitacoes, Contratos.id == Solicitacoes.id_contrato, isouter=False)\
             .join(Ocorrencias, Contratos.id == Ocorrencias.id_contrato, isouter=True)\
             .join(Locatarios, Contratos.locatario_id == Locatarios.id, isouter=True)\
-            .join(Imoveis, Contratos.imovel_id == Imoveis.id, isouter=True).all()'''
+            .join(Imoveis, Contratos.imovel_id == Imoveis.id, isouter=True).all()
 
             resultado = connection.session.query(Contratos).options(
                 joinedload(Contratos.locatario_id),
@@ -31,7 +30,7 @@ class ContratosRepositories:
                 joinedload(Contratos.ocorrencias),
                 joinedload(Contratos.imovel_id)
             ).all()
-            print(resultado)
+            print(resultado)'''
 
 
     def get_by_id(self, id: UUID) -> Contratos:

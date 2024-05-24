@@ -74,7 +74,7 @@ class TelaContrato:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED or event == "Voltar":
                 self.window.close()
-                exit(),'''REVISAAAAAAAAAARRRR DPS E ADICIONAR A TELA PRINCIPAL'''
+                exit(), #revisar e adicionar tela principal do sistema
 
             if event == "Visualizar":
                 if values["-TABELA-"]:
@@ -88,6 +88,7 @@ class TelaContrato:
                 self.window.close()
                 return self.__controlador.inclui_contrato()
             if event == "Selecionar":
+                self.window.close()
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
                 return contrato_selecionado
         #self.window.close()
@@ -110,13 +111,27 @@ class TelaContrato:
                 window.close()
                 self.__controlador.listar_contrato()
 
-    def mostra_relacionados_contrato(self, vistoria_inicial, contra_visotria, solicitacoes_ocorrencias):
+    def mostra_relacionados_contrato(self, vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias, contrato_instancia):
 
         header = ["Tipo", "Título", "Status", "Data Criação"]
-
         # Convert the list of dictionaries into a list of lists for the table
         table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"],] for dado in solicitacoes_ocorrencias]
 
+        vistoria_header = ["Descrição", "Data"]
+        vistoria_data = [
+            ["Vistoria Inicial", vistoria_inicial['data'] if vistoria_inicial else 'Não disponível'],
+            ["Contra-Vistoria", contra_vistoria['data'] if contra_vistoria else 'Não disponível']
+        ]
+
+        vistorias_table = sg.Table(vistoria_data, headings=vistoria_header,
+                                   auto_size_columns=True,
+                                   display_row_numbers=False,
+                                   justification='center', key='-VISTORIAS-TABLE-',
+                                   num_rows=2,
+                                   selected_row_colors='#191970 on #add8e6',
+                                   enable_events=False,
+                                   row_height=25,
+                                   pad=(10, 10))
         # Table layout
         tabela = sg.Table(table_data, headings=header,
                           auto_size_columns=True,
@@ -130,13 +145,26 @@ class TelaContrato:
                           select_mode=sg.TABLE_SELECT_MODE_BROWSE,
                           vertical_scroll_only=False)
         # Window layout
-        layout = [[tabela],
-                  [sg.Button("Voltar"), sg.Button("Adicionar solicitação"), sg.Button("Adicionar ocorrência"),
-                   sg.Button("Selecionar")],]
-
+        layout = [
+            [vistorias_table],
+            [tabela],
+            [sg.Button("Voltar"), sg.Button("Adicionar solicitação"), sg.Button("Adicionar ocorrência"),
+             sg.Button("Selecionar")]
+        ]
         # Create the window
-        self.window = sg.Window("Contratos", layout, size=(900, 300), resizable=True)
+        self.window = sg.Window("Relacionados do contrato", layout, size=(900, 300), resizable=True)
 
+        while True:
+            event, values = self.window.read()
+            if event == "Adicionar solicitação":
+                self.window.close()
+                return self.__controlador.adiciona_solicitacao(contrato_instancia)
+            if event == "Voltar":
+                self.window.close()
+                return
+            if event == "Selecionar":
+                '''verificar se é da tabela de vistorias ou tabela de solicitacoes/ocorrencias'''
+        self.window.close()
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Contrato', button_justification='left')

@@ -62,12 +62,9 @@ class ContratoController:
         solicitacoes = self.__solicitacao_repository.get_all()
         ocorrencias = self.__ocorrencia_repository.get_all()
 
-        instancia_contratos = []
-
+        '''instancia_contratos = []
         for contrato in contratos:
-            instancia_contratos.append(ContratoInputMapper.map_contrato(contrato))
-
-
+            instancia_contratos.append(ContratoInputMapper.map_contrato(contrato))'''
         return contratos
 
 
@@ -84,24 +81,25 @@ class ContratoController:
         return [contrato.id for contrato in self.contratos]
 
 
-    def adiciona_solicitacao(self):
-        contrato = self.__tela_contrato.pega_dados_contrato()
+    def adiciona_solicitacao(self, contrato_instancia):
+        contrato = contrato_instancia
         dados_solicitacao = self.__tela_solicitacao.pega_dados_solicitacao()
-        #contrato.
+        contrato_instancia.incluir_solicitacao(dados_solicitacao["titulo", dados_solicitacao["descricao"],
+                                               dados_solicitacao["status"]])
 
 
-    def listar_relacionados_contrato(self, contrato):
+    def listar_relacionados_contrato(self, contrato_instancia):
         #contrato vai ser passado pela view
-
         solicitacoes_ocorrencias = []
         vistoria_inicial = None
         contra_vistoria = None
-        for solicitacao in contrato.solicitacoes:
+        '''for solicitacao in contrato_instancia.solicitacoes:
             #if solicitacao.id_contrato == contrato.id:
             solicitacoes_ocorrencias.append({"tipo": solicitacao.__class__.__name__, "titulo": solicitacao.titulo,
-                                            "status": solicitacao.status, "dataCriacao": solicitacao.data_criacao})
+                                            "status": solicitacao.status, "dataCriacao": solicitacao.data_criacao})'''
 
-        for ocorrencia in self.ocorrencias:
+        '''for ocorrencia in self.ocorrencias:
             solicitacoes_ocorrencias.append({"tipo": ocorrencia.__class__.__name__, "titulo": ocorrencia.titulo,
-                                            "status": ocorrencia.status, "dataCriacao": ocorrencia.data_criacao})
-        self.__tela_contrato.mostra_relacionados_contrato(vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias)
+                                            "status": ocorrencia.status, "dataCriacao": ocorrencia.data_criacao})'''
+        self.__tela_contrato.mostra_relacionados_contrato(vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias,
+                                                          contrato_instancia)

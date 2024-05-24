@@ -37,6 +37,10 @@ class Contrato:
         self._estaAtivo = estaAtivo
 
     @property
+    def solicitacoes(self):
+        return self._solicitacoes
+
+    @property
     def id(self) -> uuid.UUID:
         return self._id
 
