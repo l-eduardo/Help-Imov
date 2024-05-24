@@ -14,14 +14,13 @@ class Ocorrencia:
     titulo: str,
     descricao: str,
     status: Status = Status.ABERTO,
-    prioridade: Prioridade = Prioridade.BAIXA,
+    data_criacao: date = date.today(),
     id: uuid.UUID = uuid.uuid4()):
         self._id: uuid.UUID = id
         self._titulo: str = titulo
         self._descricao: str = descricao
         self._status: Status = status
-        self._prioridade: Prioridade = prioridade
-        self._data_criacao: date = date.today()
+        self._data_criacao: date = data_criacao
         self._prestadores_servico: List[PrestadorServico] = []
 
     @property
@@ -51,14 +50,6 @@ class Ocorrencia:
     @status.setter
     def status(self, value: Status):
         self._status = value
-
-    @property
-    def prioridade(self) -> Prioridade:
-        return self._prioridade
-
-    @prioridade.setter
-    def prioridade(self, value: Prioridade):
-        self._prioridade = value
 
     @property
     def data_criacao(self) -> date:
