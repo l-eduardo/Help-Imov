@@ -18,3 +18,4 @@ class Locatarios(Base):
     user_identity = relationship('UsuariosIdentityInfos')
 
     contratos = relationship('Contratos', back_populates='locatario', cascade='all, delete-orphan')
+

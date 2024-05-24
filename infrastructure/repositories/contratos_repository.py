@@ -1,6 +1,14 @@
 from uuid import UUID
+
+from sqlalchemy.orm import joinedload
+
 from infrastructure.configs.connection import Connection
 from infrastructure.models.contratos import Contratos
+from infrastructure.models.imoveis import Imoveis
+from infrastructure.models.locatarios import Locatarios
+from infrastructure.models.ocorrencias import Ocorrencias
+from infrastructure.models.solicitacoes import Solicitacoes
+
 
 from infrastructure.models.ocorrencias import Ocorrencias
 
@@ -14,6 +22,7 @@ class ContratosRepositories:
 
             resultado = connection.session.query(Contratos).all()
             print([x.__str__() for x in resultado])
+
 
 
     def get_by_id(self, id: UUID) -> Contratos:
@@ -33,4 +42,5 @@ class ContratosRepositories:
             connection.session.add(contrato)
             connection.session.commit()
             return contrato
+
 
