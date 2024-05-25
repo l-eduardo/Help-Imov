@@ -71,7 +71,7 @@ class TelaContrato:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED or event == "Voltar":
                 self.window.close()
-                exit(), #revisar e adicionar tela principal do sistema
+                exit() #revisar e adicionar tela principal do sistema
             self.window.close()
             return event, values
 
@@ -88,7 +88,7 @@ class TelaContrato:
             [sg.Text("Imóvel:",  size=(22, 1), justification='left'), sg.Text(contrato["imovel"])],
             [sg.Button("Voltar")]]
 
-        window = sg.Window('Cadastro de Contrato', layout, element_justification='center',
+        window = sg.Window('Dados Contrato', layout, element_justification='center',
                            size=(500, 400), font=('Arial', 18, 'bold'))
         while True:
             event, values = window.read()
@@ -140,7 +140,7 @@ class TelaContrato:
         layout = [
             [vistorias_table],
             [tabela],
-            [sg.Button("Voltar"), sg.Button("Adicionar solicitação"), sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
+            [sg.Button("Voltar"), sg.Button("Adicionar solicitação", key="add_solicitacao"), sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
              sg.Button("Selecionar")]
         ]
         # Create the window

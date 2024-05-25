@@ -38,9 +38,6 @@ class Contrato:
         self._vistoria_final = None
         self._estaAtivo = estaAtivo
 
-    @property
-    def solicitacoes(self):
-        return self._solicitacoes
 
     @property
     def id(self) -> uuid.UUID:

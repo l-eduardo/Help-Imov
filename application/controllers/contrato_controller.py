@@ -1,9 +1,10 @@
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
-from presentation.views.solicitacao_view import TelaSolicitacao
+from presentation.views.solicitacao_view import SolicitacaoView
 from domain.models.contrato import Contrato
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
+from infrastructure.repositories.solicitacoes_repository import SolicitacoesRepository
 from infrastructure.mappers.ContratosOutput import ContratosOutputMapper
 import PySimpleGUI as sg
 
@@ -13,9 +14,10 @@ class ContratoController:
 
         self.__contratos_repository = ContratosRepositories()
         self.__ocorrencia_repository = OcorrenciasRepository()
+        self.__solicitacao_repository = SolicitacoesRepository()
 
         self.__tela_contrato = TelaContrato(self)
-        self.__tela_solicitacao = TelaSolicitacao(self)
+        self.__solicitacao_view= SolicitacaoView(self)
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
 
         self.contratos = []
@@ -59,19 +61,15 @@ class ContratoController:
                         contrato_instancia = contrato
                         break
                 self.listar_relacionados_contrato(contrato_instancia)
-
                 return contrato_selecionado
-
-
-
 
 
     def selecionar_contrato(self, contrato_selecionado):
         self.__tela_contrato.mostra_contrato(contrato_selecionado)
 
+
     def obter_contratos_do_banco(self) -> list[Contrato]:
         contratos = self.__contratos_repository.get_all()
-
         return contratos
 
     def get_id_contratos(self):
@@ -89,10 +87,11 @@ class ContratoController:
         solicitacoes_para_tela = []
         for solicitacao in contrato_instancia.solicitacoes:
             solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
-                                          "status": solicitacao.status, "dataCriacao": solicitacao.data_criacao})
-
+                                          "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao})
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
+
         #TODO: Implementar a passagem das vistorias
+
 
 
         if solicitacoes_ocorrencias:
@@ -111,12 +110,12 @@ class ContratoController:
                                                     contrato_id=contrato_instancia.id)
 
         if events == "add_solicitacao":
-            event, values = self.__tela_solicitacao.vw_nova_solicitacao()
-
-            if event == "Salvar":
+            event, values = self.__solicitacao_view.pega_dados_solicitacao()
+            if event == "Registrar":
                 contrato_instancia.incluir_solicitacao(values["titulo"], values["descricao"])
-                #self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes()[-1],
-                                                   # solicitacao=contrato_instancia.id)
+                self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
+                                                     contrato_id=contrato_instancia.id)
+
         if events == "Voltar":
             self.listar_contrato()
         if events == sg.WIN_CLOSED:
