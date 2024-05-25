@@ -20,9 +20,8 @@ class ContratoController:
         self.__solicitacao_repository = SolicitacoesRepository()
 
         self.__tela_contrato = TelaContrato(self)
-        self.__solicitacao_view= SolicitacaoView(self)
+        self.__solicitacao_view = SolicitacaoView(self)
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
-
         self.contratos = []
 
 
@@ -46,26 +45,23 @@ class ContratoController:
             contratos_listados.append({"idContrato": contrato.id, "dataInicio": contrato.dataInicio,
                                        "dataFim": contrato.dataFim, "locatario": contrato.locatario.id,
                                        "imovel": contrato.imovel.endereco})
-        if contratos_listados:
-            event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
-
-            if event == "Visualizar":
-                if values["-TABELA-"]:
-                    contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                    self.selecionar_contrato(contrato_selecionado)
-                else:
-                    sg.popup("Nenhum contrato selecionado")
-            if event == "Adicionar":
-                self.inclui_contrato()
-            if event == "Selecionar":
+        event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
+        if event == "Visualizar":
+            if values["-TABELA-"]:
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                for contrato in self.contratos:
-                    if contrato_selecionado['idContrato'] == contrato.id:
-                        contrato_instancia = contrato
-                        break
-                self.listar_relacionados_contrato(contrato_instancia)
-                return contrato_selecionado
-
+                self.selecionar_contrato(contrato_selecionado)
+            else:
+                sg.popup("Nenhum contrato selecionado")
+        if event == "Adicionar":
+            self.inclui_contrato()
+        if event == "Selecionar":
+            contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+            for contrato in self.contratos:
+                if contrato_selecionado['idContrato'] == contrato.id:
+                    contrato_instancia = contrato
+                    break
+            self.listar_relacionados_contrato(contrato_instancia)
+            return contrato_selecionado
 
     def selecionar_contrato(self, contrato_selecionado):
         self.__tela_contrato.mostra_contrato(contrato_selecionado)
