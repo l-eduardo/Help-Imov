@@ -10,10 +10,13 @@ class Vistoria:
                  contrato: Contrato,
                  e_contestacao: bool,
                  fechada: bool,
-                 anexos: List[List[bytes]],
-                 descricao: str,
-                 id: uuid.UUID = uuid.uuid4()
-                 ):
+                 imagens: List[List[bytes]],
+                 documento: List[bytes],
+                 id: uuid.UUID = None
+                 ) -> None:
+        if id is None:
+            id = uuid.uuid4()
+
         self._id = id
         self._vistoria = contra_vistoria
         self._contrato = contrato

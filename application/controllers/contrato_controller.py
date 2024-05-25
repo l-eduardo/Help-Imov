@@ -1,31 +1,26 @@
-from datetime import datetime
-
-from domain.models import contrato
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import TelaSolicitacao
-from presentation.views.vistoria_view import TelaVistoria
 from domain.models.contrato import Contrato
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
-# from infrastructure.repositories.vistorias_repository import VistoriasRepository
 from infrastructure.mappers.ContratosOutput import ContratosOutputMapper
 import PySimpleGUI as sg
 
 class ContratoController:
     def __init__(self, controlador_sistema):
         self.__controlador_sistema = controlador_sistema
+        self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
         self.__ocorrencia_repository = OcorrenciasRepository()
+        self.__solicitacao_repository = SolicitacoesRepository()
+
         self.__tela_contrato = TelaContrato(self)
-        self.__tela_solicitacao = TelaSolicitacao(self)
-        self.__tela_vistoria = TelaVistoria(self)
+        self.__solicitacao_view= SolicitacaoView(self)
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
 
         self.contratos = []
-        #self.solicitacoes = self.obter_solicitacoes_do_banco()
-        #self.ocorrencias = self.obter_ocorrencias_do_banco()
 
 
     def inclui_contrato(self):
@@ -66,19 +61,15 @@ class ContratoController:
                         contrato_instancia = contrato
                         break
                 self.listar_relacionados_contrato(contrato_instancia)
-
                 return contrato_selecionado
-
-
-
 
 
     def selecionar_contrato(self, contrato_selecionado):
         self.__tela_contrato.mostra_contrato(contrato_selecionado)
 
+
     def obter_contratos_do_banco(self) -> list[Contrato]:
         contratos = self.__contratos_repository.get_all()
-
         return contratos
 
     def get_id_contratos(self):
@@ -96,11 +87,11 @@ class ContratoController:
         solicitacoes_para_tela = []
         for solicitacao in contrato_instancia.solicitacoes:
             solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
-                                           "status": solicitacao.status, "dataCriacao": solicitacao.data_criacao})
+                                          "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao})
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
-        #TODO: Implementar a passagem das vistorias
 
+        #TODO: Implementar a passagem das vistorias
 
         if solicitacoes_ocorrencias:
             events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [], solicitacoes_ocorrencias,
@@ -116,21 +107,41 @@ class ContratoController:
                 contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"])
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
-
+        print(events)
+        print(values)
         if events == "add_solicitacao":
-            event, values = self.__tela_solicitacao.vw_nova_solicitacao()
-
-            if event == "Salvar":
+            event, values = self.__solicitacao_view.pega_dados_solicitacao()
+            if event == "Registrar":
                 contrato_instancia.incluir_solicitacao(values["titulo"], values["descricao"])
-                #self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes()[-1],
-                                                   # solicitacao=contrato_instancia.id)
+                self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
+                                                     contrato_id=contrato_instancia.id)
+
+        if events == "-VISTORIAS-TABLE--DOUBLE-CLICK-":
+            linha_selecionada = values['-VISTORIAS-TABLE-'][0] if values['-VISTORIAS-TABLE-'] else None
+            if linha_selecionada is not None:
+                descricao = vistoria_data[linha_selecionada][0]
+                if descricao == "Vistoria-Inicial":
+                    self.__controlador.mostra_vistoria(vistoria_inicial)
+                elif descricao == "Contra-Vistoria":
+                    if contra_vistoria:
+                        self.__controlador.mostra_vistoria(contra_vistoria)
+                    else:
+                        criar_contra_vistoria = sg.popup(
+                            "Não existe Contra-Vistoria cadastrada",
+                            title="Aviso",
+                            custom_text=("Criar", "Fechar")
+                        )
+                        if criar_contra_vistoria == "Criar":
+                            self.__controlador.adiciona_vistoria(contrato_instancia)
+
+
+
+
         if events == "Voltar":
             self.listar_contrato()
         if events == sg.WIN_CLOSED:
             return
         self.listar_relacionados_contrato(contrato_instancia)
-
-
 
     def adiciona_vistoria(self, contrato_instancia):
         contrato = contrato_instancia
@@ -143,6 +154,7 @@ class ContratoController:
     def mostra_vistoria(self, vistoria):
         print(vistoria)
         self.__tela_vistoria.mostra_vistoria(vistoria)
+
     def valida_prazo_vistoria(self, vistoria):
         if vistoria is None:
             return False
