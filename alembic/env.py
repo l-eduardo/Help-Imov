@@ -13,6 +13,8 @@ from infrastructure.models import Base,\
                                   usuarios_ocorrencias,\
                                   vistorias
 
+from infrastructure.configs.connection import Connection
+
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -53,7 +55,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    # url = config.get_main_option("sqlalchemy.url")
+    url = Connection.get_connection_string()
     context.configure(
         url=url,
         target_metadata=target_metadata,
