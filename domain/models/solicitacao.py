@@ -9,8 +9,13 @@ class Solicitacao:
                  titulo: str,
                  descricao: str,
                  status: Status = Status.ABERTO,
-                 data_criacao: date = date.today(),
-                 id: uuid.UUID = uuid.uuid4()):
+                 data_criacao: date = None,
+                 id: uuid.UUID = None):
+        if id is None:
+            id = uuid.uuid4()
+        if data_criacao is None:
+            data_criacao = date.today()
+
         self._id: uuid.UUID = id
         self._titulo: str = titulo
         self._descricao: str = descricao

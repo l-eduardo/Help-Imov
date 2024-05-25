@@ -1,15 +1,11 @@
-from domain.models import contrato
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import TelaSolicitacao
 from domain.models.contrato import Contrato
 from infrastructure.repositories.contratos_repository import ContratosRepositories
-from infrastructure.repositories.solicitacoes_repository import SolicitacoesRepository
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
 from infrastructure.mappers.ContratosOutput import ContratosOutputMapper
-from infrastructure.mappers.ContratoInput import ContratoInputMapper
-from uuid import UUID
-
+import PySimpleGUI as sg
 
 class ContratoController:
     def __init__(self, controlador_sistema):
@@ -100,6 +96,8 @@ class ContratoController:
                 contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"])
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
+        if events == sg.WIN_CLOSED:
+            return
 
         self.listar_relacionados_contrato(contrato_instancia)
 

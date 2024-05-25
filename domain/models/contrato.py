@@ -19,10 +19,13 @@ class Contrato:
     locatario: 'Locatario',
     imovel: 'Imovel',
     estaAtivo: bool = True,
-    id: uuid.UUID = uuid.uuid4(),
+    id: uuid.UUID = None,
     dataFim: 'date | None' = None,
     vistoria_inicial: 'Vistoria | None' = None,
     ):
+        if id is None:
+            id = uuid.uuid4()
+
         self._id = id
         self._dataInicio = dataInicio
         self._dataFim = dataFim
@@ -120,14 +123,25 @@ class Contrato:
                             titulo: str,
                             descricao: str,
                             status: Status = Status.ABERTO,
-                            data_criacao: date = date.today(),
-                            id: uuid.UUID = uuid.uuid4()):
+                            data_criacao: date = None,
+                            id: uuid.UUID = None):
+        if id is None:
+            id = uuid.uuid4()
+        if data_criacao is None:
+            data_criacao = date.today()
+
         self._solicitacoes.append(Solicitacao(titulo, descricao, status, data_criacao=data_criacao, id=id))
 
     def incluir_ocorrencia(self,
                            titulo: str,
                            descricao: str,
                            status: Status = Status.ABERTO,
-                           data_criacao: date = date.today(),
-                           id: uuid.UUID = uuid.uuid4()):
+                           data_criacao: date = None,
+                           id: uuid.UUID = None):
+
+        if id is None:
+            id = uuid.uuid4()
+        if data_criacao is None:
+            data_criacao = date.today()
+
         self._ocorrencias.append(Ocorrencia(titulo, descricao, status, data_criacao=data_criacao, id=id))

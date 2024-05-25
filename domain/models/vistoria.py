@@ -11,8 +11,11 @@ class Vistoria:
                  fechada: bool,
                  imagens: List[List[bytes]],
                  documento: List[bytes],
-                 id: uuid.UUID = uuid.uuid4()
+                 id: uuid.UUID = None
                  ) -> None:
+        if id is None:
+            id = uuid.uuid4()
+
         self._id = id
         self._vistoria = contra_vistoria
         self._contrato = contrato
