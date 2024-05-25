@@ -7,7 +7,7 @@ from infrastructure.models import Base
 class PrestadoresServicos(Base):
     __tablename__ = 'PRESTADORES_SERVICOS'
 
-    id = Column(Integer, ForeignKey('USUARIOS_IDENTITY_INFOS.id'), primary_key=True)
+    id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), primary_key=True)
     nome = Column(String(255))
     especialidade = Column(String(255))
     experiencia = Column(Integer)

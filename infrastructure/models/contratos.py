@@ -28,8 +28,11 @@ class Contratos(Base):
 
     ocorrencias = relationship('Ocorrencias', cascade='all, delete-orphan')
 
-    vistoria_inicial_id = Column(String(36), name='vistoria_inicial_id')
-    vistoria_final_id = Column(String(36), name='vistoria_final_id')
+    vistoria_inicial_id = Column(String(36), ForeignKey('VISTORIAS.id'),name='vistoria_inicial_id')
+    vistoria_inicial = relationship('Vistorias')
+
+    contestecao_vistoria_inicial_id = Column(String(36), ForeignKey('VISTORIAS.id'), name='contestecao_vistoria_inicial_id')
+    contestacao_vistoria_inicial = relationship('Vistorias')
 
     '''locatario_id = Column(String(36), ForeignKey('LOCATARIOS.id'), name='locatario_id')
     imovel_id = Column(String(36), ForeignKey('IMOVEIS.id'),name='imovel_id')

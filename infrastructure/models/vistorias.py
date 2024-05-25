@@ -14,5 +14,3 @@ class Vistorias(Base):
     e_contestacao = Column(String(36), name='e_contestacao_id')
     esta_fechada = Column(String(36), name='esta_fechada_id')
     imovel_id = Column(String(36), ForeignKey('IMOVEIS.id'), name='imovel_id')
-
-    contrato = relationship()

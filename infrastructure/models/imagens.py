@@ -2,8 +2,6 @@ from sqlalchemy import Column, ForeignKey, String, LargeBinary
 from infrastructure.models import Base
 
 
-#Base = declarative_base()
-
 class Imagens(Base):
     __tablename__ = 'IMAGENS'
 
