@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f9d4a4539f09
+Revision ID: f1d21d26a53e
 Revises: 
-Create Date: 2024-05-25 15:08:30.143082
+Create Date: 2024-05-25 16:35:33.093337
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f9d4a4539f09'
+revision: str = 'f1d21d26a53e'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -70,13 +70,8 @@ def upgrade() -> None:
     )
     op.create_table('VISTORIAS',
     sa.Column('id', sa.String(length=36), nullable=False),
-    sa.Column('contra_vistoria_id', sa.String(length=36), nullable=True),
-    sa.Column('e_contestacao_id', sa.String(length=36), nullable=True),
     sa.Column('esta_fechada_id', sa.String(length=36), nullable=True),
-    sa.Column('imovel_id', sa.String(length=36), nullable=True),
-    sa.ForeignKeyConstraint(['contra_vistoria_id'], ['VISTORIAS.id'], ),
     sa.ForeignKeyConstraint(['id'], ['IMAGENS.id'], ),
-    sa.ForeignKeyConstraint(['imovel_id'], ['IMOVEIS.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('CONTRATOS',
