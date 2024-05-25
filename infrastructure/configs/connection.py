@@ -5,12 +5,10 @@ from sqlalchemy.orm import Session
 class Connection:
     def __enter__(self):
         self.session.begin()
-        print('Connection opened')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.session.close()
-        print('Connection closed')
 
     def __init__(self):
         self.__engine = create_engine(self.__get_connection_string())
