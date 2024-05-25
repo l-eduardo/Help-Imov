@@ -18,10 +18,9 @@ class TelaContrato:
                 [sg.Text('Data Início', size=(15, 1), justification='center'), sg.Input(key='data_inicio', size=(11, 1)), sg.CalendarButton('Selecionar', target='data_inicio', format='%Y/%m/%d')],
                 [sg.Button('Voltar'), sg.Button('Próximo')]
             ]
-            icone_path = '../assets/help-imov-logo.png'
             # Criação da janela
             window = sg.Window('Cadastro de Contrato', layout, element_justification='center',
-                               size=(500, 400), font=('Arial', 18, 'bold'), icon=icone_path)
+                               size=(500, 400), font=('Arial', 18, 'bold'))
 
             # Loop de eventos
             while True:
@@ -169,8 +168,8 @@ class TelaContrato:
         while True:
             event, values = window.read()
             window.close()
-            print(event)
             return event, values, contrato_instancia
+
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Contrato', button_justification='left')
