@@ -2,11 +2,9 @@ from sqlalchemy import Column, ForeignKey, String, LargeBinary
 from infrastructure.models import Base
 
 
-#Base = declarative_base()
-
 class UsuariosOcorrencias(Base):
-    __tablename__ = 'IMAGENS'
+    __tablename__ = 'USUARIOS_OCORRENCIAS'
 
-    usuario_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), nullable=False, name='usuario_id')
-    ocorrencia_id = Column(String(36), ForeignKey('OCORRENCIAS.id'), nullable=False, name='ocorrencia_id')
+    usuario_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), primary_key=True, nullable=False, name='usuario_id')
+    ocorrencia_id = Column(String(36), ForeignKey('OCORRENCIAS.id'), primary_key=True, nullable=False, name='ocorrencia_id')
 
