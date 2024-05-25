@@ -3,7 +3,7 @@ from infrastructure.configs.connection import Connection
 from infrastructure.models.vistorias import Vistorias
 
 
-class VistoriasRepositories:
+class VistoriasRepository:
     def get_all(self) -> list[Vistorias]:
         with Connection() as connection:
             return connection.session.query(Vistorias).all()

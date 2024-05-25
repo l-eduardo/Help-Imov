@@ -6,56 +6,34 @@ class TelaVistoria:
     def __init__(self, controlador):
         self.__controlador = controlador
 
-    def PegaDadosVistoria(self):
-        try:
-            layout = [
-                [sg.Text('Cadastrar Vistoria', font=('Any', 18), justification='center', expand_x=True)],
+    def pega_dados_vistoria(self):
+        layout = [
+            [sg.Text("Descrição"), sg.InputText(key="descricao")],
+            [sg.Text("Data"), sg.InputText(key="data")],
+            [sg.Button("Salvar"), sg.Button("Cancelar")]
+        ]
 
-                [sg.Text('Descrição', size=(15, 1), justification='center'),
-                 sg.InputText( size=(20, 1), default_text = 'Selecione', key='descricao')],
+        window = sg.Window("Nova Contra-Vistoria", layout)
 
-                [sg.Text('Anexos', size=(15, 1), justification='center'),
-                 sg.FileBrowse(key='anexos', size=(11, 1))],
-
-                [sg.Button('Voltar'), sg.Button('Finalizar')],
-
-                """ Anexos
-                    Contestação: vistoria
-                    contrato
-                    data criacao
-                    descricao
-                    eh_contestacao
-                    fechada
-                    """
-            ]
-            icone_path = '../assets/help-imov-logo.png'
-            # Criação da janela
-            window = sg.Window('Cadastro de Vistoria', layout, element_justification='center',
-                               size=(500, 400), font=('Arial', 18, 'bold'), icon=icone_path)
-
-            # Loop de eventos
-            while True:
-                event, values = window.read()
-                if event == sg.WINDOW_CLOSED or event == 'Voltar':
-                    window.close()
-                    self.__controlador.listar_vistoria()
-                elif event == 'Finalizar':
-                    descricao = values['descricao']
-                    anexos = values['anexos']
-                    window.close()
-                    return values
-            # Fechamento da janela
-            window.close()
-            return None
-        except Exception as e:
-            print("Erro ao obter dados da vistoria", e)
-            return None
+        while True:
+            event, values = window.read()
+            if event == sg.WIN_CLOSED or event == "Cancelar":
+                window.close()
+                return None
+            if event == "Salvar":
+                descricao = values["descricao"]
+                data = values["data"]
+                # Adicionar validação de dados aqui se necessário
+                window.close()
+                return {"descricao": descricao, "data": data}
 
     def mostra_vistoria(self, vistoria):
         layout = [
-            [sg.Text("Descricao", font=('Any', 18), justification='center', expand_x=True)],
+
+            [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
+            [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria["descricao"])],
             [sg.Text("Data de Criação:", size=(15, 1), justification='left'), sg.Text(vistoria["dataCadastro"])],
-            [sg.Text("Anexos:", size=(22, 1), justification='left'), sg.Text(vistoria["imovel"])],
+            [sg.Text("Anexos:", size=(22, 1), justification='left'), sg.Text(vistoria["anexos"])],
             [sg.Button("Voltar")]]
 
         window = sg.Window('Cadastro de Vistoria', layout, element_justification='center',
