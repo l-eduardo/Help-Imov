@@ -15,7 +15,7 @@ class Connection:
         self.session = Session(self.__engine)
 
     @staticmethod
-    def get_connection_string(self):
+    def get_connection_string():
         host = os.environ.get('DB_HOST')
         port = os.environ.get('DB_PORT')
         database = os.environ.get('DB_NAME')
