@@ -20,3 +20,5 @@ class Locatario(Usuario):
     def celular(self, celular) -> str:
         self._celular = celular
 
+    def __str__(self):
+        return f'{self.nome}'

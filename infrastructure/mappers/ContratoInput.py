@@ -25,7 +25,7 @@ class ContratoInputMapper:
         dataFim=contrato_from_db.data_fim,
         id=UUID(contrato_from_db.id))
 
-        for solicitacao in contrato_from_db.solicitacoes    :
+        for solicitacao in contrato_from_db.solicitacoes:
             contrato.incluir_solicitacao(
                 titulo=solicitacao.titulo,
                 descricao=solicitacao.descricao,

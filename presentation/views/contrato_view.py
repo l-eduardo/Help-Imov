@@ -18,10 +18,9 @@ class TelaContrato:
                 [sg.Text('Data Início', size=(15, 1), justification='center'), sg.Input(key='data_inicio', size=(11, 1)), sg.CalendarButton('Selecionar', target='data_inicio', format='%Y/%m/%d')],
                 [sg.Button('Voltar'), sg.Button('Próximo')]
             ]
-            icone_path = '../assets/help-imov-logo.png'
             # Criação da janela
             window = sg.Window('Cadastro de Contrato', layout, element_justification='center',
-                               size=(500, 400), font=('Arial', 18, 'bold'), icon=icone_path)
+                               size=(500, 400), font=('Arial', 18, 'bold'))
 
             # Loop de eventos
             while True:
@@ -130,6 +129,12 @@ class TelaContrato:
                                    display_row_numbers=False,
                                    justification='center', key='-VISTORIAS-TABLE-',
                                    num_rows=2,
+                                #    vertical_scroll_only=True,
+                                   expand_x=True,
+                                   expand_y=True,
+                                   hide_vertical_scroll=True,
+                                   size=(200, 100),
+
                                    selected_row_colors='#191970 on #add8e6',
                                    enable_events=False,
                                    row_height=25,
@@ -140,9 +145,10 @@ class TelaContrato:
                           display_row_numbers=False,
                           justification='center', key='-TABELA-',
                           selected_row_colors='#191970 on #add8e6',
-                          enable_events=True,
+                          enable_events=False,
                           expand_x=True,
                           expand_y=True,
+                          hide_vertical_scroll=True,
                           enable_click_events=False,
                           select_mode=sg.TABLE_SELECT_MODE_BROWSE,
                           vertical_scroll_only=False)
@@ -150,23 +156,20 @@ class TelaContrato:
         layout = [
             [vistorias_table],
             [tabela],
-            [sg.Button("Voltar"), sg.Button("Adicionar solicitação"), sg.Button("Adicionar ocorrência"),
+            [sg.Button("Voltar"), sg.Button("Adicionar solicitação"), sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
              sg.Button("Selecionar")]
         ]
         # Create the window
-        self.window = sg.Window("Relacionados do contrato", layout, size=(900, 300), resizable=True)
+        window = sg.Window("Relacionados do contrato", layout, size=(900, 300), resizable=True, finalize=True)
+
+        window['-TABELA-'].bind("<Double-Button-1>", "-DOUBLE-CLICK-")
+        window['-VISTORIAS-TABLE-'].bind("<Double-Button-1>", "-DOUBLE-CLICK-")
 
         while True:
-            event, values = self.window.read()
-            if event == "Adicionar solicitação":
-                self.window.close()
-                return self.__controlador.adiciona_solicitacao(contrato_instancia)
-            if event == "Voltar":
-                self.window.close()
-                return
-            if event == "Selecionar":
-                '''verificar se é da tabela de vistorias ou tabela de solicitacoes/ocorrencias'''
-        self.window.close()
+            event, values = window.read()
+            window.close()
+            return event, values, contrato_instancia
+
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Contrato', button_justification='left')

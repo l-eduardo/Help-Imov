@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Date, ForeignKey, String
+from sqlalchemy import Column, Date, Enum, ForeignKey, String
+from domain.enums.status import Status
 from infrastructure.models import Base
-from sqlalchemy.orm import relationship, Mapped
-
 
 
 class Ocorrencias(Base):
@@ -10,7 +9,7 @@ class Ocorrencias(Base):
     id = Column(String(36), primary_key=True, name='id')
     titulo = Column(String(36), name='titulo')
     descricao = Column(String(36), name='descricao')
-    status = Column(String(36), name='status')
+    status = Column(Enum(Status), name='status')
     data_criacao = Column(String(36), name='data_criacao')
 
     contrato_id = Column(String(36), ForeignKey('CONTRATOS.id'), name='id_contrato')
