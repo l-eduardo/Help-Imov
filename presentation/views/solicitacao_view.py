@@ -46,3 +46,11 @@ class TelaSolicitacao:
         except Exception as e:
             print("Erro ao obter dados da solicitação", e)
             return None
+
+
+    def vw_nova_ocorrencia(self):
+        window = self.pega_dados_solicitacao()
+
+        event, values = window.read()
+        window.close()
+        return event, values
