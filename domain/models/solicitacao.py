@@ -6,11 +6,11 @@ from domain.enums.status import Status
 
 class Solicitacao:
     def __init__(self,
-                 titulo: str,
-                 descricao: str,
-                 status: Status = Status.ABERTO,
-                 data_criacao: date = None,
-                 id: uuid.UUID = None):
+     titulo: str,
+     descricao: str,
+     status: Status = Status.ABERTO,
+     data_criacao: date = None,
+     id: uuid.UUID = None):
         if id is None:
             id = uuid.uuid4()
         if data_criacao is None:
