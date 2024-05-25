@@ -29,9 +29,6 @@ class TelaContrato:
                     window.close()
                     self.__controlador.listar_contrato()
                 elif event == 'Próximo':
-                    locatario = values['locatario']
-                    imovel = values['imovel']
-                    data_inicio = values['data_inicio']
                     '''Pega os dados do contrato e chama no return a próxima tela que é a da vistoria'''
                     window.close()
                     return values
@@ -57,7 +54,7 @@ class TelaContrato:
                           display_row_numbers=False,
                           justification='center', key='-TABELA-',
                           selected_row_colors='#191970 on #add8e6',
-                          enable_events=True,
+                          enable_events=False,
                           expand_x=True,
                           expand_y=True,
                           enable_click_events=False,
@@ -75,23 +72,10 @@ class TelaContrato:
             if event == sg.WIN_CLOSED or event == "Voltar":
                 self.window.close()
                 exit(), #revisar e adicionar tela principal do sistema
+            self.window.close()
+            return event, values
 
-            if event == "Visualizar":
-                if values["-TABELA-"]:
-                    contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                    print(contrato_selecionado)
-                    self.window.close()
-                    return self.__controlador.selecionar_contrato(contrato_selecionado)
-                else:
-                    sg.popup("Nenhum contrato selecionado")
-            if event == "Adicionar":
-                self.window.close()
-                return self.__controlador.inclui_contrato()
-            if event == "Selecionar":
-                self.window.close()
-                contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                print(contrato_selecionado)
-                return contrato_selecionado
+
         #self.window.close()
 
 
