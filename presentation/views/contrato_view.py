@@ -13,9 +13,13 @@ class TelaContrato:
         try:
             layout = [
                 [sg.Text('Cadastrar Contrato', font=('Any', 18), justification='center', expand_x=True)],
-                [sg.Text('Locatário', size=(15, 1), justification='center'), sg.Combo(['Locatario 1', 'Locatario 2'], size=(20, 1), default_value='Selecione', key='locatario')],
-                [sg.Text('Imóvel', size=(15, 1), justification='center'), sg.Combo(imoveis, size=(20, 1), default_value='Selecione', key='imovel')],
-                [sg.Text('Data Início', size=(15, 1), justification='center'), sg.Input(key='data_inicio', size=(11, 1)), sg.CalendarButton('Selecionar', target='data_inicio', format='%Y/%m/%d')],
+                [sg.Text('Locatário', size=(15, 1), justification='center'),
+                 sg.Combo(['Locatario 1', 'Locatario 2'], size=(20, 1), default_value='Selecione', key='locatario')],
+                [sg.Text('Imóvel', size=(15, 1), justification='center'),
+                 sg.Combo(imoveis, size=(20, 1), default_value='Selecione', key='imovel')],
+                [sg.Text('Data Início', size=(15, 1), justification='center'),
+                 sg.Input(key='data_inicio', size=(11, 1)),
+                 sg.CalendarButton('Selecionar', target='data_inicio', format='%Y/%m/%d')],
                 [sg.Button('Voltar'), sg.Button('Próximo')]
             ]
             # Criação da janela
@@ -62,7 +66,7 @@ class TelaContrato:
                           vertical_scroll_only=False)
         # Window layout
         layout = [[tabela],
-                  [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar"), sg.Button("Selecionar")],]
+                  [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar"), sg.Button("Selecionar")], ]
 
         # Create the window
         self.window = sg.Window("Contratos", layout, size=(900, 300), resizable=True)
@@ -75,17 +79,13 @@ class TelaContrato:
             self.window.close()
             return event, values
 
-
-        #self.window.close()
-
-
     def mostra_contrato(self, contrato):
         layout = [
             [sg.Text('Dados do Contrato', font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Data Início:", size=(15, 1), justification='left'), sg.Text(contrato["dataInicio"])],
-            [sg.Text("Data Fim:",  size=(15, 1), justification='left'), sg.Text(contrato["dataFim"])],
-            [sg.Text("Locatário:",  size=(20, 1), justification='left'), sg.Text(contrato["locatario"])],
-            [sg.Text("Imóvel:",  size=(22, 1), justification='left'), sg.Text(contrato["imovel"])],
+            [sg.Text("Data Fim:", size=(15, 1), justification='left'), sg.Text(contrato["dataFim"])],
+            [sg.Text("Locatário:", size=(20, 1), justification='left'), sg.Text(contrato["locatario"])],
+            [sg.Text("Imóvel:", size=(22, 1), justification='left'), sg.Text(contrato["imovel"])],
             [sg.Button("Voltar")]]
 
         window = sg.Window('Dados Contrato', layout, element_justification='center',
@@ -96,15 +96,17 @@ class TelaContrato:
                 window.close()
                 self.__controlador.listar_contrato()
 
-    def mostra_relacionados_contrato(self, vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias, contrato_instancia):
+    def mostra_relacionados_contrato(self, vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias,
+                                     contrato_instancia):
 
         header = ["Tipo", "Título", "Status", "Data Criação"]
         # Convert the list of dictionaries into a list of lists for the table
-        table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"],] for dado in solicitacoes_ocorrencias]
+        table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"], ] for dado in
+                      solicitacoes_ocorrencias]
 
         vistoria_header = ["Descrição", "Data"]
         vistoria_data = [
-            ["Vistoria Inicial", vistoria_inicial['data'] if vistoria_inicial else 'Não disponível'],
+            ["Vistoria-Inicial", vistoria_inicial['data'] if vistoria_inicial else 'Não disponível'],
             ["Contra-Vistoria", contra_vistoria['data'] if contra_vistoria else 'Não disponível']
         ]
 
@@ -113,12 +115,10 @@ class TelaContrato:
                                    display_row_numbers=False,
                                    justification='center', key='-VISTORIAS-TABLE-',
                                    num_rows=2,
-                                #    vertical_scroll_only=True,
                                    expand_x=True,
                                    expand_y=True,
                                    hide_vertical_scroll=True,
                                    size=(200, 100),
-
                                    selected_row_colors='#191970 on #add8e6',
                                    enable_events=False,
                                    row_height=25,
@@ -157,7 +157,3 @@ class TelaContrato:
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Contrato', button_justification='left')
-
-
-
-

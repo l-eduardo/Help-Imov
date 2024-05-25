@@ -1,6 +1,8 @@
+from datetime import datetime
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
+from presentation.views.vistoria_view import TelaVistoria
 from domain.models.contrato import Contrato
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
@@ -11,6 +13,7 @@ import PySimpleGUI as sg
 class ContratoController:
     def __init__(self, controlador_sistema):
         self.__controlador_sistema = controlador_sistema
+        self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
         self.__ocorrencia_repository = OcorrenciasRepository()
@@ -88,11 +91,10 @@ class ContratoController:
         for solicitacao in contrato_instancia.solicitacoes:
             solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
                                           "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao})
+
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
         #TODO: Implementar a passagem das vistorias
-
-
 
         if solicitacoes_ocorrencias:
             events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [], solicitacoes_ocorrencias,
@@ -108,7 +110,8 @@ class ContratoController:
                 contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"])
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
-
+        print(events)
+        print(values)
         if events == "add_solicitacao":
             event, values = self.__solicitacao_view.pega_dados_solicitacao()
             if event == "Registrar":
@@ -116,10 +119,51 @@ class ContratoController:
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                      contrato_id=contrato_instancia.id)
 
+        if events == "-VISTORIAS-TABLE--DOUBLE-CLICK-":
+            linha_selecionada = values['-VISTORIAS-TABLE-'][0] if values['-VISTORIAS-TABLE-'] else None
+            if linha_selecionada is not None:
+                descricao = vistoria_data[linha_selecionada][0]
+                if descricao == "Vistoria-Inicial":
+                    self.__controlador.mostra_vistoria(vistoria_inicial)
+                elif descricao == "Contra-Vistoria":
+                    if contra_vistoria:
+                        self.__controlador.mostra_vistoria(contra_vistoria)
+                    else:
+                        criar_contra_vistoria = sg.popup(
+                            "Não existe Contra-Vistoria cadastrada",
+                            title="Aviso",
+                            custom_text=("Criar", "Fechar")
+                        )
+                        if criar_contra_vistoria == "Criar":
+                            self.__controlador.adiciona_vistoria(contrato_instancia)
+
+
+
+
         if events == "Voltar":
             self.listar_contrato()
         if events == sg.WIN_CLOSED:
             return
         self.listar_relacionados_contrato(contrato_instancia)
 
+    def adiciona_vistoria(self, contrato_instancia):
+        contrato = contrato_instancia
+        dados_vistoria = self.__tela_vistoria.pega_dados_vistoria()
+        if dados_vistoria:  # Verifica se dados_vistoria não é None
+             contrato.incluir_vistoria(dados_vistoria["descricao"], dados_vistoria["anexos"])
+        else:
+            pass
 
+    def mostra_vistoria(self, vistoria):
+        print(vistoria)
+        self.__tela_vistoria.mostra_vistoria(vistoria)
+
+    def valida_prazo_vistoria(self, vistoria):
+        if vistoria is None:
+            return False
+
+        else:
+            if (datetime.now() - vistoria.dataCadastro).days > 14:
+                return False
+            else:
+                return True
