@@ -119,7 +119,7 @@ class ContratoController:
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                      contrato_id=contrato_instancia.id)
 
-        if event == "-VISTORIAS-TABLE--DOUBLE-CLICK-":
+        if events == "-VISTORIAS-TABLE--DOUBLE-CLICK-":
             linha_selecionada = values['-VISTORIAS-TABLE-'][0] if values['-VISTORIAS-TABLE-'] else None
             if linha_selecionada is not None:
                 descricao = vistoria_data[linha_selecionada][0]

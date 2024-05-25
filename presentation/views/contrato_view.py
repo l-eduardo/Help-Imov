@@ -119,9 +119,8 @@ class TelaContrato:
                                    expand_y=True,
                                    hide_vertical_scroll=True,
                                    size=(200, 100),
-
                                    selected_row_colors='#191970 on #add8e6',
-                                   enable_events=True,
+                                   enable_events=False,
                                    row_height=25,
                                    pad=(10, 10))
         # Table layout
