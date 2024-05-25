@@ -23,10 +23,8 @@ class ContratosRepositories:
 
     def get_all_with_ocorrencias(self) -> list[Contratos]:
         with Connection() as connection:
-
             resultado = connection.session.query(Contratos).all()
             print([x.__str__() for x in resultado])
-
 
 
     def get_by_id(self, id: UUID) -> Contratos:

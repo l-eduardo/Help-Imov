@@ -18,10 +18,9 @@ class TelaContrato:
                 [sg.Text('Data Início', size=(15, 1), justification='center'), sg.Input(key='data_inicio', size=(11, 1)), sg.CalendarButton('Selecionar', target='data_inicio', format='%Y/%m/%d')],
                 [sg.Button('Voltar'), sg.Button('Próximo')]
             ]
-            icone_path = '../assets/help-imov-logo.png'
             # Criação da janela
             window = sg.Window('Cadastro de Contrato', layout, element_justification='center',
-                               size=(500, 400), font=('Arial', 18, 'bold'), icon=icone_path)
+                               size=(500, 400), font=('Arial', 18, 'bold'))
 
             # Loop de eventos
             while True:
@@ -163,6 +162,7 @@ class TelaContrato:
                 return self.__controlador.adiciona_solicitacao(contrato_instancia)
             if event == "Voltar":
                 self.window.close()
+                self.__controlador.listar_contrato()
                 return
             if event == "Selecionar":
                 '''verificar se é da tabela de vistorias ou tabela de solicitacoes/ocorrencias'''

@@ -19,20 +19,16 @@ class ContratoController:
         self.__tela_solicitacao = TelaSolicitacao(self)
         self.__controlador_sistema = controlador_sistema
         self.contratos = []
-        #self.solicitacoes = self.obter_solicitacoes_do_banco()
-        #self.ocorrencias = self.obter_ocorrencias_do_banco()
 
-    def buscar_contratos(self):
-        contratos = 0
-        # Buscar da base de dados
-        return self.contratos
 
     def inclui_contrato(self):
+        #TODO
         dados_contrato = self.__tela_contrato.pega_dados_contrato()
         print(dados_contrato)
         contrato = Contrato(dados_contrato['data_inicio'], dados_contrato['imovel'],
                             dados_contrato['locatario'], estaAtivo=True)
-        self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
+        instancia_contrato = self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
+        print(instancia_contrato)
         #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
 
     def listar_contrato(self):
@@ -42,7 +38,7 @@ class ContratoController:
         for contrato in self.contratos:
             contratos_listados.append({"idContrato": contrato.id,"dataInicio": contrato.dataInicio,
                                        "dataFim": contrato.dataFim,"locatario": contrato.locatario.id,
-                                       "imovel": contrato.imovel.id})
+                                       "imovel": contrato.imovel.endereco})
         if contratos_listados:
             contrato_selecionado = self.__tela_contrato.mostra_contratos(contratos_listados)
             contrato_instancia = None
@@ -72,10 +68,13 @@ class ContratoController:
 
 
     def adiciona_solicitacao(self, contrato_instancia):
-        contrato = contrato_instancia
+
         dados_solicitacao = self.__tela_solicitacao.pega_dados_solicitacao()
-        contrato_instancia.incluir_solicitacao(dados_solicitacao["titulo", dados_solicitacao["descricao"],
-                                               dados_solicitacao["status"]])
+        #TODO
+        contrato_instancia.incluir_solicitacao(dados_solicitacao['titulo'], dados_solicitacao['descricao'])
+
+        #TODO mostra mensagem dizendo que solicitacao foi registrada
+        self.listar_relacionados_contrato(contrato_instancia)
 
 
     def listar_relacionados_contrato(self, contrato_instancia: Contrato):
@@ -95,7 +94,7 @@ class ContratoController:
                                           "status": solicitacao.status, "dataCriacao": solicitacao.data_criacao})
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
-
         #TODO: Implementar a passagem das vistorias
         self.__tela_contrato.mostra_relacionados_contrato([], [], solicitacoes_ocorrencias,
                                                           contrato_instancia)
+
