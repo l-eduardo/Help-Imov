@@ -194,8 +194,10 @@ class ContratoController:
     def incluir_vistoria_inicial(self, contrato):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
-            contrato.incluir_constestacao_vistoria(values["descricao"], values["imagens"], values["documento"])
-            self.__ocorrencia_repository.insert(vistoria=contrato.vistoria_inicial,
+            contrato.incluir_vistoria(values["descricao"], values["imagens"], values["documento"])
+            print(contrato)
+            print(contrato.vistoria_inicial)
+            self.__vistoria_repository.insert(vistoria=contrato.vistoria_inicial,
                                                 id_contrato=contrato.id)
         else:
             raise (KeyError)

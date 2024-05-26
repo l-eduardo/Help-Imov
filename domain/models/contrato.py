@@ -147,22 +147,30 @@ class Contrato:
     def incluir_vistoria(self,
                          descricao: str,
                          imagens: List[List[bytes]],
-                         documento: List[bytes]):
-
-        self._vistoria_inicial = Vistoria(descricao, imagens, documento)
-        return self._vistoria_inicial
-
-    def incluir_constestacao_vistoria(self,
-                         descricao: str,
-                         imagens: List[List[bytes]],
                          documento: List[bytes],
+                         e_contestacao: bool,
                          id: uuid.UUID = None):
 
-        if id is None:
-            id = uuid.uuid4()
+        if e_contestacao:
+            self._contra_vistoria = Vistoria(descricao, imagens, documento, id=id)
+            return self._contra_vistoria
+        else:
+            self._vistoria_inicial = Vistoria(descricao, imagens, documento, id=id)
+            return self._vistoria_inicial
 
-        self._contra_vistoria = Vistoria(descricao, imagens, documento, id=id)
-        return self._contra_vistoria
+        
+
+    #def incluir_constestacao_vistoria(self,
+    #                     descricao: str,
+    #                     imagens: List[List[bytes]],
+    #                     documento: List[bytes],
+    #                     id: uuid.UUID = None):
+#
+#        if id is None:
+#            id = uuid.uuid4()
+#
+#        self._contra_vistoria = Vistoria(descricao, imagens, documento, id=id)
+#        return self._contra_vistoria
 
     def remover_ocorrencia(self, ocorrencia: Ocorrencia):
         self._ocorrencias.remove(ocorrencia)
