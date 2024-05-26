@@ -8,6 +8,7 @@ from domain.models.contrato import Contrato
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
 from infrastructure.repositories.solicitacoes_repository import SolicitacoesRepository
+from infrastructure.repositories.vistorias_repository import VistoriasRepository
 from infrastructure.mappers.ContratosOutput import ContratosOutputMapper
 import PySimpleGUI as sg
 

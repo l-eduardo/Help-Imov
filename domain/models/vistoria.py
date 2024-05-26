@@ -1,6 +1,5 @@
 from typing import List
 import uuid
-from domain.models.contrato import Contrato
 from datetime import date, datetime
 
 

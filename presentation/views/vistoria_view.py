@@ -56,8 +56,8 @@ class TelaVistoria:
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
-            [sg.Text("Data de Criação:", size=(15, 1), justification='left'), sg.Text(vistoria.data_cadastro)],
-            [sg.Text("Anexos:", size=(22, 1), justification='left'), sg.Text(vistoria.anexos)],
+            [sg.Text("Imagens:", size=(15, 1), justification='left'), sg.Text(vistoria.imagens)],
+            [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Text(vistoria.documento)],
             [sg.Button("Voltar")]
         ]
 
