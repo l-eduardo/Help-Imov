@@ -1,15 +1,12 @@
 from typing import List
 import uuid
 from domain.models.contrato import Contrato
-from datetime import date
+from datetime import date, datetime
 
 
 class Vistoria:
     def __init__(self,
-                 contra_vistoria: 'Vistoria',
-                 contrato: Contrato,
-                 e_contestacao: bool,
-                 fechada: bool,
+                 descricao: str,
                  imagens: List[List[bytes]],
                  documento: List[bytes],
                  id: uuid.UUID = None
@@ -18,49 +15,31 @@ class Vistoria:
             id = uuid.uuid4()
 
         self._id = id
-        self._vistoria = contra_vistoria
-        self._contrato = contrato
-        self._dataCadastro = date.today()
-        self._e_contestacao = e_contestacao
-        self._fechada = fechada
-        self._anexos = anexos
         self._descricao = descricao
+        self._data_criacao = date.today()
+        self._imagens = imagens
+        self._documento = documento
+
 
     @property
     def id(self) -> uuid.UUID:
         return self._id
 
     @property
-    def contra_vistoria(self) -> 'Vistoria':
-        return self._vistoria
+    def documento(self) -> List[bytes]:
+        return self._documento
 
-    @contra_vistoria.setter
-    def contra_vistoria(self, value: 'Vistoria') -> None:
-        self._vistoria = value
-
-    @property
-    def contrato(self) -> Contrato:
-        return self._contrato
+    @documento.setter
+    def documento(self, value: List[bytes]) -> None:
+        self._documento = value
 
     @property
-    def e_contestacao(self) -> bool:
-        return self._e_contestacao
+    def imagens(self) -> List[List[bytes]]:
+        return self._imagens
 
-    @property
-    def fechada(self) -> bool:
-        return self._fechada
-
-    @fechada.setter
-    def fechada(self, value: bool) -> None:
-        self._fechada = value
-
-    @property
-    def anexos(self) -> List[List[bytes]]:
-        return self._anexos
-
-    @anexos.setter
-    def anexos(self, value: List[bytes]) -> None:
-        self._anexos = value
+    @imagens.setter
+    def imagens(self, value: List[List[bytes]]) -> None:
+        self._imagens = value
 
     @property
     def descricao(self) -> str:
@@ -71,9 +50,16 @@ class Vistoria:
         self._descricao = descricao
 
     @property
-    def dataCadastro(self) -> date:
-        return self._dataCadastro
+    def data_criacao(self) -> date:
+        return self._data_criacao
 
-    @dataCadastro.setter
-    def dataCadastro(self, value: date):
-        self._dataCadastro = value
+    @data_criacao.setter
+    def data_criacao(self, value: date):
+        self._data_criacao = value
+
+    def esta_fechada(self):
+        subtr_data = datetime.strptime(f"{date.today()}", "%Y-%m-%d") - datetime.strptime(f"{self._data_criacao}", "%Y-%m-%d")
+        if (subtr_data > 14):
+            return False
+        else:
+            return True

@@ -34,7 +34,7 @@ class Contrato:
         self._imovel = imovel
         self._ocorrencias = []
         self._solicitacoes = []
-        self._vistoria_inicial = vistoria_inicial
+        self._vistoria_inicial = None
         self._vistoria_final = None
         self._estaAtivo = estaAtivo
 
@@ -142,3 +142,11 @@ class Contrato:
             data_criacao = date.today()
 
         self._ocorrencias.append(Ocorrencia(titulo, descricao, status, data_criacao=data_criacao, id=id))
+
+    def incluir_vistoria(self,
+                         descricao: str,
+                         imagens: List[List[bytes]],
+                         documento: List[bytes]):
+
+        self._vistoria_inicial = Vistoria(descricao, imagens, documento)
+        return self._vistoria_inicial

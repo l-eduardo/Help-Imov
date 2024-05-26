@@ -27,6 +27,31 @@ class TelaVistoria:
                 window.close()
                 return {"descricao": descricao, "data": data}
 
+
+    def __layout_nova_vistoria(self):
+        centrilizedButtons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
+
+        layout = [[sg.Text("Descrição")],
+                  [sg.Multiline(key="descricao", tooltip="Digite uma descrição...", size=(50, 10), no_scrollbar=True,
+                                expand_x=True)],
+                  [sg.Text("Imagens")],
+                  [[sg.Input(key='imagens'), sg.FilesBrowse()]],
+                  [sg.Text("Documento")],
+                  [[sg.Input(key='documento'), sg.FilesBrowse()]],
+                  [sg.Column([centrilizedButtons], justification="center")]]
+
+        window = sg.Window("Nova Vistoria", layout)
+
+        return window
+
+
+    def pega_dados_vistoria(self):
+        window = self.__layout_nova_vistoria()
+        event, values = window.read()
+        window.close()
+        return event, values
+
+
     def mostra_vistoria(self, vistoria):
         layout = [
 

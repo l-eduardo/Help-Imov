@@ -1,5 +1,6 @@
 from uuid import UUID
 from infrastructure.configs.connection import Connection
+from infrastructure.mappers.VistoriasOutput import VistoriasOutputMapper
 from infrastructure.models.vistorias import Vistorias
 
 
@@ -14,7 +15,9 @@ class VistoriasRepository:
                 .filter(Vistorias.id == id) \
                 .first()
 
-    def insert(self, vistoria: Vistorias) -> Vistorias:
+    def insert(self, vistoria: Vistorias, id_contrato: UUID) -> Vistorias:
+        vistoria_to_db = VistoriasOutputMapper.map_vistoria(ocorrencia_from_domain=vistoria, id_contrato=id_contrato)
+
         with Connection() as connection:
             connection.session.add(vistoria)
             connection.session.commit()
