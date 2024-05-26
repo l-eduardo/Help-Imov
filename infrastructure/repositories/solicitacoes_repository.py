@@ -6,8 +6,8 @@ from infrastructure.models.solicitacoes import Solicitacoes
 
 
 class SolicitacoesRepository:
-    def insert(self, solicitacao: Solicitacao, contrato_id: UUID) -> Solicitacao:
-        solicitacao_to_db = SolicitacaoOutputMapper.map_solicitacao(solicitacao_from_domain=solicitacao, contrato_id=contrato_id)
+    def insert(self, solicitacao: Solicitacao, id_contrato: UUID) -> Solicitacao:
+        solicitacao_to_db = SolicitacaoOutputMapper.map_solicitacao(solicitacao_from_domain=solicitacao, id_contrato=id_contrato)
 
         with Connection() as connection:
             connection.session.add(solicitacao_to_db)
