@@ -150,3 +150,6 @@ class Contrato:
 
         pass
         #self._solicitacoes.append(Vistoria(descricao, status, data_criacao=data_criacao, id=id))
+
+    def remover_ocorrencia(self, ocorrencia: Ocorrencia):
+        self._ocorrencias.remove(ocorrencia)

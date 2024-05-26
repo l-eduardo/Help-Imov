@@ -1,4 +1,5 @@
 from datetime import datetime
+from domain.enums.status import Status
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
@@ -16,14 +17,13 @@ class ContratoController:
         self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
-        self.__ocorrencia_repository = OcorrenciasRepository()
+        self.__ocorrencia_repository: OcorrenciasRepository = OcorrenciasRepository()
         self.__solicitacao_repository = SolicitacoesRepository()
 
         self.__tela_contrato = TelaContrato(self)
         self.__solicitacao_view = SolicitacaoView(self)
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
         self.contratos = []
-
 
     def inclui_contrato(self):
         #TODO Inclusao contrato
@@ -35,7 +35,6 @@ class ContratoController:
         contrato.inclui_vistoria()
         self.listar_contrato()
         #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
-
 
     def listar_contrato(self):
         self.contratos = self.obter_contratos_do_banco()
@@ -81,11 +80,11 @@ class ContratoController:
         ocorrencias_para_tela = []
         for ocorrencia in contrato_instancia.ocorrencias:
             ocorrencias_para_tela.append({"tipo": "Ocorrência", "titulo": ocorrencia.titulo,
-                                          "status": ocorrencia.status.value, "dataCriacao": ocorrencia.data_criacao})
+                                          "status": ocorrencia.status.value, "dataCriacao": ocorrencia.data_criacao, "entity": ocorrencia})
         solicitacoes_para_tela = []
         for solicitacao in contrato_instancia.solicitacoes:
             solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
-                                          "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao})
+                                          "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao, "entity": solicitacao})
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
@@ -106,8 +105,6 @@ class ContratoController:
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
 
-        print(events)
-        print(values)
         if events == "add_solicitacao":
             event, values = self.__solicitacao_view.pega_dados_solicitacao()
             if event == "Registrar":
@@ -115,31 +112,32 @@ class ContratoController:
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                      id_contrato=contrato_instancia.id)
 
+        entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
 
+        if events == "Excluir" and values["-TABELA-"] is not None:
+            if entidade["tipo"] == "Ocorrência":
+                contrato_instancia.remover_ocorrencia(entidade["entity"])
+                self.__ocorrencia_repository.delete(entidade["entity"].id)
 
-        if events == "-VISTORIAS-TABLE--DOUBLE-CLICK-":
-            linha_selecionada = values['-VISTORIAS-TABLE-'][0] if values['-VISTORIAS-TABLE-'] else None
-            if linha_selecionada is not None:
-                descricao = vistoria_data[linha_selecionada][0]
-                if descricao == "Vistoria-Inicial":
-                    self.__controlador.mostra_vistoria(vistoria_inicial)
-                elif descricao == "Contra-Vistoria":
-                    if contra_vistoria:
-                        self.__controlador.mostra_vistoria(contra_vistoria)
-                    else:
-                        criar_contra_vistoria = sg.popup(
-                            "Não existe Contra-Vistoria cadastrada",
-                            title="Aviso",
-                            custom_text=("Criar", "Fechar")
-                        )
-                        if criar_contra_vistoria == "Criar":
-                            self.__controlador.adiciona_vistoria(contrato_instancia)
+        if events == "-TABELA-DOUBLE-CLICK-":
+            if entidade["tipo"] == "Ocorrência":
+                mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"])
+
+                if mostra_ocorr_event == "editar_ocorrencia":
+                    editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(entidade["entity"])
+
+                    if editar_ocorr_events == "confirmar_edicao":
+                        entidade["entity"].titulo = editar_ocorr_values["titulo"]
+                        entidade["entity"].descricao = editar_ocorr_values["descricao"]
+                        entidade["entity"].status = Status(editar_ocorr_values["status"])
+                        self.__ocorrencia_repository.update(entidade["entity"])
 
 
 
 
         if events == "Voltar":
             self.listar_contrato()
+
         if events == sg.WIN_CLOSED:
             return
         self.listar_relacionados_contrato(contrato_instancia)
