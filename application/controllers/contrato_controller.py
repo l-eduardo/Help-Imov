@@ -1,5 +1,7 @@
 from datetime import datetime
+from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
+from domain.models.session import Session
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
@@ -72,7 +74,8 @@ class ContratoController:
     def get_id_contratos(self):
         return [contrato.id for contrato in self.contratos]
 
-    def listar_relacionados_contrato(self, contrato_instancia: Contrato):
+    @SessionController.inject_session_data
+    def listar_relacionados_contrato(self, contrato_instancia: Contrato, session: Session=None):
         if contrato_instancia is None:
             self.__tela_contrato.mostra_msg("Nenhum contrato selecionado")
             return
@@ -98,32 +101,40 @@ class ContratoController:
             events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [],
                                                                                          solicitacoes_ocorrencias,
                                                                                          contrato_instancia)
+
         if events == "add_ocorrencia":
             event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
             if event == "Salvar":
-                contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"])
+                contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"], session.user_id)
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
-
-        if events == "add_solicitacao":
+        elif events == "add_solicitacao":
             event, values = self.__solicitacao_view.pega_dados_solicitacao()
             if event == "Registrar":
                 contrato_instancia.incluir_solicitacao(values["titulo"], values["descricao"])
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                      id_contrato=contrato_instancia.id)
 
-        entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
+        elif events == "Excluir" and values["-TABELA-"] is not None:
+            entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
 
-        if events == "Excluir" and values["-TABELA-"] is not None:
-            if entidade["tipo"] == "Ocorrência":
+            if entidade["entity"].criador_id != session.user_id:
+                sg.popup("Você não tem permissão para excluir esta ocorrência")
+
+            elif entidade["tipo"] == "Ocorrência":
                 contrato_instancia.remover_ocorrencia(entidade["entity"])
                 self.__ocorrencia_repository.delete(entidade["entity"].id)
 
-        if events == "-TABELA-DOUBLE-CLICK-":
+        elif events == "-TABELA-DOUBLE-CLICK-":
+            entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
+
             if entidade["tipo"] == "Ocorrência":
                 mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"])
 
-                if mostra_ocorr_event == "editar_ocorrencia":
+                if entidade["entity"].criador_id != session.user_id:
+                    sg.popup("Você não tem permissão para editar esta ocorrência")
+
+                elif mostra_ocorr_event == "editar_ocorrencia":
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(entidade["entity"])
 
                     if editar_ocorr_events == "confirmar_edicao":
@@ -132,13 +143,10 @@ class ContratoController:
                         entidade["entity"].status = Status(editar_ocorr_values["status"])
                         self.__ocorrencia_repository.update(entidade["entity"])
 
-
-
-
-        if events == "Voltar":
+        elif events == "Voltar":
             self.listar_contrato()
 
-        if events == sg.WIN_CLOSED:
+        elif events == sg.WIN_CLOSED:
             return
         self.listar_relacionados_contrato(contrato_instancia)
 

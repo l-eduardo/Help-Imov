@@ -38,6 +38,7 @@ class ContratoInputMapper:
                 titulo=ocorrencia.titulo,
                 descricao=ocorrencia.descricao,
                 status=ocorrencia.status,
+                criador_id=ocorrencia.criador_id,
                 data_criacao=ocorrencia.data_criacao,
                 id=UUID(ocorrencia.id))
 

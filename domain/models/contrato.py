@@ -132,6 +132,7 @@ class Contrato:
     def incluir_ocorrencia(self,
                            titulo: str,
                            descricao: str,
+                           criador_id: uuid.UUID,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
                            id: uuid.UUID = None):
@@ -141,7 +142,12 @@ class Contrato:
         if data_criacao is None:
             data_criacao = date.today()
 
-        self._ocorrencias.append(Ocorrencia(titulo, descricao, status, data_criacao=data_criacao, id=id))
+        self._ocorrencias.append(Ocorrencia(titulo=titulo,
+                                 descricao=descricao,
+                                 status=status,
+                                 criador_id=criador_id,
+                                 data_criacao=data_criacao,
+                                 id=id))
 
     def incluir_vistoria(self,
                          descricao: str,
