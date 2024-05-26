@@ -1,9 +1,11 @@
+from typing import TYPE_CHECKING
 from sqlalchemy import Column, Date, Enum, ForeignKey, String
 from domain.enums.status import Status
 from infrastructure.models import Base
 from sqlalchemy.orm import relationship
 
-from infrastructure.models.imagens import Imagens
+if TYPE_CHECKING:
+    from infrastructure.models.imagens import Imagens
 
 class Ocorrencias(Base):
     __tablename__ = 'OCORRENCIAS'
