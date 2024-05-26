@@ -105,6 +105,7 @@ class ContratoController:
                 contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"])
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
+
         print(events)
         print(values)
         if events == "add_solicitacao":
@@ -112,7 +113,9 @@ class ContratoController:
             if event == "Registrar":
                 contrato_instancia.incluir_solicitacao(values["titulo"], values["descricao"])
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
-                                                     contrato_id=contrato_instancia.id)
+                                                     id_contrato=contrato_instancia.id)
+
+
 
         if events == "-VISTORIAS-TABLE--DOUBLE-CLICK-":
             linha_selecionada = values['-VISTORIAS-TABLE-'][0] if values['-VISTORIAS-TABLE-'] else None
