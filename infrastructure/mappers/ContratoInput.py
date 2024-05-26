@@ -31,7 +31,7 @@ class ContratoInputMapper:
                 descricao=solicitacao.descricao,
                 status=solicitacao.status,
                 data_criacao=solicitacao.data_criacao,
-                criador_id=ocorrencia.criador_id,
+                criador_id=solicitacao.criador_id,
                 id=UUID(solicitacao.id))
 
         for ocorrencia in contrato_from_db.ocorrencias:

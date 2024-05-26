@@ -111,7 +111,7 @@ class ContratoController:
         elif events == "add_solicitacao":
             event, values = self.__solicitacao_view.pega_dados_solicitacao()
             if event == "Registrar":
-                contrato_instancia.incluir_solicitacao(values["titulo"], values["descricao"])
+                contrato_instancia.incluir_solicitacao(values["titulo"], values["descricao"], session.user_id)
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                      id_contrato=contrato_instancia.id)
 
@@ -150,8 +150,13 @@ class ContratoController:
 
             elif entidade["tipo"] == "Solicitação":
                 event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
+
+                if entidade["entity"].criador_id != session.user_id:
+                    sg.popup("Você não tem permissão para editar esta solicitacao")
+
                 if event_solic == "editar_solicitacao":
                     edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
+
                     if edit_solic_events == "confirmar_edicao":
                         print(edit_solic_events)
                         entidade["entity"].titulo = edit_solic_values["titulo"]
