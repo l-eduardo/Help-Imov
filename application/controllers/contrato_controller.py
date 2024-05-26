@@ -172,9 +172,10 @@ class ContratoController:
                     if event == "editar_vistoria":
                         pass
                     elif event == "excluir_vistoria":
-                        print(vistoria.id)
-                        contrato_instancia.remover_vistoria(vistoria.id)
+                        contrato_instancia.remover_vistoria(vistoria)
                         self.__vistoria_repository.delete(vistoria.id)
+                        sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+
             else:
                 criar_contra_vistoria = sg.popup(
                     "Não existe Contra-Vistoria cadastrada",
