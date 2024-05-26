@@ -6,8 +6,8 @@ from infrastructure.models.solicitacoes import Solicitacoes
 
 
 class SolicitacoesRepository:
-    def insert(self, solicitacao: Solicitacao, contrato_id: UUID) -> Solicitacao:
-        solicitacao_to_db = SolicitacaoOutputMapper.map_solicitacao(solicitacao_from_domain=solicitacao, contrato_id=contrato_id)
+    def insert(self, solicitacao: Solicitacao, id_contrato: UUID) -> Solicitacao:
+        solicitacao_to_db = SolicitacaoOutputMapper.map_solicitacao(solicitacao_from_domain=solicitacao, id_contrato=id_contrato)
 
         with Connection() as connection:
             connection.session.add(solicitacao_to_db)
@@ -16,5 +16,16 @@ class SolicitacoesRepository:
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
-            connection.session.query(Solicitacoes).filter(Solicitacoes.id == id).delete()
+            result = connection.session.query(Solicitacoes).filter(Solicitacoes.id == str(id)).delete()
+            print(result)
+            connection.session.commit()
 
+    def update(self, solicitacao: Solicitacao) -> Solicitacao:
+        with Connection() as connection:
+            result = connection.session.query(Solicitacoes).filter(Solicitacoes.id == str(solicitacao.id)).update(
+                {"titulo": solicitacao.titulo,
+                 "descricao": solicitacao.descricao,
+                 "status": solicitacao.status.name})
+            print(result)
+            connection.session.commit()
+            return solicitacao

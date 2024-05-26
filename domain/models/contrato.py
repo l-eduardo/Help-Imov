@@ -7,6 +7,7 @@ from domain.models.vistoria import Vistoria
 
 if TYPE_CHECKING:
     from domain.models.imovel import Imovel
+    from domain.models.vistoria import Vistoria
     from domain.models.funcionario import Funcionario
     from domain.models.locatario import Locatario
 from datetime import date
@@ -101,8 +102,8 @@ class Contrato:
         self._vistoria_inicial = value
 
     @property
-    def contra_vistoria(self) -> 'Vistoria | None':
-        return self._contra_vistoria
+    def vistoria_final(self) -> 'Vistoria | None':
+        return self._vistoria_final
 
     @contra_vistoria.setter
     def contra_vistoria(self, value: 'Vistoria'):
@@ -162,3 +163,9 @@ class Contrato:
 
         self._contra_vistoria = Vistoria(descricao, imagens, documento, id=id)
         return self._contra_vistoria
+
+    def remover_ocorrencia(self, ocorrencia: Ocorrencia):
+        self._ocorrencias.remove(ocorrencia)
+
+    def remover_solicitacao(self, solicitacao: Solicitacao):
+        self.solicitacoes.remove(solicitacao)
