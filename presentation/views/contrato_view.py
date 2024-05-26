@@ -98,7 +98,9 @@ class TelaContrato:
 
     def mostra_relacionados_contrato(self, vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias,
                                      contrato_instancia):
-
+        excluir_btn_visivel = False
+        if solicitacoes_ocorrencias:
+            excluir_btn_visivel = True
         header = ["Tipo", "Título", "Status", "Data Criação"]
         # Convert the list of dictionaries into a list of lists for the table
         table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"], dado] for dado in
@@ -142,7 +144,7 @@ class TelaContrato:
             sg.Button("Adicionar solicitação", key="add_solicitacao"),
             sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
             sg.Button("Selecionar"),
-            sg.Button("Excluir", key="Excluir")
+            sg.Button("Excluir", key="Excluir", visible=excluir_btn_visivel)
         ]
         right_button_layout = [
             sg.Button("Solicitações para aprovação", key="Solicitações para aprovação")
