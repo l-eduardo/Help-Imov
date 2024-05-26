@@ -54,12 +54,12 @@ class TelaVistoria:
 
     def mostra_vistoria(self, vistoria):
         layout = [
-
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
-            [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria["descricao"])],
-            [sg.Text("Data de Criação:", size=(15, 1), justification='left'), sg.Text(vistoria["dataCadastro"])],
-            [sg.Text("Anexos:", size=(22, 1), justification='left'), sg.Text(vistoria["anexos"])],
-            [sg.Button("Voltar")]]
+            [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
+            [sg.Text("Data de Criação:", size=(15, 1), justification='left'), sg.Text(vistoria.data_cadastro)],
+            [sg.Text("Anexos:", size=(22, 1), justification='left'), sg.Text(vistoria.anexos)],
+            [sg.Button("Voltar")]
+        ]
 
         window = sg.Window('Cadastro de Vistoria', layout, element_justification='center',
                            size=(500, 400), font=('Arial', 18, 'bold'))
@@ -67,7 +67,7 @@ class TelaVistoria:
             event, values = window.read()
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
-                # self.__controlador_contrato.listar_contrato()
+                break
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')

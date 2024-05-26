@@ -47,4 +47,3 @@ class UserIdentityRepository(UserRepository):
 
     def get_all_users(self):
         raise NotImplementedError
-

@@ -11,6 +11,7 @@ from infrastructure.repositories.solicitacoes_repository import SolicitacoesRepo
 from infrastructure.mappers.ContratosOutput import ContratosOutputMapper
 import PySimpleGUI as sg
 
+
 class ContratoController:
     def __init__(self, controlador_sistema):
         self.__controlador_sistema = controlador_sistema
@@ -19,13 +20,13 @@ class ContratoController:
         self.__contratos_repository = ContratosRepositories()
         self.__ocorrencia_repository = OcorrenciasRepository()
         self.__solicitacao_repository = SolicitacoesRepository()
+        self.__vistoria_repository = VistoriasRepository()
 
         self.__tela_contrato = TelaContrato(self)
-        self.__solicitacao_view = SolicitacaoView(self)
+        self.__solicitacao_view= SolicitacaoView(self)
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
 
         self.contratos = []
-
 
     def inclui_contrato(self):
         #TODO Inclusao contrato
@@ -38,7 +39,6 @@ class ContratoController:
         self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
         self.listar_contrato()
         #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
-
 
     def listar_contrato(self):
         self.contratos = self.obter_contratos_do_banco()
@@ -88,15 +88,16 @@ class ContratoController:
         solicitacoes_para_tela = []
         for solicitacao in contrato_instancia.solicitacoes:
             solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
-                                          "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao})
+                                           "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao})
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
         #TODO: Implementar a passagem das vistorias
 
         if solicitacoes_ocorrencias:
-            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [], solicitacoes_ocorrencias,
-                                                          contrato_instancia)
+            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [],
+                                                                                         solicitacoes_ocorrencias,
+                                                                                         contrato_instancia)
         else:
             self.__tela_contrato.mostra_msg("Não há solicitações ou ocorrências cadastradas neste contrato")
             events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [],
@@ -117,6 +118,27 @@ class ContratoController:
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                      contrato_id=contrato_instancia.id)
 
+        if events == "vistoria_inicial":
+            if contrato_instancia.vistoria_inicial:
+                self.__tela_vistoria.mostra_vistoria(contrato_instancia.vistoria_inicial)
+            else:
+                sg.popup("Não existe Vistoria Inicial cadastrada", title="Aviso")
+
+        if events == "contra_vistoria":
+            print(contrato_instancia.id)
+            print(contrato_instancia.contra_vistoria)
+            print(contrato_instancia.imovel)
+            if contrato_instancia.contra_vistoria:
+                self.__tela_vistoria.mostra_vistoria(contrato_instancia.contra_vistoria)
+            else:
+                criar_contra_vistoria = sg.popup(
+                    "Não existe Contra-Vistoria cadastrada",
+                    title="Aviso",
+                    custom_text=("Criar", "Fechar")
+                )
+                if criar_contra_vistoria == "Criar":
+                    self.__controlador.adiciona_vistoria(contrato_instancia)
+
         if events == "Voltar":
             self.listar_contrato()
         if events == sg.WIN_CLOSED:
@@ -131,10 +153,6 @@ class ContratoController:
                                                 id_contrato=contrato.id)
         else:
             raise(KeyError)
-
-    def mostra_vistoria(self, vistoria):
-        print(vistoria)
-        self.__tela_vistoria.mostra_vistoria(vistoria)
 
     def valida_prazo_vistoria(self, vistoria):
         if vistoria is None:

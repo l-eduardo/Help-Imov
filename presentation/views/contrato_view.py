@@ -75,7 +75,7 @@ class TelaContrato:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED or event == "Voltar":
                 self.window.close()
-                exit() #revisar e adicionar tela principal do sistema
+                exit() # revisar e adicionar tela principal do sistema
             self.window.close()
             return event, values
 
@@ -104,26 +104,6 @@ class TelaContrato:
         table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"], ] for dado in
                       solicitacoes_ocorrencias]
 
-        vistoria_header = ["Descrição", "Data"]
-        vistoria_data = [
-            ["Vistoria-Inicial", vistoria_inicial['data'] if vistoria_inicial else 'Não disponível'],
-            ["Contra-Vistoria", contra_vistoria['data'] if contra_vistoria else 'Não disponível']
-        ]
-
-        vistorias_table = sg.Table(vistoria_data, headings=vistoria_header,
-                                   auto_size_columns=True,
-                                   display_row_numbers=False,
-                                   justification='center', key='-VISTORIAS-TABLE-',
-                                   num_rows=2,
-                                   expand_x=True,
-                                   expand_y=True,
-                                   hide_vertical_scroll=True,
-                                   size=(200, 100),
-                                   selected_row_colors='#191970 on #add8e6',
-                                   enable_events=False,
-                                   row_height=25,
-                                   pad=(10, 10))
-        # Table layout
         tabela = sg.Table(table_data, headings=header,
                           auto_size_columns=True,
                           display_row_numbers=False,
@@ -138,7 +118,7 @@ class TelaContrato:
                           vertical_scroll_only=False)
         # Window layout
         layout = [
-            [vistorias_table],
+            [sg.Button("Vistoria Inicial", key="vistoria_inicial "), sg.Button("Contra Vistoria", key="contra_vistoria")],
             [tabela],
             [sg.Button("Voltar"), sg.Button("Adicionar solicitação", key="add_solicitacao"), sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
              sg.Button("Selecionar")]
@@ -146,13 +126,19 @@ class TelaContrato:
         # Create the window
         window = sg.Window("Relacionados do contrato", layout, size=(900, 300), resizable=True, finalize=True)
 
-        window['-TABELA-'].bind("<Double-Button-1>", "-DOUBLE-CLICK-")
-        window['-VISTORIAS-TABLE-'].bind("<Double-Button-1>", "-DOUBLE-CLICK-")
-
         while True:
             event, values = window.read()
-            window.close()
-            return event, values, contrato_instancia
+            if event == sg.WIN_CLOSED or event == "Voltar":
+                window.close()
+                return event, values, contrato_instancia
+
+            if event in ("vistoria_inicial", "contra_vistoria"):
+                window.close()
+                return event, values, contrato_instancia
+
+            if event == "add_solicitacao" or event == "add_ocorrencia":
+                window.close()
+                return event, values, contrato_instancia
 
 
     def mostra_msg(self, msg):

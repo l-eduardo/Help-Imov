@@ -27,4 +27,18 @@ class VistoriasRepository:
         with Connection() as connection:
             connection.session.query(Vistorias).filter(Vistorias.id == id).delete()
 
+    def get_vistoria_inicial_by_contrato_id(self, contrato_id: UUID) -> Vistorias:
+        with Connection() as connection:
+            return connection.session.query(Vistorias) \
+                .filter(Vistorias.contrato_id == contrato_id) \
+                .filter(Vistorias.tipo == 'inicial') \
+                .first()
+
+    def get_contra_vistoria_by_contrato_id(self, contrato_id: UUID) -> Vistorias:
+        with Connection() as connection:
+            return connection.session.query(Vistorias) \
+                .filter(Vistorias.contrato_id == contrato_id) \
+                .filter(Vistorias.tipo == 'contra') \
+                .first()
+
 

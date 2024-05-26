@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
 from domain.enums.status import Status
+
 if TYPE_CHECKING:
     from domain.models.imovel import Imovel
     from domain.models.vistoria import Vistoria
@@ -15,14 +16,15 @@ import uuid
 
 class Contrato:
     def __init__(self,
-    dataInicio: date,
-    locatario: 'Locatario',
-    imovel: 'Imovel',
-    estaAtivo: bool = True,
-    id: uuid.UUID = None,
-    dataFim: 'date | None' = None,
-    vistoria_inicial: 'Vistoria | None' = None,
-    ):
+                 dataInicio: date,
+                 locatario: 'Locatario',
+                 imovel: 'Imovel',
+                 estaAtivo: bool = True,
+                 id: uuid.UUID = None,
+                 dataFim: 'date | None' = None,
+                 vistoria_inicial: 'Vistoria | None' = None,
+                 contra_vistoria: 'Vistoria | None' = None,
+                 ):
         if id is None:
             id = uuid.uuid4()
 
@@ -34,15 +36,13 @@ class Contrato:
         self._imovel = imovel
         self._ocorrencias = []
         self._solicitacoes = []
-        self._vistoria_inicial = None
-        self._vistoria_final = None
+        self._vistoria_inicial = vistoria_inicial
+        self._contra_vistoria = contra_vistoria
         self._estaAtivo = estaAtivo
-
 
     @property
     def id(self) -> uuid.UUID:
         return self._id
-
 
     @property
     def dataInicio(self) -> date:
@@ -101,12 +101,12 @@ class Contrato:
         self._vistoria_inicial = value
 
     @property
-    def vistoria_final(self) -> 'Vistoria | None':
-        return self._vistoria_final
+    def contra_vistoria(self) -> 'Vistoria | None':
+        return self._contra_vistoria
 
-    @vistoria_final.setter
-    def vistoria_final(self, value: 'Vistoria'):
-        self._vistoria_final = value
+    @contra_vistoria.setter
+    def contra_vistoria(self, value: 'Vistoria'):
+        self._contra_vistoria = value
 
     @property
     def estaAtivo(self) -> bool:
