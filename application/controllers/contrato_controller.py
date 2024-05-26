@@ -32,7 +32,7 @@ class ContratoController:
                             dados_contrato['locatario'], estaAtivo=True)
         self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
         print(contrato)
-        #contrato.incluir_vistoria()
+        contrato.inclui_vistoria()
         self.listar_contrato()
         #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
 
@@ -65,7 +65,6 @@ class ContratoController:
 
     def selecionar_contrato(self, contrato_selecionado):
         self.__tela_contrato.mostra_contrato(contrato_selecionado)
-
 
     def obter_contratos_do_banco(self) -> list[Contrato]:
         contratos = self.__contratos_repository.get_all()
@@ -145,8 +144,7 @@ class ContratoController:
             return
         self.listar_relacionados_contrato(contrato_instancia)
 
-    def adiciona_vistoria(self, contrato_instancia):
-        contrato = contrato_instancia
+    def inclui_vistoria(self):
         dados_vistoria = self.__tela_vistoria.pega_dados_vistoria()
         if dados_vistoria:  # Verifica se dados_vistoria não é None
              contrato.incluir_vistoria(dados_vistoria["descricao"], dados_vistoria["anexos"])
