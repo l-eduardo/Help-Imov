@@ -34,7 +34,7 @@ class Contrato:
         self._imovel = imovel
         self._ocorrencias = []
         self._solicitacoes = []
-        self._vistoria_inicial = vistoria_inicial
+        self._vistoria_inicial = None
         self._vistoria_final = None
         self._estaAtivo = estaAtivo
 
@@ -148,5 +148,5 @@ class Contrato:
                          imagens: List[List[bytes]],
                          documento: List[bytes]):
 
-        pass
-        #self._solicitacoes.append(Vistoria(descricao, status, data_criacao=data_criacao, id=id))
+        self._vistoria_inicial = Vistoria(descricao, imagens, documento)
+        return self._vistoria_inicial

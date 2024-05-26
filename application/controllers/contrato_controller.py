@@ -1,4 +1,5 @@
 from datetime import datetime
+from domain.models.vistoria import Vistoria
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
@@ -30,9 +31,10 @@ class ContratoController:
         dados_contrato = self.__tela_contrato.pega_dados_contrato()
         contrato = Contrato(dados_contrato['data_inicio'], dados_contrato['imovel'],
                             dados_contrato['locatario'], estaAtivo=True)
+
+        self.incluir_vistoria_inicial(contrato)
+
         self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
-        print(contrato)
-        contrato.inclui_vistoria()
         self.listar_contrato()
         #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
 
@@ -105,8 +107,6 @@ class ContratoController:
                 contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"])
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
-        print(events)
-        print(values)
         if events == "add_solicitacao":
             event, values = self.__solicitacao_view.pega_dados_solicitacao()
             if event == "Registrar":
@@ -114,39 +114,20 @@ class ContratoController:
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                      contrato_id=contrato_instancia.id)
 
-        if events == "-VISTORIAS-TABLE--DOUBLE-CLICK-":
-            linha_selecionada = values['-VISTORIAS-TABLE-'][0] if values['-VISTORIAS-TABLE-'] else None
-            if linha_selecionada is not None:
-                descricao = vistoria_data[linha_selecionada][0]
-                if descricao == "Vistoria-Inicial":
-                    self.__controlador.mostra_vistoria(vistoria_inicial)
-                elif descricao == "Contra-Vistoria":
-                    if contra_vistoria:
-                        self.__controlador.mostra_vistoria(contra_vistoria)
-                    else:
-                        criar_contra_vistoria = sg.popup(
-                            "Não existe Contra-Vistoria cadastrada",
-                            title="Aviso",
-                            custom_text=("Criar", "Fechar")
-                        )
-                        if criar_contra_vistoria == "Criar":
-                            self.__controlador.adiciona_vistoria(contrato_instancia)
-
-
-
-
         if events == "Voltar":
             self.listar_contrato()
         if events == sg.WIN_CLOSED:
             return
         self.listar_relacionados_contrato(contrato_instancia)
 
-    def inclui_vistoria(self):
-        dados_vistoria = self.__tela_vistoria.pega_dados_vistoria()
-        if dados_vistoria:  # Verifica se dados_vistoria não é None
-             contrato.incluir_vistoria(dados_vistoria["descricao"], dados_vistoria["anexos"])
+    def incluir_vistoria_inicial(self, contrato):
+        event, values = self.__tela_vistoria.pega_dados_vistoria()
+        if event == "Registrar":
+            contrato.incluir_vistoria(values["descricao"], values["imagens"], values["documento"])
+            self.__ocorrencia_repository.insert(vistoria=contrato.vistoria_inicial,
+                                                id_contrato=contrato.id)
         else:
-            pass
+            raise(KeyError)
 
     def mostra_vistoria(self, vistoria):
         print(vistoria)
