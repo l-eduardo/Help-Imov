@@ -119,6 +119,7 @@ class Contrato:
     def incluir_solicitacao(self,
                             titulo: str,
                             descricao: str,
+                            criador_id: uuid.UUID,
                             status: Status = Status.ABERTO,
                             data_criacao: date = None,
                             id: uuid.UUID = None):
@@ -127,7 +128,7 @@ class Contrato:
         if data_criacao is None:
             data_criacao = date.today()
 
-        self._solicitacoes.append(Solicitacao(titulo, descricao, status, data_criacao=data_criacao, id=id))
+        self._solicitacoes.append(Solicitacao(titulo=titulo, descricao=descricao,status=status, criador_id=criador_id, data_criacao=data_criacao, id=id))
 
     def incluir_ocorrencia(self,
                            titulo: str,
@@ -159,3 +160,6 @@ class Contrato:
 
     def remover_ocorrencia(self, ocorrencia: Ocorrencia):
         self._ocorrencias.remove(ocorrencia)
+
+    def remover_solicitacao(self, solicitacao: Solicitacao):
+        self.solicitacoes.remove(solicitacao)
