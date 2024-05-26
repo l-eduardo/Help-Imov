@@ -142,3 +142,11 @@ class Contrato:
             data_criacao = date.today()
 
         self._ocorrencias.append(Ocorrencia(titulo, descricao, status, data_criacao=data_criacao, id=id))
+
+    def incluir_vistoria(self,
+                         descricao: str,
+                         imagens: List[List[bytes]],
+                         documento: List[bytes]):
+
+        pass
+        #self._solicitacoes.append(Vistoria(descricao, status, data_criacao=data_criacao, id=id))

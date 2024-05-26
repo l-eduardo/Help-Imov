@@ -1,14 +1,11 @@
 from typing import List
 import uuid
 from domain.models.contrato import Contrato
-from datetime import date
+from datetime import date, datetime
 
 
 class Vistoria:
     def __init__(self,
-                 contra_vistoria: 'Vistoria',
-                 contrato: Contrato,
-                 e_contestacao: bool,
                  fechada: bool,
                  imagens: List[List[bytes]],
                  documento: List[bytes],
@@ -20,9 +17,7 @@ class Vistoria:
         self._id = id
         self._vistoria = contra_vistoria
         self._contrato = contrato
-        self._dataCadastro = date.today()
-        self._e_contestacao = e_contestacao
-        self._fechada = fechada
+        self._dataCadastro = datetime.strptime(f"{date.today()}", "%Y-%m-%d")
         self._anexos = anexos
         self._descricao = descricao
 
@@ -77,3 +72,10 @@ class Vistoria:
     @dataCadastro.setter
     def dataCadastro(self, value: date):
         self._dataCadastro = value
+
+    def esta_fechada(self):
+        subtr_data = datetime.strptime(f"{date.today()}", "%Y-%m-%d") - self._dataCadastro
+        if (subtr_data > 14):
+            return False
+        else:
+            return True

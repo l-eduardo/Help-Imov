@@ -1,5 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from infrastructure.models import Base
+from sqlalchemy.orm import relationship
 
 
 #Base = declarative_base()
@@ -7,6 +8,8 @@ from infrastructure.models import Base
 class Imoveis(Base):
     __tablename__ = 'IMOVEIS'
 
-    id = Column(String(36), ForeignKey('IMAGENS.id'), primary_key=True, nullable=False, name='id')
+    id = Column(String(36), primary_key=True, nullable=False, name='id')
     codigo = Column(Integer, nullable=False, name='codigo')
     endereco = Column(String(36), nullable=False, name='endereco')
+
+    imagens = relationship('Imagens', cascade='all, delete-orphan')
