@@ -118,7 +118,7 @@ class TelaContrato:
                           vertical_scroll_only=False)
         # Window layout
         layout = [
-            [sg.Button("Vistoria Inicial", key="vistoria_inicial "), sg.Button("Contra Vistoria", key="contra_vistoria")],
+            [sg.Button("Vistoria Inicial", key="vistoria_inicial"), sg.Button("Contra Vistoria", key="contra_vistoria")],
             [tabela],
             [sg.Button("Voltar"),
              sg.Button("Adicionar solicitação",key="add_solicitacao"),
