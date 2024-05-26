@@ -2,6 +2,11 @@
 alembic.ini
 alembic/versions*
 
+#images
+*.png
+*.jpg
+*.jpeg
+*.gif
 
 #Pycharm
 .idea/

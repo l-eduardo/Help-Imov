@@ -1,4 +1,5 @@
 import functools
+import uuid
 
 from domain.exceptions.UserWithNoInfosException import UserWithNoInfosException
 from domain.models.session import Session
@@ -27,7 +28,13 @@ class SessionController:
             is_admin = True
             is_root = AdministradoresRepository().is_root(id)
 
-        SessionController.session = Session(id, user_identity_infos.email, role, is_root, is_admin, True)
+        SessionController.session = Session(user_id=id,
+                                    user_email=user_identity_infos.email,
+                                    user_role=role,
+                                    is_root=is_root,
+                                    is_admin=is_admin,
+                                    is_valid=True,
+                                    session_id=uuid.uuid4())
 
     def autheticate(self, email, password):
         return self.__session_repository.get_user_identity_by_login_infos(email, password)
