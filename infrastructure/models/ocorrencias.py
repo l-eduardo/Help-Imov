@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 
 from infrastructure.models.imagens import Imagens
 
+
 class Ocorrencias(Base):
     __tablename__ = 'OCORRENCIAS'
 

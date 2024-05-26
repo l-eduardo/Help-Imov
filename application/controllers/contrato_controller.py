@@ -25,7 +25,7 @@ class ContratoController:
         self.__vistoria_repository = VistoriasRepository()
 
         self.__tela_contrato = TelaContrato(self)
-        self.__solicitacao_view= SolicitacaoView(self)
+        self.__solicitacao_view = SolicitacaoView(self)
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
 
         self.contratos = []
@@ -86,11 +86,13 @@ class ContratoController:
         ocorrencias_para_tela = []
         for ocorrencia in contrato_instancia.ocorrencias:
             ocorrencias_para_tela.append({"tipo": "Ocorrência", "titulo": ocorrencia.titulo,
-                                          "status": ocorrencia.status.value, "dataCriacao": ocorrencia.data_criacao, "entity": ocorrencia})
+                                          "status": ocorrencia.status.value, "dataCriacao": ocorrencia.data_criacao,
+                                          "entity": ocorrencia})
         solicitacoes_para_tela = []
         for solicitacao in contrato_instancia.solicitacoes:
             solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
-                                          "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao, "entity": solicitacao})
+                                           "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao,
+                                           "entity": solicitacao})
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
@@ -125,40 +127,14 @@ class ContratoController:
                 contrato_instancia.remover_ocorrencia(entidade["entity"])
                 self.__ocorrencia_repository.delete(entidade["entity"].id)
 
-
-        if events == "vistoria_inicial":
-            if contrato_instancia.vistoria_inicial:
-                self.__tela_vistoria.mostra_vistoria(contrato_instancia.vistoria_inicial)
-            else:
-                sg.popup("Não existe Vistoria Inicial cadastrada", title="Aviso")
-
-        if events == "contra_vistoria":
-            print(contrato_instancia.id)
-            print(contrato_instancia.contra_vistoria)
-            print(contrato_instancia.imovel)
-            if contrato_instancia.contra_vistoria:
-                self.__tela_vistoria.mostra_vistoria(contrato_instancia.contra_vistoria)
-            else:
-                criar_contra_vistoria = sg.popup(
-                    "Não existe Contra-Vistoria cadastrada",
-                    title="Aviso",
-                    custom_text=("Criar", "Fechar")
-                )
-                if criar_contra_vistoria == "Criar":
-                    self.__controlador.adiciona_vistoria(contrato_instancia)
-
-            if entidade["tipo"] == "Solicitação":
-                contrato_instancia.remover_solicitacao(entidade["entity"])
-                self.__solicitacao_repository.delete(entidade["entity"].id)
-
-
         if events == "-TABELA-DOUBLE-CLICK-":
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
             if entidade["tipo"] == "Ocorrência":
                 mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"])
 
                 if mostra_ocorr_event == "editar_ocorrencia":
-                    editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(entidade["entity"])
+                    editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
+                        entidade["entity"])
 
                     if editar_ocorr_events == "confirmar_edicao":
                         entidade["entity"].titulo = editar_ocorr_values["titulo"]
@@ -167,9 +143,14 @@ class ContratoController:
                         self.__ocorrencia_repository.update(entidade["entity"])
 
             if entidade["tipo"] == "Solicitação":
+                contrato_instancia.remover_solicitacao(entidade["entity"])
+                self.__solicitacao_repository.delete(entidade["entity"].id)
+
+            if entidade["tipo"] == "Solicitação":
                 event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
                 if event_solic == "editar_solicitacao":
-                    edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
+                    edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(
+                        entidade["entity"])
                     if edit_solic_events == "confirmar_edicao":
                         print(edit_solic_events)
                         entidade["entity"].titulo = edit_solic_values["titulo"]
@@ -177,6 +158,31 @@ class ContratoController:
                         entidade["entity"].status = Status(edit_solic_values["status"])
                         self.__solicitacao_repository.update(entidade["entity"])
 
+        if events == "vistoria_inicial":
+            if contrato_instancia.vistoria_inicial:
+                self.__tela_vistoria.mostra_vistoria(contrato_instancia.vistoria_inicial)
+            else:
+                sg.popup("Não existe Vistoria Inicial cadastrada", title="Aviso")
+
+        if events == "contra_vistoria":
+            if contrato_instancia.contra_vistoria:
+                vistoria_result = self.__tela_vistoria.mostra_vistoria(contrato_instancia.contra_vistoria)
+                if vistoria_result is not None:
+                    event, vistoria = vistoria_result
+                    if event == "editar_vistoria":
+                        pass
+                    elif event == "excluir_vistoria":
+                        print(vistoria.id)
+                        contrato_instancia.remover_vistoria(vistoria.id)
+                        self.__vistoria_repository.delete(vistoria.id)
+            else:
+                criar_contra_vistoria = sg.popup(
+                    "Não existe Contra-Vistoria cadastrada",
+                    title="Aviso",
+                    custom_text=("Criar", "Fechar")
+                )
+                if criar_contra_vistoria == "Criar":
+                    self.incluir_vistoria_inicial(contrato_instancia.contra_vistoria)
 
         if events == "Voltar":
             self.listar_contrato()
@@ -188,11 +194,11 @@ class ContratoController:
     def incluir_vistoria_inicial(self, contrato):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
-            contrato.incluir_vistoria(values["descricao"], values["imagens"], values["documento"])
+            contrato.incluir_constestacao_vistoria(values["descricao"], values["imagens"], values["documento"])
             self.__ocorrencia_repository.insert(vistoria=contrato.vistoria_inicial,
                                                 id_contrato=contrato.id)
         else:
-            raise(KeyError)
+            raise (KeyError)
 
     def valida_prazo_vistoria(self, vistoria):
         if vistoria is None:

@@ -1,4 +1,5 @@
 from uuid import UUID
+from domain.models.vistoria import Vistoria
 from infrastructure.configs.connection import Connection
 from infrastructure.mappers.VistoriasOutput import VistoriasOutputMapper
 from infrastructure.models.vistorias import Vistorias
@@ -16,7 +17,7 @@ class VistoriasRepository:
                 .first()
 
     def insert(self, vistoria: Vistorias, id_contrato: UUID) -> Vistorias:
-        vistoria_to_db = VistoriasOutputMapper.map_vistoria(ocorrencia_from_domain=vistoria, id_contrato=id_contrato)
+        vistoria_to_db = VistoriasOutputMapper.map_vistoria(vistoria_from_domain=vistoria, id_contrato=id_contrato)
 
         with Connection() as connection:
             connection.session.add(vistoria)
@@ -25,7 +26,9 @@ class VistoriasRepository:
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
-            connection.session.query(Vistorias).filter(Vistorias.id == id).delete()
+            result = connection.session.query(Vistorias).filter(Vistorias.id == str(id)).delete()
+            print(result)
+            connection.session.commit()
 
     def get_vistoria_inicial_by_contrato_id(self, contrato_id: UUID) -> Vistorias:
         with Connection() as connection:

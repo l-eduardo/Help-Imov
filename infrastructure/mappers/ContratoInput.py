@@ -40,11 +40,13 @@ class ContratoInputMapper:
                 status=ocorrencia.status,
                 data_criacao=ocorrencia.data_criacao,
                 id=UUID(ocorrencia.id))
-        print(contrato_from_db.contestacao_vistoria_inicial.descricao)
 
-        contrato.incluir_constestacao_vistoria(contrato_from_db.contestacao_vistoria_inicial.descricao,
-                                  contrato_from_db.contestacao_vistoria_inicial.imagens,
-                                  contrato_from_db.contestacao_vistoria_inicial.documento)
-
+        if contrato_from_db.contestacao_vistoria_inicial is not None:
+            contrato.incluir_constestacao_vistoria(
+                contrato_from_db.contestacao_vistoria_inicial.descricao,
+                contrato_from_db.contestacao_vistoria_inicial.imagens,
+                contrato_from_db.contestacao_vistoria_inicial.documento,
+                id = contrato_from_db.contestacao_vistoria_inicial.id
+            )
 
         return contrato

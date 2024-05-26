@@ -8,12 +8,11 @@ class Vistoria:
                  descricao: str,
                  imagens: List[List[bytes]],
                  documento: List[bytes],
-                 id: uuid.UUID = None
-                 ) -> None:
+                 id: uuid.UUID = None):
         if id is None:
             id = uuid.uuid4()
 
-        self._id = id
+        self._id: uuid.UUID = id
         self._descricao = descricao
         self._data_criacao = date.today()
         self._imagens = imagens

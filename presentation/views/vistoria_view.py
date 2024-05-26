@@ -58,7 +58,7 @@ class TelaVistoria:
             [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
             [sg.Text("Imagens:", size=(15, 1), justification='left'), sg.Text(vistoria.imagens)],
             [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Text(vistoria.documento)],
-            [sg.Button("Voltar")]
+            [sg.Button("Voltar"), sg.Button("Excluir"), sg.Button("Editar")]
         ]
 
         window = sg.Window('Cadastro de Vistoria', layout, element_justification='center',
@@ -68,6 +68,15 @@ class TelaVistoria:
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
                 break
+
+            if event == "Editar":
+                window.close()
+                return "editar_vistoria", vistoria
+
+            if event == "Excluir":
+                window.close()
+                return "excluir_vistoria", vistoria
+
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')

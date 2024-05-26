@@ -102,8 +102,8 @@ class Contrato:
         self._vistoria_inicial = value
 
     @property
-    def vistoria_final(self) -> 'Vistoria | None':
-        return self._vistoria_final
+    def contra_vistoria(self) -> 'Vistoria | None':
+        return self._contra_vistoria
 
     @contra_vistoria.setter
     def contra_vistoria(self, value: 'Vistoria'):
@@ -169,3 +169,12 @@ class Contrato:
 
     def remover_solicitacao(self, solicitacao: Solicitacao):
         self.solicitacoes.remove(solicitacao)
+
+    def remover_vistoria(self, vistoria: Vistoria):
+        if self._vistoria_inicial and self._vistoria_inicial.id == vistoria.id:
+            self._vistoria_inicial = None
+        elif self._contra_vistoria and self._contra_vistoria.id == vistoria.id:
+            self._contra_vistoria = None
+        else:
+            raise ValueError("A vistoria especificada não pertence a este contrato.")
+
