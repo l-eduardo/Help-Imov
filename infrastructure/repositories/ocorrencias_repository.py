@@ -17,4 +17,17 @@ class OcorrenciasRepository:
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
-            connection.session.query(Ocorrencias).filter(Ocorrencias.id == id).delete()
+            result = connection.session.query(Ocorrencias).filter(Ocorrencias.id == str(id)).delete()
+            print(result)
+            connection.session.commit()
+
+    def update(self, ocorrencia: Ocorrencia) -> Ocorrencia:
+        with Connection() as connection:
+            result = connection.session.query(Ocorrencias).filter(Ocorrencias.id == str(ocorrencia.id)).update(
+                {"titulo": ocorrencia.titulo,
+                 "descricao": ocorrencia.descricao,
+                 "status": ocorrencia.status.name})
+            print(result)
+            connection.session.commit()
+            return ocorrencia
+

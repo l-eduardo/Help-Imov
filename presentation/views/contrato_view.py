@@ -101,7 +101,7 @@ class TelaContrato:
 
         header = ["Tipo", "Título", "Status", "Data Criação"]
         # Convert the list of dictionaries into a list of lists for the table
-        table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"], ] for dado in
+        table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"], dado] for dado in
                       solicitacoes_ocorrencias]
 
         vistoria_header = ["Descrição", "Data"]
@@ -140,14 +140,15 @@ class TelaContrato:
         layout = [
             [vistorias_table],
             [tabela],
-            [sg.Button("Voltar"), sg.Button("Adicionar solicitação", key="add_solicitacao"), sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
-             sg.Button("Selecionar")]
+            [sg.Button("Voltar"),
+             sg.Button("Adicionar solicitação",key="add_solicitacao"),
+             sg.Button("Adicionar ocorrência",key="add_ocorrencia"),
+             sg.Button("Selecionar"), sg.Button("Excluir", key="Excluir")]
         ]
         # Create the window
-        window = sg.Window("Relacionados do contrato", layout, size=(900, 300), resizable=True, finalize=True)
+        window = sg.Window("Relacionados do contrato",layout, size=(900, 300), resizable=True, finalize=True)
 
-        window['-TABELA-'].bind("<Double-Button-1>", "-DOUBLE-CLICK-")
-        window['-VISTORIAS-TABLE-'].bind("<Double-Button-1>", "-DOUBLE-CLICK-")
+        window['-TABELA-'].bind("<Double-Button-1>", "DOUBLE-CLICK-")
 
         while True:
             event, values = window.read()

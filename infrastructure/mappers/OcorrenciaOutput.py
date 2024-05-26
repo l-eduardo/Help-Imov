@@ -15,5 +15,6 @@ class OcorrenciaOutputMapper:
         ocorrencia_to_db.status = ocorrencia_from_domain.status.name
         ocorrencia_to_db.data_criacao = ocorrencia_from_domain.data_criacao
         ocorrencia_to_db.contrato_id = contrato_id
+        ocorrencia_to_db.criador_id = ocorrencia_from_domain.criador_id
 
         return ocorrencia_to_db

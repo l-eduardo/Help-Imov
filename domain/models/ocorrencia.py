@@ -13,6 +13,7 @@ class Ocorrencia:
     def __init__(self,
     titulo: str,
     descricao: str,
+    criador_id: uuid.UUID,
     status: Status = Status.ABERTO,
     data_criacao: date = None,
     id: uuid.UUID = None):
@@ -26,7 +27,16 @@ class Ocorrencia:
         self._descricao: str = descricao
         self._status: Status = status
         self._data_criacao: date = data_criacao
+        self._criador_id: uuid.UUID = criador_id
         self._prestadores_servico: List[PrestadorServico] = []
+
+    @property
+    def criador_id(self) -> uuid.UUID:
+        return self._criador_id
+
+    @criador_id.setter
+    def criador_id(self, value: uuid.UUID):
+        self._criador_id = value
 
     @property
     def id(self) -> uuid.UUID:

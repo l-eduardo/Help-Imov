@@ -15,5 +15,6 @@ class SolicitacaoOutputMapper:
         solicitacao_to_db.status = solicitacao_from_domain.status.name
         solicitacao_to_db.data_criacao = solicitacao_from_domain.data_criacao
         solicitacao_to_db.id_contrato = id_contrato
+        solicitacao_to_db.criador_id = solicitacao_from_domain.criador_id
 
         return solicitacao_to_db

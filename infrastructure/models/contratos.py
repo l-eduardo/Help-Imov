@@ -17,6 +17,8 @@ class Contratos(Base):
     data_cadastro = Column(Date, name='data_cadastro')
     esta_ativo = Column(Boolean, name='esta_ativo')
 
+    criador_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), name='criador_id')
+
     imovel_id = Column(String(36), ForeignKey('IMOVEIS.id'), name='imovel_id')
     imovel = relationship('Imoveis')
 
