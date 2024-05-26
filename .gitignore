@@ -1,6 +1,6 @@
 #alembic
 alembic.ini
-./alembic/versions
+alembic/versions*
 
 
 #Pycharm
