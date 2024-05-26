@@ -154,7 +154,7 @@ class ContratoController:
                 if entidade["entity"].criador_id != session.user_id:
                     sg.popup("Você não tem permissão para editar esta solicitacao")
 
-                if event_solic == "editar_solicitacao":
+                elif event_solic == "editar_solicitacao":
                     edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
 
                     if edit_solic_events == "confirmar_edicao":

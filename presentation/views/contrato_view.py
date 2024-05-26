@@ -137,13 +137,22 @@ class TelaContrato:
                           select_mode=sg.TABLE_SELECT_MODE_BROWSE,
                           vertical_scroll_only=False)
         # Window layout
+        buttons_layout = [
+            sg.Button("Voltar"),
+            sg.Button("Adicionar solicitação", key="add_solicitacao"),
+            sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
+            sg.Button("Selecionar"),
+            sg.Button("Excluir", key="Excluir")
+        ]
+        right_button_layout = [
+            sg.Button("Solicitações para aprovação", key="Solicitações para aprovação")
+        ]
+        # Window layout
         layout = [
             [vistorias_table],
             [tabela],
-            [sg.Button("Voltar"),
-             sg.Button("Adicionar solicitação",key="add_solicitacao"),
-             sg.Button("Adicionar ocorrência",key="add_ocorrencia"),
-             sg.Button("Selecionar"), sg.Button("Excluir", key="Excluir")]
+            [sg.Column([buttons_layout], expand_x=True),
+             sg.Column([right_button_layout], justification='right', expand_x=True)]
         ]
         # Create the window
         window = sg.Window("Relacionados do contrato",layout, size=(900, 300), resizable=True, finalize=True)
