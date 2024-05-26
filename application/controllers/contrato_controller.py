@@ -112,14 +112,20 @@ class ContratoController:
                 self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                      id_contrato=contrato_instancia.id)
 
-        entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
 
         if events == "Excluir" and values["-TABELA-"] is not None:
+            entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
             if entidade["tipo"] == "Ocorrência":
                 contrato_instancia.remover_ocorrencia(entidade["entity"])
                 self.__ocorrencia_repository.delete(entidade["entity"].id)
 
+            if entidade["tipo"] == "Solicitação":
+                contrato_instancia.remover_solicitacao(entidade["entity"])
+                self.__solicitacao_repository.delete(entidade["entity"].id)
+
+
         if events == "-TABELA-DOUBLE-CLICK-":
+            entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
             if entidade["tipo"] == "Ocorrência":
                 mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"])
 
@@ -132,7 +138,16 @@ class ContratoController:
                         entidade["entity"].status = Status(editar_ocorr_values["status"])
                         self.__ocorrencia_repository.update(entidade["entity"])
 
-
+            if entidade["tipo"] == "Solicitação":
+                event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
+                if event_solic == "editar_solicitacao":
+                    edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
+                    if edit_solic_events == "confirmar_edicao":
+                        print(edit_solic_events)
+                        entidade["entity"].titulo = edit_solic_values["titulo"]
+                        entidade["entity"].descricao = edit_solic_values["descricao"]
+                        entidade["entity"].status = Status(edit_solic_values["status"])
+                        self.__solicitacao_repository.update(entidade["entity"])
 
 
         if events == "Voltar":

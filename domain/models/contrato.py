@@ -153,3 +153,6 @@ class Contrato:
 
     def remover_ocorrencia(self, ocorrencia: Ocorrencia):
         self._ocorrencias.remove(ocorrencia)
+
+    def remover_solicitacao(self, solicitacao: Solicitacao):
+        self.solicitacoes.remove(solicitacao)
