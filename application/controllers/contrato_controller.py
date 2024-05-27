@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from domain.enums.status import Status
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
@@ -31,16 +30,12 @@ class ContratoController:
         self.contratos = []
 
     def inclui_contrato(self):
-        #TODO Inclusao contrato
         dados_contrato = self.__tela_contrato.pega_dados_contrato()
         contrato = Contrato(dados_contrato['data_inicio'], dados_contrato['imovel'],
                             dados_contrato['locatario'], estaAtivo=True)
-
-        self.incluir_vistoria_inicial(contrato)
-
+        self.incluir_vistoria(contrato, e_contestacao = False)
         self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
         self.listar_contrato()
-        #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
 
     def listar_contrato(self):
         self.contratos = self.obter_contratos_do_banco()
@@ -95,8 +90,6 @@ class ContratoController:
                                            "entity": solicitacao})
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
-
-        #TODO: Implementar a passagem das vistorias
 
         if solicitacoes_ocorrencias:
             events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [],
@@ -183,7 +176,7 @@ class ContratoController:
                     custom_text=("Criar", "Fechar")
                 )
                 if criar_contra_vistoria == "Criar":
-                    self.incluir_vistoria_inicial(contrato_instancia.contra_vistoria)
+                    self.incluir_vistoria(contrato_instancia, e_contestacao = True)
 
         if events == "Voltar":
             self.listar_contrato()
@@ -192,12 +185,10 @@ class ContratoController:
             return
         self.listar_relacionados_contrato(contrato_instancia)
 
-    def incluir_vistoria_inicial(self, contrato):
+    def incluir_vistoria(self, contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
-            contrato.incluir_vistoria(values["descricao"], values["imagens"], values["documento"])
-            print(contrato)
-            print(contrato.vistoria_inicial)
+            contrato.incluir_vistoria(descricao=values["descricao"], imagens=values["imagens"].split(';'), documento=values["documento"], e_contestacao=e_contestacao)
             self.__vistoria_repository.insert(vistoria=contrato.vistoria_inicial,
                                                 id_contrato=contrato.id)
         else:

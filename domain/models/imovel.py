@@ -38,4 +38,4 @@ class Imovel:
     # a parte de imagens vai ser uma classe separada pra lidar com a manipulação
 
     def __str__(self):
-        return f'{self.codigo}'
+        return f'{self.endereco}'
