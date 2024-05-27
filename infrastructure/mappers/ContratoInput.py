@@ -45,4 +45,22 @@ class ContratoInputMapper:
                 data_criacao=ocorrencia.data_criacao,
                 id=UUID(ocorrencia.id))
 
+        if contrato_from_db.vistoria_inicial is not None:
+            contrato.incluir_vistoria(
+                contrato_from_db.vistoria_inicial.descricao,
+                contrato_from_db.vistoria_inicial.imagens,
+                contrato_from_db.vistoria_inicial.documento,
+                e_contestacao = False,
+                id = contrato_from_db.vistoria_inicial.id
+            )
+
+        if contrato_from_db.contestacao_vistoria_inicial is not None:
+            contrato.incluir_vistoria(
+                contrato_from_db.contestacao_vistoria_inicial.descricao,
+                contrato_from_db.contestacao_vistoria_inicial.imagens,
+                contrato_from_db.contestacao_vistoria_inicial.documento,
+                e_contestacao = True,
+                id = contrato_from_db.contestacao_vistoria_inicial.id
+            )
+
         return contrato

@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 if TYPE_CHECKING:
     from infrastructure.models.imagens import Imagens
 
+
 class Ocorrencias(Base):
     __tablename__ = 'OCORRENCIAS'
 

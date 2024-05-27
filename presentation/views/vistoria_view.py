@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from presentation.components.carrossel_cmpt import Carrossel
 
 
 # Definição do layout da janela
@@ -27,22 +28,84 @@ class TelaVistoria:
                 window.close()
                 return {"descricao": descricao, "data": data}
 
+
+    def __layout_nova_vistoria(self):
+        centrilizedButtons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
+
+        layout = [[sg.Text("Descrição")],
+                  [sg.Multiline(key="descricao", tooltip="Digite uma descrição...", size=(50, 10), no_scrollbar=True,
+                                expand_x=True)],
+                  [sg.Text("Imagens")],
+                  [[sg.Input(key='imagens'), sg.FilesBrowse()]],
+                  [sg.Text("Documento")],
+                  [[sg.Input(key='documento'), sg.FilesBrowse()]],
+                  [sg.Column([centrilizedButtons], justification="center")]]
+
+        window = sg.Window("Nova Vistoria", layout)
+
+        return window
+
+
+    def pega_dados_vistoria(self):
+        window = self.__layout_nova_vistoria()
+        event, values = window.read()
+        window.close()
+        return event, values
+
+
     def mostra_vistoria(self, vistoria):
+        lista_paths_imagens = ['/Users/vitorrempel/Pictures/teste/images.png','/Users/vitorrempel/Pictures/teste/nanana.png','/Users/vitorrempel/Pictures/teste/cachorro.png']
+        image_index = 0
         layout = [
-
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
-            [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria["descricao"])],
-            [sg.Text("Data de Criação:", size=(15, 1), justification='left'), sg.Text(vistoria["dataCadastro"])],
-            [sg.Text("Anexos:", size=(22, 1), justification='left'), sg.Text(vistoria["anexos"])],
-            [sg.Button("Voltar")]]
+            [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
+            [sg.Text("Imagens:", size=(15, 1), justification='left'), sg.Text(vistoria.imagens)],
+            [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Text(vistoria.documento)],
+            [sg.Button("Voltar"), sg.Button("Excluir"), sg.Button("Editar")],
+            Carrossel.carrossel_layout(lista_paths_imagens)
+        ]
 
-        window = sg.Window('Cadastro de Vistoria', layout, element_justification='center',
-                           size=(500, 400), font=('Arial', 18, 'bold'))
+        window = sg.Window('Vistoria', layout, element_justification='center',
+                           size=(800, 600), 
+                           font=('Arial', 18, 'bold'))
+
         while True:
             event, values = window.read()
+            window['-COUNT_IMG-'].bind("<Return>", "_Enter")
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
-                # self.__controlador_contrato.listar_contrato()
+                break
+
+            if event == "Editar":
+                window.close()
+                return "editar_vistoria", vistoria
+
+            if event == "Excluir":
+                window.close()
+                return "excluir_vistoria", vistoria
+            
+            if event == "-PROX_IMG-":
+                image_index = (image_index + 1) % len(lista_paths_imagens)
+                window['-COUNT_IMG-'].update(f"{image_index + 1}")
+                window['-IMAGE-'].update(lista_paths_imagens[image_index])
+
+            if event == "-ANT_IMG-":
+                if image_index == 0:
+                    image_index = len(lista_paths_imagens) - 1
+                else:
+                    image_index -= 1
+                window['-COUNT_IMG-'].update(f"{image_index + 1}")
+                window['-IMAGE-'].update(lista_paths_imagens[image_index])
+            
+            if event == '-COUNT_IMG-' + "_Enter":
+                try:
+                    contador_input = int(values['-COUNT_IMG-'])
+                except:
+                    contador_input = image_index
+                if contador_input > 0 and contador_input <= len(lista_paths_imagens):
+                    image_index = contador_input - 1
+                window['-IMAGE-'].update(lista_paths_imagens[image_index])
+
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')
