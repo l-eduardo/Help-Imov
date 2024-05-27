@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, List
 import uuid
 from domain.models.Imagem import Imagem
+from domain.models.documento import Documento
 if TYPE_CHECKING:
     from domain.models.contrato import Contrato
 from datetime import date, datetime
@@ -10,7 +11,7 @@ class Vistoria:
     def __init__(self,
                  imagens: List[Imagem],
                  descricao: str,
-                 documento: List[bytes],
+                 documento: Documento,
                  fechada: bool = False,
                  id: uuid.UUID = None):
         if id is None:
@@ -28,7 +29,7 @@ class Vistoria:
         return self._id
 
     @property
-    def documento(self) -> List[bytes]:
+    def documento(self) -> Documento:
         return self._documento
 
     @documento.setter
@@ -40,7 +41,7 @@ class Vistoria:
         return self._imagens
 
     @imagens.setter
-    def imagens(self, value: List[List[bytes]]) -> None:
+    def imagens(self, value: List[Imagem]) -> None:
         self._imagens = value
 
     @property
