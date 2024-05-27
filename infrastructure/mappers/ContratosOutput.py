@@ -11,12 +11,12 @@ class ContratosOutputMapper:
             data_inicio=contrato.dataInicio,
             data_fim=contrato.dataFim,
             data_cadastro=contrato.dataCadastro,
-            #locatario_id=contrato.locatario,
-            locatario_id="202020",
-            #imovel_id=contrato.imovel.id,
-            imovel_id='e7c3de8c-114d-4eee-a163-9306661ac7a7',
+            locatario_id='022a7e4e-fd0b-488b-9609-44990c640e2e',
+            # locatario_id="202020",
+            imovel_id=str(contrato.imovel.id),
+            # imovel_id='e7c3de8c-114d-4eee-a163-9306661ac7a7',
             #vistoria_inicial=contrato._vistoria_inicial.id,
-            vistoria_inicial_id=None,
+            vistoria_inicial_id=str(contrato.vistoria_inicial.id),
             contestecao_vistoria_inicial_id=None,
             #estaAtivo=contrato.estaAtivo
         )

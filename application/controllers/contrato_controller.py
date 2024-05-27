@@ -34,8 +34,8 @@ class ContratoController:
 
     def inclui_contrato(self):
         dados_contrato = self.__tela_contrato.pega_dados_contrato()
-        contrato = Contrato(dados_contrato['data_inicio'], dados_contrato['imovel'],
-                            dados_contrato['locatario'], estaAtivo=True)
+        contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
+                            locatario=dados_contrato['locatario'], estaAtivo=True)
         self.incluir_vistoria(contrato, e_contestacao = False)
         self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
         self.listar_contrato()
@@ -173,7 +173,7 @@ class ContratoController:
 
         if events == "vistoria_inicial":
             if contrato_instancia.vistoria_inicial:
-                self.__tela_vistoria.mostra_vistoria(contrato_instancia.vistoria_inicial)
+                self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial, lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens))
             else:
                 sg.popup("Não existe Vistoria Inicial cadastrada", title="Aviso")
 
@@ -205,10 +205,10 @@ class ContratoController:
             return
         self.listar_relacionados_contrato(contrato_instancia)
 
-    def incluir_vistoria(self, contrato, e_contestacao):
+    def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
-            contrato.incluir_vistoria(descricao=values["descricao"], imagens=values["imagens"].split(';'), documento=values["documento"], e_contestacao=e_contestacao)
+            contrato.incluir_vistoria(descricao=values["descricao"], imagens=ImagensService.bulk_read(values["imagens"].split(';')), documento=None, e_contestacao=e_contestacao)
             self.__vistoria_repository.insert(vistoria=contrato.vistoria_inicial,
                                                 id_contrato=contrato.id)
         else:

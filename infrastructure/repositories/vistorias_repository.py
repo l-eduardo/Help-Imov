@@ -20,7 +20,7 @@ class VistoriasRepository:
         vistoria_to_db = VistoriasOutputMapper.map_vistoria(vistoria_from_domain=vistoria, id_contrato=id_contrato)
 
         with Connection() as connection:
-            connection.session.add(vistoria)
+            connection.session.add(vistoria_to_db)
             connection.session.commit()
             return vistoria
 

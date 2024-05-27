@@ -32,16 +32,22 @@ class ImagensService:
     def local_temp_save(imagem: Imagem,
                         session: Session=None) -> str:
 
+        if imagem is None:
+            return None
+
         np_image = np.frombuffer(imagem.content, dtype=np.uint8)
 
         reshaped_image = np_image.reshape((imagem.height, imagem.width, imagem.channels))
 
         salt = time.time_ns()
-
-        iio.imwrite(str(salt) + '_temp_image_' + uuid.uuid4().__str__() + '.png', image=reshaped_image)
+        path = str(salt) + '_temp_image_' + uuid.uuid4().__str__() + '.png'
+        iio.imwrite(path, image=reshaped_image)
+        return path
 
     @staticmethod
     def bulk_local_temp_save(imagens: List[Imagem]) -> List[str]:
+        if not imagens or imagens is None:
+            return []
         return [ImagensService.local_temp_save(imagem) for imagem in imagens]
 
     @staticmethod

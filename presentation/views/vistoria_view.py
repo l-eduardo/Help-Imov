@@ -53,8 +53,7 @@ class TelaVistoria:
         return event, values
 
 
-    def mostra_vistoria(self, vistoria):
-        lista_paths_imagens = ['/Users/vitorrempel/Pictures/teste/images.png','/Users/vitorrempel/Pictures/teste/nanana.png','/Users/vitorrempel/Pictures/teste/cachorro.png']
+    def mostra_vistoria(self, vistoria, lista_paths_imagens):
         image_index = 0
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
@@ -66,7 +65,7 @@ class TelaVistoria:
         ]
 
         window = sg.Window('Vistoria', layout, element_justification='center',
-                           size=(800, 600), 
+                           size=(800, 600),
                            font=('Arial', 18, 'bold'))
 
         while True:
@@ -83,7 +82,7 @@ class TelaVistoria:
             if event == "Excluir":
                 window.close()
                 return "excluir_vistoria", vistoria
-            
+
             if event == "-PROX_IMG-":
                 image_index = (image_index + 1) % len(lista_paths_imagens)
                 window['-COUNT_IMG-'].update(f"{image_index + 1}")
@@ -96,7 +95,7 @@ class TelaVistoria:
                     image_index -= 1
                 window['-COUNT_IMG-'].update(f"{image_index + 1}")
                 window['-IMAGE-'].update(lista_paths_imagens[image_index])
-            
+
             if event == '-COUNT_IMG-' + "_Enter":
                 try:
                     contador_input = int(values['-COUNT_IMG-'])

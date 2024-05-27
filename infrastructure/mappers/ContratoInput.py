@@ -48,7 +48,7 @@ class ContratoInputMapper:
         if contrato_from_db.vistoria_inicial is not None:
             contrato.incluir_vistoria(
                 contrato_from_db.vistoria_inicial.descricao,
-                contrato_from_db.vistoria_inicial.imagens,
+                ImagemInputMapper.bulk_map_imagens(contrato_from_db.vistoria_inicial.imagens),
                 contrato_from_db.vistoria_inicial.documento,
                 e_contestacao = False,
                 id = contrato_from_db.vistoria_inicial.id
@@ -57,7 +57,7 @@ class ContratoInputMapper:
         if contrato_from_db.contestacao_vistoria_inicial is not None:
             contrato.incluir_vistoria(
                 contrato_from_db.contestacao_vistoria_inicial.descricao,
-                contrato_from_db.contestacao_vistoria_inicial.imagens,
+                ImagemInputMapper.bulk_map_imagens(contrato_from_db.contestacao_vistoria_inicial.imagens),
                 contrato_from_db.contestacao_vistoria_inicial.documento,
                 e_contestacao = True,
                 id = contrato_from_db.contestacao_vistoria_inicial.id

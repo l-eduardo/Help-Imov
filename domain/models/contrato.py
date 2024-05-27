@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from domain.models.Imagem import Imagem
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
 from domain.enums.status import Status
@@ -155,19 +156,19 @@ class Contrato:
 
     def incluir_vistoria(self,
                          descricao: str,
-                         imagens: List[List[bytes]],
+                         imagens: List[Imagem],
                          documento: List[bytes],
                          e_contestacao: bool,
                          id: uuid.UUID = None):
 
         if e_contestacao:
-            self._contra_vistoria = Vistoria(descricao, imagens, documento, id=id)
+            self._contra_vistoria = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
             return self._contra_vistoria
         else:
-            self._vistoria_inicial = Vistoria(descricao, imagens, documento, id=id)
+            self._vistoria_inicial = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
             return self._vistoria_inicial
 
-        
+
 
     #def incluir_constestacao_vistoria(self,
     #                     descricao: str,
