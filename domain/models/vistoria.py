@@ -1,5 +1,6 @@
 from typing import List
 import uuid
+from domain.models.Imagem import Imagem
 from domain.models.contrato import Contrato
 from datetime import date, datetime
 
@@ -7,7 +8,7 @@ from datetime import date, datetime
 class Vistoria:
     def __init__(self,
                  fechada: bool,
-                 imagens: List[List[bytes]],
+                 imagens: List[Imagem],
                  documento: List[bytes],
                  id: uuid.UUID = None
                  ) -> None:
@@ -20,6 +21,7 @@ class Vistoria:
         self._dataCadastro = datetime.strptime(f"{date.today()}", "%Y-%m-%d")
         self._anexos = anexos
         self._descricao = descricao
+        self._imagens = imagens
 
     @property
     def id(self) -> uuid.UUID:
@@ -72,6 +74,10 @@ class Vistoria:
     @dataCadastro.setter
     def dataCadastro(self, value: date):
         self._dataCadastro = value
+
+    @property
+    def imagens(self) -> List[Imagem]:
+        return self._imagens
 
     def esta_fechada(self):
         subtr_data = datetime.strptime(f"{date.today()}", "%Y-%m-%d") - self._dataCadastro

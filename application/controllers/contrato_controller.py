@@ -2,6 +2,7 @@ from datetime import datetime
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.session import Session
+from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
@@ -91,8 +92,6 @@ class ContratoController:
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
-        #TODO: Implementar a passagem das vistorias
-
         if solicitacoes_ocorrencias:
             events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [], solicitacoes_ocorrencias,
                                                           contrato_instancia)
@@ -105,9 +104,14 @@ class ContratoController:
         if events == "add_ocorrencia":
             event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
             if event == "Salvar":
-                contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"], session.user_id)
+                contrato_instancia.incluir_ocorrencia(values["titulo"],
+                                                      values["descricao"],
+                                                      session.user_id,
+                                                      imagens=[])
+
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
+
         elif events == "add_solicitacao":
             event, values = self.__solicitacao_view.pega_dados_solicitacao()
             if event == "Registrar":
@@ -128,7 +132,6 @@ class ContratoController:
             elif entidade["tipo"] == "Solicitação":
                 contrato_instancia.remover_solicitacao(entidade["entity"])
                 self.__solicitacao_repository.delete(entidade["entity"].id)
-
 
         elif events == "-TABELA-DOUBLE-CLICK-":
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
@@ -163,6 +166,7 @@ class ContratoController:
                         entidade["entity"].descricao = edit_solic_values["descricao"]
                         entidade["entity"].status = Status(edit_solic_values["status"])
                         self.__solicitacao_repository.update(entidade["entity"])
+
         elif events == "Voltar":
             self.listar_contrato()
 

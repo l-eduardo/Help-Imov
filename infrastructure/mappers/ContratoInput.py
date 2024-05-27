@@ -8,6 +8,7 @@ from domain.models.imovel import Imovel
 from domain.models.locatario import Locatario
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
+from infrastructure.mappers.ImagemInput import ImagemInputMapper
 from infrastructure.models.contratos import Contratos
 from infrastructure.models.ocorrencias import Ocorrencias
 from infrastructure.models.solicitacoes import Solicitacoes
@@ -40,6 +41,7 @@ class ContratoInputMapper:
                 descricao=ocorrencia.descricao,
                 status=ocorrencia.status,
                 criador_id=ocorrencia.criador_id,
+                imagens=ImagemInputMapper.bulk_map_imagens(ocorrencia.imagens),
                 data_criacao=ocorrencia.data_criacao,
                 id=UUID(ocorrencia.id))
 

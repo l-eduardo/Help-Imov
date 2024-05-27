@@ -15,5 +15,3 @@ class Solicitacoes(Base):
     data_criacao = Column(Date,name='data_criacao')
     id_contrato = Column(String(36), ForeignKey('CONTRATOS.id'), name='contrato_id')
     criador_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), name='criador_id')
-
-    imagens = relationship('Imagens', cascade='all, delete-orphan')

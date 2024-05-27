@@ -134,6 +134,7 @@ class Contrato:
                            titulo: str,
                            descricao: str,
                            criador_id: uuid.UUID,
+                           imagens: List[bytes] = None,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
                            id: uuid.UUID = None):
@@ -146,6 +147,7 @@ class Contrato:
         self._ocorrencias.append(Ocorrencia(titulo=titulo,
                                  descricao=descricao,
                                  status=status,
+                                 imagens=imagens,
                                  criador_id=criador_id,
                                  data_criacao=data_criacao,
                                  id=id))
