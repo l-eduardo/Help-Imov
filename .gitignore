@@ -1,8 +1,21 @@
+#alembic
+alembic.ini
+alembic/versions*
+
+#images
+*.png
+*.jpg
+*.jpeg
+*.gif
+
 #Pycharm
 .idea/
 
+#Alembic
+alembic/versions/
+
 # Byte-compiled / optimized / DLL files
-__pycache__/
+*__pycache__
 *.py[cod]
 *$py.class
 

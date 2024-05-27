@@ -1,13 +1,18 @@
-from typing import List
+from typing import TYPE_CHECKING, List
 import uuid
+from domain.models.Imagem import Imagem
+from domain.models.documento import Documento
+if TYPE_CHECKING:
+    from domain.models.contrato import Contrato
 from datetime import date, datetime
 
 
 class Vistoria:
     def __init__(self,
+                 imagens: List[Imagem],
                  descricao: str,
-                 imagens: List[List[bytes]],
-                 documento: List[bytes],
+                 documento: Documento,
+                 fechada: bool = False,
                  id: uuid.UUID = None):
         if id is None:
             id = uuid.uuid4()
@@ -24,7 +29,7 @@ class Vistoria:
         return self._id
 
     @property
-    def documento(self) -> List[bytes]:
+    def documento(self) -> Documento:
         return self._documento
 
     @documento.setter
@@ -32,11 +37,11 @@ class Vistoria:
         self._documento = value
 
     @property
-    def imagens(self) -> List[List[bytes]]:
+    def imagens(self) -> List[Imagem]:
         return self._imagens
 
     @imagens.setter
-    def imagens(self, value: List[List[bytes]]) -> None:
+    def imagens(self, value: List[Imagem]) -> None:
         self._imagens = value
 
     @property
@@ -54,6 +59,7 @@ class Vistoria:
     @data_criacao.setter
     def data_criacao(self, value: date):
         self._data_criacao = value
+
 
     def esta_fechada(self):
         subtr_data = datetime.strptime(f"{date.today()}", "%Y-%m-%d") - datetime.strptime(f"{self._data_criacao}", "%Y-%m-%d")

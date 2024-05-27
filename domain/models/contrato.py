@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from domain.models.Imagem import Imagem
+from domain.models.documento import Documento
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
 from domain.enums.status import Status
@@ -120,6 +122,7 @@ class Contrato:
     def incluir_solicitacao(self,
                             titulo: str,
                             descricao: str,
+                            criador_id: uuid.UUID,
                             status: Status = Status.ABERTO,
                             data_criacao: date = None,
                             id: uuid.UUID = None):
@@ -128,11 +131,13 @@ class Contrato:
         if data_criacao is None:
             data_criacao = date.today()
 
-        self._solicitacoes.append(Solicitacao(titulo, descricao, status, data_criacao=data_criacao, id=id))
+        self._solicitacoes.append(Solicitacao(titulo=titulo, descricao=descricao,status=status, criador_id=criador_id, data_criacao=data_criacao, id=id))
 
     def incluir_ocorrencia(self,
                            titulo: str,
                            descricao: str,
+                           criador_id: uuid.UUID,
+                           imagens: List[bytes] = None,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
                            id: uuid.UUID = None):
@@ -142,27 +147,41 @@ class Contrato:
         if data_criacao is None:
             data_criacao = date.today()
 
-        self._ocorrencias.append(Ocorrencia(titulo, descricao, status, data_criacao=data_criacao, id=id))
+        self._ocorrencias.append(Ocorrencia(titulo=titulo,
+                                 descricao=descricao,
+                                 status=status,
+                                 imagens=imagens,
+                                 criador_id=criador_id,
+                                 data_criacao=data_criacao,
+                                 id=id))
 
     def incluir_vistoria(self,
                          descricao: str,
-                         imagens: List[List[bytes]],
-                         documento: List[bytes]):
-
-        self._vistoria_inicial = Vistoria(descricao, imagens, documento)
-        return self._vistoria_inicial
-
-    def incluir_constestacao_vistoria(self,
-                         descricao: str,
-                         imagens: List[List[bytes]],
-                         documento: List[bytes],
+                         imagens: List[Imagem],
+                         documento: Documento,
+                         e_contestacao: bool,
                          id: uuid.UUID = None):
 
-        if id is None:
-            id = uuid.uuid4()
+        if e_contestacao:
+            self._contra_vistoria = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
+            return self._contra_vistoria
+        else:
+            self._vistoria_inicial = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
+            return self._vistoria_inicial
 
-        self._contra_vistoria = Vistoria(descricao, imagens, documento, id=id)
-        return self._contra_vistoria
+
+
+    #def incluir_constestacao_vistoria(self,
+    #                     descricao: str,
+    #                     imagens: List[List[bytes]],
+    #                     documento: List[bytes],
+    #                     id: uuid.UUID = None):
+#
+#        if id is None:
+#            id = uuid.uuid4()
+#
+#        self._contra_vistoria = Vistoria(descricao, imagens, documento, id=id)
+#        return self._contra_vistoria
 
     def remover_ocorrencia(self, ocorrencia: Ocorrencia):
         self._ocorrencias.remove(ocorrencia)

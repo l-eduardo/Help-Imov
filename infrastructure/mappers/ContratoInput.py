@@ -8,6 +8,8 @@ from domain.models.imovel import Imovel
 from domain.models.locatario import Locatario
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
+from infrastructure.mappers.DocumentoInput import DocumentoInputMapper
+from infrastructure.mappers.ImagemInput import ImagemInputMapper
 from infrastructure.models.contratos import Contratos
 from infrastructure.models.ocorrencias import Ocorrencias
 from infrastructure.models.solicitacoes import Solicitacoes
@@ -31,6 +33,7 @@ class ContratoInputMapper:
                 descricao=solicitacao.descricao,
                 status=solicitacao.status,
                 data_criacao=solicitacao.data_criacao,
+                criador_id=solicitacao.criador_id,
                 id=UUID(solicitacao.id))
 
         for ocorrencia in contrato_from_db.ocorrencias:
@@ -38,14 +41,26 @@ class ContratoInputMapper:
                 titulo=ocorrencia.titulo,
                 descricao=ocorrencia.descricao,
                 status=ocorrencia.status,
+                criador_id=ocorrencia.criador_id,
+                imagens=ImagemInputMapper.bulk_map_imagens(ocorrencia.imagens),
                 data_criacao=ocorrencia.data_criacao,
                 id=UUID(ocorrencia.id))
 
+        if contrato_from_db.vistoria_inicial is not None:
+            contrato.incluir_vistoria(
+                descricao=contrato_from_db.vistoria_inicial.descricao,
+                imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.vistoria_inicial.imagens),
+                documento = DocumentoInputMapper.map_documento(contrato_from_db.vistoria_inicial.documento or None) ,
+                e_contestacao = False,
+                id = contrato_from_db.vistoria_inicial.id
+            )
+
         if contrato_from_db.contestacao_vistoria_inicial is not None:
-            contrato.incluir_constestacao_vistoria(
-                contrato_from_db.contestacao_vistoria_inicial.descricao,
-                contrato_from_db.contestacao_vistoria_inicial.imagens,
-                contrato_from_db.contestacao_vistoria_inicial.documento,
+            contrato.incluir_vistoria(
+                descricao=contrato_from_db.contestacao_vistoria_inicial.descricao,
+                imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.contestacao_vistoria_inicial.imagens),
+                e_contestacao = True,
+                documento = DocumentoInputMapper.DocumentoInputMaper(contrato_from_db.contestacao_vistoria_inicial.documento),
                 id = contrato_from_db.contestacao_vistoria_inicial.id
             )
 

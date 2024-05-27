@@ -1,9 +1,11 @@
 
+from typing import TYPE_CHECKING
 from sqlalchemy import Column, ForeignKey, LargeBinary, String
 from sqlalchemy.orm import relationship
 
 from infrastructure.models import Base
-from infrastructure.models.imagens import Imagens
+if TYPE_CHECKING:
+    from infrastructure.models.imagens import Imagens
 
 
 class Vistorias(Base):
@@ -12,6 +14,7 @@ class Vistorias(Base):
     id = Column(String(36), primary_key=True, name='id')
     descricao = Column(String(500),name='descricao')
     data_criacao = Column(String(36), name='data_criacao')
-    documento = Column(String(36), name='documento')
+
     imagens = relationship('Imagens', cascade='all, delete-orphan')
-    id_contrato = Column(String(36), ForeignKey('CONTRATOS.id'), name='id_contrato')
+    documento_id = Column(String(36), ForeignKey('DOCUMENTOS.id'), name='documento_id')
+    documento = relationship('Documentos', uselist=False, cascade='all')

@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from presentation.components.carrossel_cmpt import Carrossel
 
 
 # Definição do layout da janela
@@ -51,19 +52,24 @@ class TelaVistoria:
     #     return event, values
 
 
-    def mostra_vistoria(self, vistoria):
+    def mostra_vistoria(self, vistoria, lista_paths_imagens):
+        image_index = 0
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
             [sg.Text("Imagens:", size=(15, 1), justification='left'), sg.Text(vistoria.imagens)],
             [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Text(vistoria.documento)],
-            [sg.Button("Voltar"), sg.Button("Excluir"), sg.Button("Editar")]
+            [sg.Button("Voltar"), sg.Button("Excluir"), sg.Button("Editar")],
+            Carrossel.carrossel_layout(lista_paths_imagens)
         ]
 
-        window = sg.Window('Cadastro de Vistoria', layout, element_justification='center',
-                           size=(500, 400), font=('Arial', 18, 'bold'))
+        window = sg.Window('Vistoria', layout, element_justification='center',
+                           size=(800, 600),
+                           font=('Arial', 18, 'bold'))
+
         while True:
             event, values = window.read()
+            window['-COUNT_IMG-'].bind("<Return>", "_Enter")
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
                 break
@@ -75,6 +81,28 @@ class TelaVistoria:
             if event == "Excluir":
                 window.close()
                 return "excluir_vistoria", vistoria
+
+            if event == "-PROX_IMG-":
+                image_index = (image_index + 1) % len(lista_paths_imagens)
+                window['-COUNT_IMG-'].update(f"{image_index + 1}")
+                window['-IMAGE-'].update(lista_paths_imagens[image_index])
+
+            if event == "-ANT_IMG-":
+                if image_index == 0:
+                    image_index = len(lista_paths_imagens) - 1
+                else:
+                    image_index -= 1
+                window['-COUNT_IMG-'].update(f"{image_index + 1}")
+                window['-IMAGE-'].update(lista_paths_imagens[image_index])
+
+            if event == '-COUNT_IMG-' + "_Enter":
+                try:
+                    contador_input = int(values['-COUNT_IMG-'])
+                except:
+                    contador_input = image_index
+                if contador_input > 0 and contador_input <= len(lista_paths_imagens):
+                    image_index = contador_input - 1
+                window['-IMAGE-'].update(lista_paths_imagens[image_index])
 
 
     def mostra_msg(self, msg):
