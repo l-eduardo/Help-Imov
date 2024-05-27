@@ -44,12 +44,11 @@ class TelaVistoria:
 
         return window
 
-
-    def pega_dados_vistoria(self):
-        window = self.__layout_nova_vistoria()
-        event, values = window.read()
-        window.close()
-        return event, values
+    # def pega_dados_vistoria(self):
+    #     window = self.__layout_nova_vistoria()
+    #     event, values = window.read()
+    #     window.close()
+    #     return event, values
 
 
     def mostra_vistoria(self, vistoria):

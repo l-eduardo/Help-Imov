@@ -200,13 +200,3 @@ class ContratoController:
                                                 id_contrato=contrato.id)
         else:
             raise (KeyError)
-
-    def valida_prazo_vistoria(self, vistoria):
-        if vistoria is None:
-            return False
-
-        else:
-            if (datetime.now() - vistoria.dataCadastro).days > 14:
-                return False
-            else:
-                return True
