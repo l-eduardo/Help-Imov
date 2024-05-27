@@ -17,6 +17,6 @@ class ContratosOutputMapper:
             # imovel_id='e7c3de8c-114d-4eee-a163-9306661ac7a7',
             #vistoria_inicial=contrato._vistoria_inicial.id,
             vistoria_inicial_id=str(contrato.vistoria_inicial.id),
-            contestecao_vistoria_inicial_id=None,
+            # contra_vistoria_id=str(contrato.contra_vistoria.id),
             #estaAtivo=contrato.estaAtivo
         )

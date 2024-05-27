@@ -104,7 +104,7 @@ class Contrato:
         self._vistoria_inicial = value
 
     @property
-    def contra_vistoria(self) -> 'Vistoria | None':
+    def contra_vistoria(self) -> 'Vistoria':
         return self._contra_vistoria
 
     @contra_vistoria.setter

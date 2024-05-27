@@ -1,6 +1,8 @@
 from datetime import datetime
 
+from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
+from domain.models.Imagem import Imagem
 from domain.models.session import Session
 from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
@@ -177,23 +179,32 @@ class ContratoController:
         if events == "vistoria_inicial":
             if contrato_instancia.vistoria_inicial:
                 DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
-                self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
+                vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens))
+                if vistoria_result is not None:
+                    event, vistoria = vistoria_result
+                    if event == "editar_vistoria":
+                        self.editar_vistoria(contrato_instancia, vistoria)
+                    elif event == "excluir_vistoria":
+                        contrato_instancia.remover_vistoria(vistoria)
+                        self.__vistoria_repository.delete(vistoria.id)
+                        sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
             else:
                 sg.popup("Não existe Vistoria Inicial cadastrada", title="Aviso")
 
         if events == "contra_vistoria":
             if contrato_instancia.contra_vistoria:
-                vistoria_result = self.__tela_vistoria.mostra_vistoria(contrato_instancia.contra_vistoria)
+                DocumentosService.save_file(contrato_instancia.contra_vistoria.documento) # pode dar paw, qualquer coisa remover
+                vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
+                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens))
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
                     if event == "editar_vistoria":
-                        pass
+                        self.editar_vistoria(contrato_instancia, vistoria)
                     elif event == "excluir_vistoria":
                         contrato_instancia.remover_vistoria(vistoria)
                         self.__vistoria_repository.delete(vistoria.id)
                         sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
-
             else:
                 criar_contra_vistoria = sg.popup(
                     "Não existe Contra-Vistoria cadastrada",
@@ -213,13 +224,25 @@ class ContratoController:
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
-
             contrato.incluir_vistoria(descricao=values["descricao"],
                                       imagens=ImagensService.bulk_read(values["imagens"].split(';')),
                                       documento=DocumentosService.read_file(values["documento"]),
                                       e_contestacao=e_contestacao)
-
-            self.__vistoria_repository.insert(vistoria=contrato.vistoria_inicial,
+            vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
+            self.__vistoria_repository.insert(vistoria=vistoria_to_insert, # colocar depois uma verificação pra mudar pra vistoria_inicial
                                                 id_contrato=contrato.id)
         else:
             raise (KeyError)
+
+    def editar_vistoria(self, contrato_instancia, vistoria):
+        event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
+        if event == "Salvar":
+            vistoria.descricao = values["descricao"]
+            # vistoria.imagens = [Imagem(caminho=img_path) for img_path in values["imagens"].split(";")]
+            # vistoria.documento = values["documento"]
+            self.__vistoria_repository.update(vistoria)
+            sg.popup("Vistoria atualizada com sucesso", title="Sucesso")
+        elif event == "Cancelar":
+            sg.popup("Edição cancelada", title="Aviso")
+
+        self.listar_relacionados_contrato(contrato_instancia)

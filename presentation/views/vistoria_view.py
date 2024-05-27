@@ -7,27 +7,26 @@ class TelaVistoria:
     def __init__(self, controlador):
         self.__controlador = controlador
 
-    def pega_dados_vistoria(self):
-        layout = [
-            [sg.Text("Descrição"), sg.InputText(key="descricao")],
-            [sg.Text("Data"), sg.InputText(key="data")],
-            [sg.Button("Salvar"), sg.Button("Cancelar")]
-        ]
-
-        window = sg.Window("Nova Contra-Vistoria", layout)
-
-        while True:
-            event, values = window.read()
-            if event == sg.WIN_CLOSED or event == "Cancelar":
-                window.close()
-                return None
-            if event == "Salvar":
-                descricao = values["descricao"]
-                data = values["data"]
-                # Adicionar validação de dados aqui se necessário
-                window.close()
-                return {"descricao": descricao, "data": data}
-
+    # def pega_dados_vistoria(self):
+    #     layout = [
+    #         [sg.Text("Descrição"), sg.InputText(key="descricao")],
+    #         [sg.Text("Data"), sg.InputText(key="data")],
+    #         [sg.Button("Salvar"), sg.Button("Cancelar")]
+    #     ]
+    #
+    #     window = sg.Window("Nova Contra-Vistoria", layout)
+    #
+    #     while True:
+    #         event, values = window.read()
+    #         if event == sg.WIN_CLOSED or event == "Cancelar":
+    #             window.close()
+    #             return None
+    #         if event == "Salvar":
+    #             descricao = values["descricao"]
+    #             data = values["data"]
+    #             # Adicionar validação de dados aqui se necessário
+    #             window.close()
+    #             return {"descricao": descricao, "data": data}
 
     def __layout_nova_vistoria(self):
         centrilizedButtons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
@@ -45,12 +44,11 @@ class TelaVistoria:
 
         return window
 
-    # def pega_dados_vistoria(self):
-    #     window = self.__layout_nova_vistoria()
-    #     event, values = window.read()
-    #     window.close()
-    #     return event, values
-
+    def pega_dados_vistoria(self):
+        window = self.__layout_nova_vistoria()
+        event, values = window.read()
+        window.close()
+        return event, values
 
     def mostra_vistoria(self, vistoria, lista_paths_imagens):
         image_index = 0
@@ -104,6 +102,30 @@ class TelaVistoria:
                     image_index = contador_input - 1
                 window['-IMAGE-'].update(lista_paths_imagens[image_index])
 
-
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')
+
+    def __layout_editar_vistoria(self, vistoria):
+        # imagens_caminhos = [imagem.caminho for imagem in vistoria.imagens]
+
+        centrilizedButtons = [sg.Button("Salvar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
+
+        layout = [
+            [sg.Text("Descrição")],
+            [sg.Multiline(default_text=vistoria.descricao, key="descricao", tooltip="Digite uma descrição...",
+                          size=(50, 10), no_scrollbar=True, expand_x=True)],
+            # [sg.Text("Imagens")],
+            # [[sg.Input(key='imagens', default_text=";".join(imagens_caminhos)), sg.FilesBrowse()]],
+            # [sg.Text("Documento")],
+            # [[sg.Input(key='documento', default_text=vistoria.documento), sg.FilesBrowse()]],
+            [sg.Column([centrilizedButtons], justification="center")]
+        ]
+
+        window = sg.Window("Editar Vistoria", layout)
+        return window
+
+    def pega_dados_editar_vistoria(self, vistoria):
+        window = self.__layout_editar_vistoria(vistoria)
+        event, values = window.read()
+        window.close()
+        return event, values

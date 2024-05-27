@@ -23,5 +23,4 @@ class VistoriasOutputMapper:
         vistoria_to_db.id_contrato = id_contrato
         vistoria_from_domain.documento = vistoria_from_domain.documento
 
-
         return vistoria_to_db

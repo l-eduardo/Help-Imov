@@ -24,6 +24,7 @@ class ContratoInputMapper:
         estaAtivo=contrato_from_db.esta_ativo,
         # TODO: Vistoria inicial, terminar
         vistoria_inicial=None,
+        contra_vistoria=None,
         dataFim=contrato_from_db.data_fim,
         id=UUID(contrato_from_db.id))
 
@@ -50,18 +51,18 @@ class ContratoInputMapper:
             contrato.incluir_vistoria(
                 descricao=contrato_from_db.vistoria_inicial.descricao,
                 imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.vistoria_inicial.imagens),
-                documento = DocumentoInputMapper.map_documento(contrato_from_db.vistoria_inicial.documento or None) ,
+                documento = DocumentoInputMapper.map_documento(contrato_from_db.vistoria_inicial.documento or None),
                 e_contestacao = False,
                 id = contrato_from_db.vistoria_inicial.id
             )
 
-        if contrato_from_db.contestacao_vistoria_inicial is not None:
+        if contrato_from_db.contra_vistoria is not None:
             contrato.incluir_vistoria(
-                descricao=contrato_from_db.contestacao_vistoria_inicial.descricao,
-                imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.contestacao_vistoria_inicial.imagens),
+                descricao=contrato_from_db.contra_vistoria.descricao,
+                imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.contra_vistoria.imagens),
                 e_contestacao = True,
-                documento = DocumentoInputMapper.DocumentoInputMaper(contrato_from_db.contestacao_vistoria_inicial.documento),
-                id = contrato_from_db.contestacao_vistoria_inicial.id
+                documento = DocumentoInputMapper.map_documento(contrato_from_db.contra_vistoria.documento or None),
+                id = contrato_from_db.contra_vistoria.id
             )
 
         return contrato
