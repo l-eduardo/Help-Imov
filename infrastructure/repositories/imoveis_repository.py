@@ -20,6 +20,11 @@ class ImoveisRepository:
                 imovel_inputs_list.append(ImovelInputMapper.map_imovel_input(i[0], i[1]))
 
             return imovel_inputs_list
+        
+    def get_all(self) -> list[Imovel]:
+         with Connection() as connection:
+            result = connection.session.query(Imoveis).all()
+            return [ImovelInputMapper.map_imovel_input(x) for x in result]
 
     def get_by_id_with_images(self, id: UUID) -> Imoveis:
         with Connection() as connection:

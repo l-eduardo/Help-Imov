@@ -2,6 +2,7 @@ from datetime import datetime
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.session import Session
+from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
@@ -10,8 +11,10 @@ from domain.models.contrato import Contrato
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
 from infrastructure.repositories.solicitacoes_repository import SolicitacoesRepository
+from infrastructure.repositories.vistorias_repository import VistoriasRepository
 from infrastructure.mappers.ContratosOutput import ContratosOutputMapper
 import PySimpleGUI as sg
+
 
 class ContratoController:
     def __init__(self, controlador_sistema):
@@ -21,22 +24,21 @@ class ContratoController:
         self.__contratos_repository = ContratosRepositories()
         self.__ocorrencia_repository: OcorrenciasRepository = OcorrenciasRepository()
         self.__solicitacao_repository = SolicitacoesRepository()
+        self.__vistoria_repository = VistoriasRepository()
 
         self.__tela_contrato = TelaContrato(self)
         self.__solicitacao_view = SolicitacaoView(self)
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
+
         self.contratos = []
 
     def inclui_contrato(self):
-        #TODO Inclusao contrato
         dados_contrato = self.__tela_contrato.pega_dados_contrato()
-        contrato = Contrato(dados_contrato['data_inicio'], dados_contrato['imovel'],
-                            dados_contrato['locatario'], estaAtivo=True)
+        contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
+                            locatario=dados_contrato['locatario'], estaAtivo=True)
+        self.incluir_vistoria(contrato, e_contestacao = False)
         self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
-        print(contrato)
-        contrato.inclui_vistoria()
         self.listar_contrato()
-        #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
 
     def listar_contrato(self):
         self.contratos = self.obter_contratos_do_banco()
@@ -83,19 +85,20 @@ class ContratoController:
         ocorrencias_para_tela = []
         for ocorrencia in contrato_instancia.ocorrencias:
             ocorrencias_para_tela.append({"tipo": "Ocorrência", "titulo": ocorrencia.titulo,
-                                          "status": ocorrencia.status.value, "dataCriacao": ocorrencia.data_criacao, "entity": ocorrencia})
+                                          "status": ocorrencia.status.value, "dataCriacao": ocorrencia.data_criacao,
+                                          "entity": ocorrencia})
         solicitacoes_para_tela = []
         for solicitacao in contrato_instancia.solicitacoes:
             solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
-                                          "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao, "entity": solicitacao})
+                                           "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao,
+                                           "entity": solicitacao})
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
-        #TODO: Implementar a passagem das vistorias
-
         if solicitacoes_ocorrencias:
-            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [], solicitacoes_ocorrencias,
-                                                          contrato_instancia)
+            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [],
+                                                                                         solicitacoes_ocorrencias,
+                                                                                         contrato_instancia)
         else:
             self.__tela_contrato.mostra_msg("Não há solicitações ou ocorrências cadastradas neste contrato")
             events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato([], [],
@@ -105,9 +108,14 @@ class ContratoController:
         if events == "add_ocorrencia":
             event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
             if event == "Salvar":
-                contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"], session.user_id)
+                contrato_instancia.incluir_ocorrencia(values["titulo"],
+                                                      values["descricao"],
+                                                      session.user_id,
+                                                      imagens=[])
+
                 self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                     contrato_id=contrato_instancia.id)
+
         elif events == "add_solicitacao":
             event, values = self.__solicitacao_view.pega_dados_solicitacao()
             if event == "Registrar":
@@ -128,7 +136,6 @@ class ContratoController:
             elif entidade["tipo"] == "Solicitação":
                 contrato_instancia.remover_solicitacao(entidade["entity"])
                 self.__solicitacao_repository.delete(entidade["entity"].id)
-
 
         elif events == "-TABELA-DOUBLE-CLICK-":
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
@@ -163,6 +170,34 @@ class ContratoController:
                         entidade["entity"].descricao = edit_solic_values["descricao"]
                         entidade["entity"].status = Status(edit_solic_values["status"])
                         self.__solicitacao_repository.update(entidade["entity"])
+
+        if events == "vistoria_inicial":
+            if contrato_instancia.vistoria_inicial:
+                self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial, lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens))
+            else:
+                sg.popup("Não existe Vistoria Inicial cadastrada", title="Aviso")
+
+        if events == "contra_vistoria":
+            if contrato_instancia.contra_vistoria:
+                vistoria_result = self.__tela_vistoria.mostra_vistoria(contrato_instancia.contra_vistoria)
+                if vistoria_result is not None:
+                    event, vistoria = vistoria_result
+                    if event == "editar_vistoria":
+                        pass
+                    elif event == "excluir_vistoria":
+                        contrato_instancia.remover_vistoria(vistoria)
+                        self.__vistoria_repository.delete(vistoria.id)
+                        sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+
+            else:
+                criar_contra_vistoria = sg.popup(
+                    "Não existe Contra-Vistoria cadastrada",
+                    title="Aviso",
+                    custom_text=("Criar", "Fechar")
+                )
+                if criar_contra_vistoria == "Criar":
+                    self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+
         elif events == "Voltar":
             self.listar_contrato()
 
@@ -170,16 +205,14 @@ class ContratoController:
             return
         self.listar_relacionados_contrato(contrato_instancia)
 
-    def inclui_vistoria(self):
-        dados_vistoria = self.__tela_vistoria.pega_dados_vistoria()
-        if dados_vistoria:  # Verifica se dados_vistoria não é None
-             contrato.incluir_vistoria(dados_vistoria["descricao"], dados_vistoria["anexos"])
+    def incluir_vistoria(self, contrato: Contrato, e_contestacao):
+        event, values = self.__tela_vistoria.pega_dados_vistoria()
+        if event == "Registrar":
+            contrato.incluir_vistoria(descricao=values["descricao"], imagens=ImagensService.bulk_read(values["imagens"].split(';')), documento=None, e_contestacao=e_contestacao)
+            self.__vistoria_repository.insert(vistoria=contrato.vistoria_inicial,
+                                                id_contrato=contrato.id)
         else:
-            pass
-
-    def mostra_vistoria(self, vistoria):
-        print(vistoria)
-        self.__tela_vistoria.mostra_vistoria(vistoria)
+            raise (KeyError)
 
     def valida_prazo_vistoria(self, vistoria):
         if vistoria is None:

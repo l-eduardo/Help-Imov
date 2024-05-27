@@ -1,8 +1,11 @@
 from typing import TYPE_CHECKING
 
+from domain.models.Imagem import Imagem
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
 from domain.enums.status import Status
+from domain.models.vistoria import Vistoria
+
 if TYPE_CHECKING:
     from domain.models.imovel import Imovel
     from domain.models.vistoria import Vistoria
@@ -15,14 +18,15 @@ import uuid
 
 class Contrato:
     def __init__(self,
-    dataInicio: date,
-    locatario: 'Locatario',
-    imovel: 'Imovel',
-    estaAtivo: bool = True,
-    id: uuid.UUID = None,
-    dataFim: 'date | None' = None,
-    vistoria_inicial: 'Vistoria | None' = None,
-    ):
+                 dataInicio: date,
+                 locatario: 'Locatario',
+                 imovel: 'Imovel',
+                 estaAtivo: bool = True,
+                 id: uuid.UUID = None,
+                 dataFim: 'date | None' = None,
+                 vistoria_inicial: 'Vistoria | None' = None,
+                 contra_vistoria: 'Vistoria | None' = None,
+                 ):
         if id is None:
             id = uuid.uuid4()
 
@@ -35,14 +39,12 @@ class Contrato:
         self._ocorrencias = []
         self._solicitacoes = []
         self._vistoria_inicial = vistoria_inicial
-        self._vistoria_final = None
+        self._contra_vistoria = contra_vistoria
         self._estaAtivo = estaAtivo
-
 
     @property
     def id(self) -> uuid.UUID:
         return self._id
-
 
     @property
     def dataInicio(self) -> date:
@@ -101,12 +103,12 @@ class Contrato:
         self._vistoria_inicial = value
 
     @property
-    def vistoria_final(self) -> 'Vistoria | None':
-        return self._vistoria_final
+    def contra_vistoria(self) -> 'Vistoria | None':
+        return self._contra_vistoria
 
-    @vistoria_final.setter
-    def vistoria_final(self, value: 'Vistoria'):
-        self._vistoria_final = value
+    @contra_vistoria.setter
+    def contra_vistoria(self, value: 'Vistoria'):
+        self._contra_vistoria = value
 
     @property
     def estaAtivo(self) -> bool:
@@ -134,6 +136,7 @@ class Contrato:
                            titulo: str,
                            descricao: str,
                            criador_id: uuid.UUID,
+                           imagens: List[bytes] = None,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
                            id: uuid.UUID = None):
@@ -146,20 +149,50 @@ class Contrato:
         self._ocorrencias.append(Ocorrencia(titulo=titulo,
                                  descricao=descricao,
                                  status=status,
+                                 imagens=imagens,
                                  criador_id=criador_id,
                                  data_criacao=data_criacao,
                                  id=id))
 
     def incluir_vistoria(self,
                          descricao: str,
-                         imagens: List[List[bytes]],
-                         documento: List[bytes]):
+                         imagens: List[Imagem],
+                         documento: List[bytes],
+                         e_contestacao: bool,
+                         id: uuid.UUID = None):
 
-        pass
-        #self._solicitacoes.append(Vistoria(descricao, status, data_criacao=data_criacao, id=id))
+        if e_contestacao:
+            self._contra_vistoria = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
+            return self._contra_vistoria
+        else:
+            self._vistoria_inicial = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
+            return self._vistoria_inicial
+
+
+
+    #def incluir_constestacao_vistoria(self,
+    #                     descricao: str,
+    #                     imagens: List[List[bytes]],
+    #                     documento: List[bytes],
+    #                     id: uuid.UUID = None):
+#
+#        if id is None:
+#            id = uuid.uuid4()
+#
+#        self._contra_vistoria = Vistoria(descricao, imagens, documento, id=id)
+#        return self._contra_vistoria
 
     def remover_ocorrencia(self, ocorrencia: Ocorrencia):
         self._ocorrencias.remove(ocorrencia)
 
     def remover_solicitacao(self, solicitacao: Solicitacao):
         self.solicitacoes.remove(solicitacao)
+
+    def remover_vistoria(self, vistoria: Vistoria):
+        if self._vistoria_inicial and self._vistoria_inicial.id == vistoria.id:
+            self._vistoria_inicial = None
+        elif self._contra_vistoria and self._contra_vistoria.id == vistoria.id:
+            self._contra_vistoria = None
+        else:
+            raise ValueError("A vistoria especificada não pertence a este contrato.")
+

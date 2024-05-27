@@ -36,7 +36,7 @@ class ImoveisController:
         return None
 
     def obter_imoveis_do_banco(self):
-        imoveis = self.__imoveis_repository.get_all_with_images()
+        imoveis = self.__imoveis_repository.get_all()
         return imoveis
 
     def get_codigos_imoveis(self):
