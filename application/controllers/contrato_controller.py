@@ -2,6 +2,7 @@ from datetime import datetime
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.session import Session
+from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
@@ -87,6 +88,7 @@ class ContratoController:
             ocorrencias_para_tela.append({"tipo": "Ocorrência", "titulo": ocorrencia.titulo,
                                           "status": ocorrencia.status.value, "dataCriacao": ocorrencia.data_criacao,
                                           "entity": ocorrencia})
+
         solicitacoes_para_tela = []
         for solicitacao in contrato_instancia.solicitacoes:
             solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
@@ -173,7 +175,9 @@ class ContratoController:
 
         if events == "vistoria_inicial":
             if contrato_instancia.vistoria_inicial:
-                self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial, lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens))
+                DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
+                self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
+                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens))
             else:
                 sg.popup("Não existe Vistoria Inicial cadastrada", title="Aviso")
 
@@ -208,13 +212,18 @@ class ContratoController:
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
-            contrato.incluir_vistoria(descricao=values["descricao"], imagens=ImagensService.bulk_read(values["imagens"].split(';')), documento=None, e_contestacao=e_contestacao)
+
+            contrato.incluir_vistoria(descricao=values["descricao"],
+                                      imagens=ImagensService.bulk_read(values["imagens"].split(';')),
+                                      documento=DocumentosService.read_file(values["documento"]),
+                                      e_contestacao=e_contestacao)
+
             self.__vistoria_repository.insert(vistoria=contrato.vistoria_inicial,
                                                 id_contrato=contrato.id)
         else:
             raise (KeyError)
 
-    def valida_prazo_vistoria(self, vistoria):
+    def valida_prazo_vistoria(self,vistoria):
         if vistoria is None:
             return False
 

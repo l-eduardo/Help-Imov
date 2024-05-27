@@ -17,6 +17,7 @@ Pygments==2.17.2
 PyMySQL==1.1.0
 PySimpleGUI==5.0.4
 python-dotenv==1.0.1
+python-magic==0.4.27
 requests==2.31.0
 rsa==4.9
 six==1.16.0

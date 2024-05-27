@@ -14,5 +14,7 @@ class Vistorias(Base):
     id = Column(String(36), primary_key=True, name='id')
     descricao = Column(String(500),name='descricao')
     data_criacao = Column(String(36), name='data_criacao')
-    documento = Column(String(36), name='documento')
+
     imagens = relationship('Imagens', cascade='all, delete-orphan')
+    documento_id = Column(String(36), ForeignKey('DOCUMENTOS.id'), name='documento_id')
+    documento = relationship('Documentos', uselist=False, cascade='all')

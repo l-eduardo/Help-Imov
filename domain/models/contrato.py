@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from domain.models.Imagem import Imagem
+from domain.models.documento import Documento
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
 from domain.enums.status import Status
@@ -157,7 +158,7 @@ class Contrato:
     def incluir_vistoria(self,
                          descricao: str,
                          imagens: List[Imagem],
-                         documento: List[bytes],
+                         documento: Documento,
                          e_contestacao: bool,
                          id: uuid.UUID = None):
 
