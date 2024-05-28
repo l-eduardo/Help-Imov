@@ -132,18 +132,8 @@ class TelaContrato:
 
         while True:
             event, values = window.read()
-            if event == sg.WIN_CLOSED or event == "Voltar":
-                window.close()
-                return event, values, contrato_instancia
-
-            if event in ("vistoria_inicial", "contra_vistoria"):
-                window.close()
-                return event, values, contrato_instancia
-
-            if event == "add_solicitacao" or event == "add_ocorrencia":
-                window.close()
-                return event, values, contrato_instancia
-
+            window.close()
+            return event, values, contrato_instancia
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Contrato', button_justification='left')

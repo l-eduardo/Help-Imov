@@ -110,13 +110,18 @@ class ContratoController:
         if events == "add_ocorrencia":
             event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
             if event == "Salvar":
-                contrato_instancia.incluir_ocorrencia(values["titulo"],
-                                                      values["descricao"],
-                                                      session.user_id,
-                                                      imagens=[])
+                imagens = ImagensService.bulk_read(values['imagens'])
+                imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
-                self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
-                                                    contrato_id=contrato_instancia.id)
+                if imagens_invalidas and len(imagens_invalidas):
+                    sg.popup("Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
+
+                else:
+                    contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
+                                                          session.user_id, imagens=imagens)
+
+                    self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
+                                                        contrato_id=contrato_instancia.id)
 
         elif events == "add_solicitacao":
             event, values = self.__solicitacao_view.pega_dados_solicitacao()
@@ -143,7 +148,9 @@ class ContratoController:
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
 
             if entidade["tipo"] == "Ocorrência":
-                mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"])
+                imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
+
+                mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"], dirs=imagens_dir)
 
                 if entidade["entity"].criador_id != session.user_id:
                     sg.popup("Você não tem permissão para editar esta ocorrência")
@@ -167,7 +174,6 @@ class ContratoController:
                     edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
 
                     if edit_solic_events == "confirmar_edicao":
-                        print(edit_solic_events)
                         entidade["entity"].titulo = edit_solic_values["titulo"]
                         entidade["entity"].descricao = edit_solic_values["descricao"]
                         entidade["entity"].status = Status(edit_solic_values["status"])
@@ -203,9 +209,11 @@ class ContratoController:
                     self.incluir_vistoria(contrato_instancia, e_contestacao = True)
 
         elif events == "Voltar":
+            ImagensService.flush_temp_images()
             self.listar_contrato()
 
         elif events == sg.WIN_CLOSED:
+            ImagensService.flush_temp_images()
             return
         self.listar_relacionados_contrato(contrato_instancia)
 
