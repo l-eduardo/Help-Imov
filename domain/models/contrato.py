@@ -169,7 +169,6 @@ class Contrato:
             self._vistoria_inicial = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
             return self._vistoria_inicial
 
-
     def remover_ocorrencia(self, ocorrencia: Ocorrencia):
         self._ocorrencias.remove(ocorrencia)
 
