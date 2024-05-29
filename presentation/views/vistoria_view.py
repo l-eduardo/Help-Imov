@@ -58,10 +58,9 @@ class TelaVistoria:
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
-            [sg.Text("Imagens:", size=(15, 1), justification='left'), sg.Text(vistoria.imagens)],
-            [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Text(vistoria.documento)],
+            [sg.Text("Caminho do Documento:", size=(22, 1), justification='left'), sg.Text("./Downloads/1716793569984645000_a8c93ce1-d8f9-4607-be5d-f86548c02a0f.pdf")],
             [sg.Button("Voltar"), sg.Button("Excluir"), sg.Button("Editar")],
-            Carrossel.carrossel_layout(lista_paths_imagens)
+            Carrossel.carrossel_layout(lista_paths_imagens, image_zoom=1, image_subsample=5)
         ]
 
         window = sg.Window('Vistoria', layout, element_justification='center',

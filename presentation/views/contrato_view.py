@@ -96,8 +96,7 @@ class TelaContrato:
                 window.close()
                 self.__controlador.listar_contrato()
 
-    def mostra_relacionados_contrato(self, vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias,
-                                     contrato_instancia):
+    def mostra_relacionados_contrato(self, solicitacoes_ocorrencias, contrato_instancia):
 
         header = ["Tipo", "Título", "Status", "Data Criação"]
         # Convert the list of dictionaries into a list of lists for the table

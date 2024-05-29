@@ -4,7 +4,8 @@ from domain.enums.status import Status
 from domain.models.ocorrencia import Ocorrencia
 
 class OcorrenciaView:
-
+    def mostra_popup(self, mensagem: str):
+        sg.popup(mensagem)
     def vw_nova_ocorrencia(self):
         window = self.__add_ocorrencia_layout()
 

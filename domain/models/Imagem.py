@@ -19,22 +19,22 @@ class Imagem:
         self.__content: bytes = content
 
     def e_valida(self) -> bool:
-        return self.__width_e_valido(self.width) and \
-               self.__height_e_valido(self.height) and \
-               self.__channels_e_valido(self.channels) and \
-               self.__content_e_valido(self.tamanho)
+        return self.__width_e_valido() and \
+               self.__height_e_valido() and \
+               self.__channels_e_valido() and \
+               self.__content_e_valido()
 
-    def __content_e_valido(self, content: bytes) -> bool:
-        return content is not None
+    def __content_e_valido(self) -> bool:
+        return self.__content is not None
 
-    def __height_e_valido(self, height: int) -> bool:
-        return height >= 720 and height <= 1280
+    def __height_e_valido(self) -> bool:
+        return self.__height >= 720 and self.__height <= 1280
 
-    def __width_e_valido(self, width: int) -> bool:
-        return width >= 1280 and width <= 1920
+    def __width_e_valido(self) -> bool:
+        return self.__width >= 1280 and self.__width <= 1920
 
-    def __channels_e_valido(self, channels: int) -> bool:
-        return channels > 0
+    def __channels_e_valido(self) -> bool:
+        return self.__channels > 0
 
     @property
     def id(self) -> uuid.UUID:
