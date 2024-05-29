@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+import subprocess, os, platform
 from presentation.components.carrossel_cmpt import Carrossel
 
 
@@ -52,7 +53,7 @@ class TelaVistoria:
         window.close()
         return event, values
 
-    def mostra_vistoria(self, vistoria, lista_paths_imagens):
+    def mostra_vistoria(self, vistoria, lista_paths_imagens, caminho_documento):
         image_index = 0
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
@@ -104,7 +105,7 @@ class TelaVistoria:
                 window['-IMAGE-'].update(lista_paths_imagens[image_index])
             
             if event == 'abrir_documento':
-                return 'abrir_documento',vistoria
+                self.abrir_documento(caminho_documento)
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')
@@ -133,3 +134,23 @@ class TelaVistoria:
         event, values = window.read()
         window.close()
         return event, values
+    
+    def abrir_documento(self, caminho_documento):
+        try:
+            if platform.system() == 'Darwin':       # macOS
+                teste = subprocess.call(('open', caminho_documento))
+            elif platform.system() == 'Windows':    # Windows
+                teste = os.startfile(caminho_documento)
+            else:                                   # linux variants
+                teste = subprocess.call(('xdg-open', caminho_documento))
+            if teste == 1:
+                raise ValueError("Não há programa padrão para abrir, abrindo diretório")
+        except:
+            caminho_documento = caminho_documento.replace(caminho_documento.split('/')[-1],"")
+            if platform.system() == 'Darwin':       # macOS
+                teste = subprocess.call(('open', caminho_documento))
+            elif platform.system() == 'Windows':    # Windows
+                teste = os.startfile(caminho_documento)
+            else:                                   # linux variants
+                teste = subprocess.call(('xdg-open', caminho_documento))
+

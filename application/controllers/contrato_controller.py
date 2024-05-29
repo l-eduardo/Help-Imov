@@ -1,5 +1,4 @@
 from datetime import datetime
-import subprocess, os, platform
 
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
@@ -181,7 +180,8 @@ class ContratoController:
             if contrato_instancia.vistoria_inicial:
                 caminho_documento = DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
-                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens))
+                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens),
+                                                     caminho_documento=caminho_documento)
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
 
@@ -192,8 +192,6 @@ class ContratoController:
                         contrato_instancia.remover_vistoria(vistoria)
                         self.__vistoria_repository.delete(vistoria.id)
                         sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
-                    elif event == "abrir_documento":
-                        self.abrir_documento(caminho_documento)
             else:
                 criar_contra_vistoria = sg.popup(
                     "Não existe Vistoria Inicial cadastrada",
@@ -207,7 +205,8 @@ class ContratoController:
             if contrato_instancia.contra_vistoria:
                 caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento) 
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
-                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens))
+                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),
+                                                     caminho_documento=caminho_documento)
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
                     if event == "editar_vistoria":
@@ -247,8 +246,7 @@ class ContratoController:
             self.__vistoria_repository.insert(vistoria=vistoria_to_insert, # colocar depois uma verificação pra mudar pra vistoria_inicial
                                                 id_contrato=contrato.id)
             self.__contratos_repository.update(contrato)
-        else:
-            sg.popup("A vistoria não foi criada", title="Aviso")
+
 
     def editar_vistoria(self, contrato_instancia, vistoria):
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
@@ -263,21 +261,3 @@ class ContratoController:
 
         self.listar_relacionados_contrato(contrato_instancia)
     
-    def abrir_documento(self, caminho_documento):
-        try:
-            if platform.system() == 'Darwin':       # macOS
-                teste = subprocess.call(('open', caminho_documento))
-            elif platform.system() == 'Windows':    # Windows
-                teste = os.startfile(caminho_documento)
-            else:                                   # linux variants
-                teste = subprocess.call(('xdg-open', caminho_documento))
-            if teste == 1:
-                raise ValueError("Não há programa padrão para abrir, abrindo diretório")
-        except:
-            caminho_documento = caminho_documento.replace(caminho_documento.split('/')[-1],"")
-            if platform.system() == 'Darwin':       # macOS
-                teste = subprocess.call(('open', caminho_documento))
-            elif platform.system() == 'Windows':    # Windows
-                teste = os.startfile(caminho_documento)
-            else:                                   # linux variants
-                teste = subprocess.call(('xdg-open', caminho_documento))
