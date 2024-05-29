@@ -8,27 +8,6 @@ class TelaVistoria:
     def __init__(self, controlador):
         self.__controlador = controlador
 
-    # def pega_dados_vistoria(self):
-    #     layout = [
-    #         [sg.Text("Descrição"), sg.InputText(key="descricao")],
-    #         [sg.Text("Data"), sg.InputText(key="data")],
-    #         [sg.Button("Salvar"), sg.Button("Cancelar")]
-    #     ]
-    #
-    #     window = sg.Window("Nova Contra-Vistoria", layout)
-    #
-    #     while True:
-    #         event, values = window.read()
-    #         if event == sg.WIN_CLOSED or event == "Cancelar":
-    #             window.close()
-    #             return None
-    #         if event == "Salvar":
-    #             descricao = values["descricao"]
-    #             data = values["data"]
-    #             # Adicionar validação de dados aqui se necessário
-    #             window.close()
-    #             return {"descricao": descricao, "data": data}
-
     def __layout_nova_vistoria(self):
         centrilizedButtons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
@@ -37,7 +16,7 @@ class TelaVistoria:
                                 expand_x=True)],
                   [sg.Text("Imagens")],
                   [[sg.Input(key='imagens', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'), 
-                    sg.FilesBrowse(file_types=(('ALL Files', '*.pdf'),))]],
+                    sg.FilesBrowse(file_types=(('ALL Files', '*.png'),))]],
                   [sg.Text("Documento")],
                   [[sg.Input(key='documento', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'), 
                     sg.FilesBrowse(file_types=(('ALL Files', '*.pdf'),))]],
