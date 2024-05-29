@@ -54,7 +54,6 @@ class ContratosRepositories:
             result = connection.session.query(Contratos).filter(Contratos.id == str(contrato.id)).update(
                 {"contra_vistoria_id": contra_vistoria_id,
                  "vistoria_inicial_id": vistoria_inicial_id})
-            print(result)
             connection.session.commit()
             return contrato
 

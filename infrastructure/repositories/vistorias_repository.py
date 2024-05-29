@@ -18,8 +18,8 @@ class VistoriasRepository:
                 .first()
 
 
-    def insert(self, vistoria: Vistorias, id_contrato: UUID) -> Vistorias:
-        vistoria_to_db = VistoriasOutputMapper.map_vistoria(vistoria_from_domain=vistoria, id_contrato=id_contrato)
+    def insert(self, vistoria: Vistorias) -> Vistorias:
+        vistoria_to_db = VistoriasOutputMapper.map_vistoria(vistoria_from_domain=vistoria)
 
         with Connection() as connection:
             connection.session.add(vistoria_to_db)
@@ -29,7 +29,6 @@ class VistoriasRepository:
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
             result = connection.session.query(Vistorias).filter(Vistorias.id == str(id)).delete()
-            print(result)
             connection.session.commit()
 
     def update(self, vistoria: Vistorias) -> Vistorias:
@@ -38,7 +37,6 @@ class VistoriasRepository:
                 {"descricao": vistoria.descricao})
                  # "imagens": vistoria.imagens,
                  # "documentos": vistoria.documento})
-            print(result)
             connection.session.commit()
             return vistoria
 

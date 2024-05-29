@@ -170,7 +170,6 @@ class ContratoController:
                     edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
 
                     if edit_solic_events == "confirmar_edicao":
-                        print(edit_solic_events)
                         entidade["entity"].titulo = edit_solic_values["titulo"]
                         entidade["entity"].descricao = edit_solic_values["descricao"]
                         entidade["entity"].status = Status(edit_solic_values["status"])
@@ -181,17 +180,23 @@ class ContratoController:
                 caminho_documento = DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens),
-                                                     caminho_documento=caminho_documento)
+                                                     caminho_documento=caminho_documento,
+                                                     e_contestacao = False)
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
 
                     if event == "editar_vistoria":
-                        # if Vistoria.esta_fechada(vistoria) == False: implementar depois
+                        if vistoria.esta_fechada():
+                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
                             self.editar_vistoria(contrato_instancia, vistoria)
                     elif event == "excluir_vistoria":
-                        contrato_instancia.remover_vistoria(vistoria)
-                        self.__vistoria_repository.delete(vistoria.id)
-                        sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+                        if vistoria.esta_fechada():
+                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
+                            contrato_instancia.remover_vistoria(vistoria)
+                            self.__vistoria_repository.delete(vistoria.id)
+                            sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
             else:
                 criar_contra_vistoria = sg.popup(
                     "Não existe Vistoria Inicial cadastrada",
@@ -206,7 +211,8 @@ class ContratoController:
                 caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),
-                                                     caminho_documento=caminho_documento)
+                                                     caminho_documento=caminho_documento,
+                                                     e_contestacao=True)
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
                     if event == "editar_vistoria":
@@ -253,8 +259,7 @@ class ContratoController:
                                       documento=DocumentosService.read_file(values["documento"]),
                                       e_contestacao=e_contestacao)
             vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
-            self.__vistoria_repository.insert(vistoria=vistoria_to_insert, # colocar depois uma verificação pra mudar pra vistoria_inicial
-                                                id_contrato=contrato.id)
+            self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
             self.__contratos_repository.update(contrato)
 
 

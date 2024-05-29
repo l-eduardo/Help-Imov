@@ -21,7 +21,7 @@ class ContratosOutputMapper:
             data_inicio=contrato.dataInicio,
             data_fim=contrato.dataFim,
             data_cadastro=contrato.dataCadastro,
-            locatario_id='202020',
+            locatario_id='1111',
             # locatario_id="202020",
             imovel_id=str(contrato.imovel.id),
             # imovel_id='e7c3de8c-114d-4eee-a163-9306661ac7a7',

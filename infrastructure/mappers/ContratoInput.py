@@ -53,8 +53,8 @@ class ContratoInputMapper:
                 descricao=contrato_from_db.vistoria_inicial.descricao,
                 imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.vistoria_inicial.imagens),
                 documento = DocumentoInputMapper.map_documento(contrato_from_db.vistoria_inicial.documento or None),
+                data_criacao = contrato_from_db.vistoria_inicial.data_criacao,
                 e_contestacao = False,
-
                 id = contrato_from_db.vistoria_inicial.id
             )
 
@@ -64,7 +64,7 @@ class ContratoInputMapper:
                 imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.contra_vistoria.imagens),
                 e_contestacao = True,
                 documento = DocumentoInputMapper.map_documento(contrato_from_db.contra_vistoria.documento or None),
-
+                data_criacao = contrato_from_db.contra_vistoria.data_criacao,
                 id = contrato_from_db.contra_vistoria.id
             )
 

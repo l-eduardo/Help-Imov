@@ -53,13 +53,13 @@ class TelaVistoria:
         window.close()
         return event, values
 
-    def mostra_vistoria(self, vistoria, lista_paths_imagens, caminho_documento):
+    def mostra_vistoria(self, vistoria, lista_paths_imagens, caminho_documento, e_contestacao):
         image_index = 0
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
             [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Button("Abrir",key="abrir_documento")],
-            [sg.Button("Voltar"), sg.Button("Excluir"), sg.Button("Editar")],
+            [sg.Button("Voltar"), sg.Button("Editar"),sg.Button("Excluir", visible=e_contestacao)],
             Carrossel.carrossel_layout(lista_paths_imagens)
         ]
 

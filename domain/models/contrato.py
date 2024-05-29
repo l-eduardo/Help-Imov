@@ -161,13 +161,14 @@ class Contrato:
                          imagens: List[Imagem],
                          documento: Documento,
                          e_contestacao: bool,
+                         data_criacao: date = date.today(),
                          id: uuid.UUID = None):
 
         if e_contestacao:
-            self._contra_vistoria = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
+            self._contra_vistoria = Vistoria(descricao=descricao, imagens=imagens, documento=documento, data_criacao=data_criacao, id=id)
             return self._contra_vistoria
         else:
-            self._vistoria_inicial = Vistoria(descricao=descricao, imagens=imagens, documento=documento, id=id)
+            self._vistoria_inicial = Vistoria(descricao=descricao, imagens=imagens, documento=documento, data_criacao=data_criacao, id=id)
             return self._vistoria_inicial
 
     def remover_ocorrencia(self, ocorrencia: Ocorrencia):
