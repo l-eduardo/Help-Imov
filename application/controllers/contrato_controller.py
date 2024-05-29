@@ -199,13 +199,16 @@ class ContratoController:
                             self.__vistoria_repository.delete(vistoria.id)
                             sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
             else:
-                criar_contra_vistoria = sg.popup(
-                    "Não existe Vistoria Inicial cadastrada",
-                    title="Aviso",
-                    custom_text=("Criar", "Fechar")
-                )
-                if criar_contra_vistoria == "Criar":
-                    self.incluir_vistoria(contrato_instancia, e_contestacao = False)
+                if session.user_role == 'Locatario':
+                    sg.popup("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
+                else:
+                    criar_contra_vistoria = sg.popup(
+                        "Não existe Vistoria Inicial cadastrada",
+                        title="Aviso",
+                        custom_text=("Criar", "Fechar")
+                    )
+                    if criar_contra_vistoria == "Criar":
+                        self.incluir_vistoria(contrato_instancia, e_contestacao = False)
 
         if events == "contra_vistoria":
             if contrato_instancia.contra_vistoria:
