@@ -17,8 +17,7 @@ class TelaContrato:
                  sg.Combo(['Locatario 1', 'Locatario 2'], size=(20, 1), default_value='Selecione', key='locatario')],
                 [sg.Text('Imóvel', size=(15, 1), justification='center'),
                  sg.Combo(imoveis, size=(20, 1), default_value='Selecione', key='imovel')],
-                [sg.Text('Data Início', size=(15, 1), justification='center'),
-                 sg.Input(key='data_inicio', size=(11, 1)),
+                [sg.Text('Data Início', size=(15, 1), justification='center'),                 sg.Input(key='data_inicio', size=(11, 1)),
                  sg.CalendarButton('Selecionar', target='data_inicio', format='%Y/%m/%d')],
                 [sg.Button('Voltar'), sg.Button('Próximo')]
             ]

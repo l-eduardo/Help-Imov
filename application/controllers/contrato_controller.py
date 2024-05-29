@@ -11,6 +11,7 @@ from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
 from presentation.views.vistoria_view import TelaVistoria
 from domain.models.contrato import Contrato
+from domain.models.vistoria import Vistoria
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
 from infrastructure.repositories.solicitacoes_repository import SolicitacoesRepository
@@ -183,8 +184,10 @@ class ContratoController:
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens))
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
+
                     if event == "editar_vistoria":
-                        self.editar_vistoria(contrato_instancia, vistoria)
+                        # if Vistoria.esta_fechada(vistoria) == False: implementar depois
+                            self.editar_vistoria(contrato_instancia, vistoria)
                     elif event == "excluir_vistoria":
                         contrato_instancia.remover_vistoria(vistoria)
                         self.__vistoria_repository.delete(vistoria.id)
@@ -221,6 +224,7 @@ class ContratoController:
             return
         self.listar_relacionados_contrato(contrato_instancia)
 
+
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
@@ -231,8 +235,7 @@ class ContratoController:
             vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
             self.__vistoria_repository.insert(vistoria=vistoria_to_insert, # colocar depois uma verificação pra mudar pra vistoria_inicial
                                                 id_contrato=contrato.id)
-        else:
-            raise (KeyError)
+            self.__contratos_repository.update(contrato)
 
     def editar_vistoria(self, contrato_instancia, vistoria):
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
@@ -246,3 +249,5 @@ class ContratoController:
             sg.popup("Edição cancelada", title="Aviso")
 
         self.listar_relacionados_contrato(contrato_instancia)
+
+    # inclur os metodos das validacoes depois

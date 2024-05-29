@@ -17,18 +17,6 @@ class VistoriasRepository:
                 .filter(Vistorias.id == id) \
                 .first()
 
-    # def insert(self, vistoria: Vistoria, id_contrato: UUID) -> Vistoria:
-    #     # Gerar novos IDs para documentos se necessário
-    #     for documento in vistoria.documentos:
-    #         if documento.id is None:
-    #             documento.id = uuid.uuid4()
-    #
-    #     vistoria_to_db = VistoriasOutputMapper.map_vistoria(vistoria_from_domain=vistoria, id_contrato=id_contrato)
-    #
-    #     with Connection() as connection:
-    #         connection.session.add(vistoria_to_db)
-    #         connection.session.commit()
-    #         return vistoria
 
     def insert(self, vistoria: Vistorias, id_contrato: UUID) -> Vistorias:
         vistoria_to_db = VistoriasOutputMapper.map_vistoria(vistoria_from_domain=vistoria, id_contrato=id_contrato)

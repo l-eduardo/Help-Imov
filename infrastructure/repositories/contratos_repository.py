@@ -39,4 +39,13 @@ class ContratosRepositories:
             connection.session.commit()
             return contrato
 
+    def update(self, contrato: Contratos) -> Contratos:
+        with Connection() as connection:
+            result = connection.session.query(Contratos).filter(Contratos.id == str(contrato.id)).update(
+                {"contra_vistoria_id": contrato.contra_vistoria.id},
+                {"vistoria_inicial_id": contrato.vistoria_inicial.id})
+            print(result)
+            connection.session.commit()
+            return contrato
+
 
