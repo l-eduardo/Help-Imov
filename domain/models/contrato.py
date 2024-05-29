@@ -137,7 +137,7 @@ class Contrato:
                            titulo: str,
                            descricao: str,
                            criador_id: uuid.UUID,
-                           imagens: List[bytes] = None,
+                           imagens: List[Imagem] = None,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
                            id: uuid.UUID = None):
@@ -146,6 +146,7 @@ class Contrato:
             id = uuid.uuid4()
         if data_criacao is None:
             data_criacao = date.today()
+        imagens = [imagem for imagem in imagens if imagem.e_valida()]
 
         self._ocorrencias.append(Ocorrencia(titulo=titulo,
                                  descricao=descricao,

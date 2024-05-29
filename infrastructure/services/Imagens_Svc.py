@@ -40,7 +40,7 @@ class ImagensService:
         reshaped_image = np_image.reshape((imagem.height, imagem.width, imagem.channels))
 
         salt = time.time_ns()
-        path = str(salt) + '_temp_image_' + uuid.uuid4().__str__() + '.png'
+        path = str('./tmp/' + session.session_id.__str__()) + '_temp_image_' + str(salt) + '.png'
         iio.imwrite(path, image=reshaped_image)
         return path
 
@@ -51,9 +51,12 @@ class ImagensService:
         return [ImagensService.local_temp_save(imagem) for imagem in imagens]
 
     @staticmethod
-    def flush_temp_images(dir: str) -> None:
-        for filename in os.listdir(dir):
-            file_path = os.path.join(dir, filename)
+    @SessionController.inject_session_data
+    def flush_temp_images(session: Session = None) -> None:
+        session_id = session.session_id.__str__()
+        for filename in os.listdir('./tmp'):
+            if filename.startswith(session_id):
+                file_path = os.path.join('./tmp', filename)
 
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)

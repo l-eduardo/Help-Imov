@@ -96,8 +96,7 @@ class TelaContrato:
                 window.close()
                 self.__controlador.listar_contrato()
 
-    def mostra_relacionados_contrato(self, vistoria_inicial, contra_vistoria, solicitacoes_ocorrencias,
-                                     contrato_instancia):
+    def mostra_relacionados_contrato(self, solicitacoes_ocorrencias, contrato_instancia):
 
         header = ["Tipo", "Título", "Status", "Data Criação"]
         # Convert the list of dictionaries into a list of lists for the table
@@ -132,18 +131,8 @@ class TelaContrato:
 
         while True:
             event, values = window.read()
-            if event == sg.WIN_CLOSED or event == "Voltar":
-                window.close()
-                return event, values, contrato_instancia
-
-            if event in ("vistoria_inicial", "contra_vistoria"):
-                window.close()
-                return event, values, contrato_instancia
-
-            if event == "add_solicitacao" or event == "add_ocorrencia":
-                window.close()
-                return event, values, contrato_instancia
-
+            window.close()
+            return event, values, contrato_instancia
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Contrato', button_justification='left')

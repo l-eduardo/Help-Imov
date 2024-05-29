@@ -27,7 +27,6 @@ class VistoriasRepository:
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
             result = connection.session.query(Vistorias).filter(Vistorias.id == str(id)).delete()
-            print(result)
             connection.session.commit()
 
     def get_vistoria_inicial_by_contrato_id(self, contrato_id: UUID) -> Vistorias:

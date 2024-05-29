@@ -1,3 +1,7 @@
+#puml
+*.puml
+/out
+
 #alembic
 alembic.ini
 alembic/versions*
@@ -7,6 +11,7 @@ alembic/versions*
 *.jpg
 *.jpeg
 *.gif
+tmp
 
 #Pycharm
 .idea/

@@ -17,7 +17,6 @@ class SolicitacoesRepository:
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
             result = connection.session.query(Solicitacoes).filter(Solicitacoes.id == str(id)).delete()
-            print(result)
             connection.session.commit()
 
     def update(self, solicitacao: Solicitacao) -> Solicitacao:
@@ -26,6 +25,5 @@ class SolicitacoesRepository:
                 {"titulo": solicitacao.titulo,
                  "descricao": solicitacao.descricao,
                  "status": solicitacao.status.name})
-            print(result)
             connection.session.commit()
             return solicitacao
