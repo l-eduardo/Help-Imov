@@ -181,7 +181,8 @@ class ContratoController:
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens),
                                                      caminho_documento=caminho_documento,
-                                                     e_contestacao = False)
+                                                     e_contestacao = False,
+                                                     user_role=session.user_role)
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
 
@@ -212,7 +213,8 @@ class ContratoController:
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),
                                                      caminho_documento=caminho_documento,
-                                                     e_contestacao=True)
+                                                     e_contestacao=True,
+                                                     user_role=session.user_role)
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
                     if event == "editar_vistoria":
@@ -254,13 +256,16 @@ class ContratoController:
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
-            contrato.incluir_vistoria(descricao=values["descricao"],
-                                      imagens=ImagensService.bulk_read(values["imagens"].split(';')),
-                                      documento=DocumentosService.read_file(values["documento"]),
-                                      e_contestacao=e_contestacao)
-            vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
-            self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
-            self.__contratos_repository.update(contrato)
+            try:
+                contrato.incluir_vistoria(descricao=values["descricao"],
+                                        imagens=ImagensService.bulk_read(values["imagens"].split(';')),
+                                        documento=DocumentosService.read_file(values["documento"]),
+                                        e_contestacao=e_contestacao)
+                vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
+                self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
+                self.__contratos_repository.update(contrato)
+            except:
+                sg.popup("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
 
     def editar_vistoria(self, contrato_instancia, vistoria):

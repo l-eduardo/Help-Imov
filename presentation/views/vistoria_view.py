@@ -37,10 +37,10 @@ class TelaVistoria:
                                 expand_x=True)],
                   [sg.Text("Imagens")],
                   [[sg.Input(key='imagens', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'), 
-                    sg.FilesBrowse(file_types=("ALL Files","*.png"))]],
+                    sg.FilesBrowse(file_types=(('ALL Files', '*.pdf'),))]],
                   [sg.Text("Documento")],
                   [[sg.Input(key='documento', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'), 
-                    sg.FilesBrowse(file_types=("ALL Files","*.pdf"))]],
+                    sg.FilesBrowse(file_types=(('ALL Files', '*.pdf'),))]],
                   [sg.Column([centrilizedButtons], justification="center")]]
 
         window = sg.Window("Nova Vistoria", layout)
@@ -51,15 +51,17 @@ class TelaVistoria:
         window = self.__layout_nova_vistoria()
         event, values = window.read()
         window.close()
+        values["documento"] = values["documento"].split(';')[-1]
         return event, values
 
-    def mostra_vistoria(self, vistoria, lista_paths_imagens, caminho_documento, e_contestacao):
+    def mostra_vistoria(self, vistoria, lista_paths_imagens, caminho_documento, e_contestacao, user_role):
         image_index = 0
+            
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
             [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Button("Abrir",key="abrir_documento")],
-            [sg.Button("Voltar"), sg.Button("Editar"),sg.Button("Excluir", visible=e_contestacao)],
+            [sg.Button("Voltar"), sg.Button("Editar",visible=not(user_role == 'Locatario') or e_contestacao),sg.Button("Excluir", visible=e_contestacao)],
             Carrossel.carrossel_layout(lista_paths_imagens)
         ]
 
@@ -111,7 +113,6 @@ class TelaVistoria:
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')
 
     def __layout_editar_vistoria(self, vistoria):
-        # imagens_caminhos = [imagem.caminho for imagem in vistoria.imagens]
 
         centrilizedButtons = [sg.Button("Salvar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
@@ -119,10 +120,6 @@ class TelaVistoria:
             [sg.Text("Descrição")],
             [sg.Multiline(default_text=vistoria.descricao, key="descricao", tooltip="Digite uma descrição...",
                           size=(50, 10), no_scrollbar=True, expand_x=True)],
-            # [sg.Text("Imagens")],
-            # [[sg.Input(key='imagens', default_text=";".join(imagens_caminhos)), sg.FilesBrowse()]],
-            # [sg.Text("Documento")],
-            # [[sg.Input(key='documento', default_text=vistoria.documento), sg.FilesBrowse()]],
             [sg.Column([centrilizedButtons], justification="center")]
         ]
 

@@ -187,9 +187,6 @@ class Contrato:
 
     def esta_fechada(self):
         subtr_data = datetime.strptime(f"{date.today()}", "%Y-%m-%d") - datetime.strptime(f"{self._dataCadastro}", "%Y-%m-%d")
-        print(subtr_data)
-        print(date.today())
-        print(self._dataCadastro)
         if subtr_data.days > 14:
             return True
         else:

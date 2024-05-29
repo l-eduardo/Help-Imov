@@ -30,4 +30,4 @@ class AdministradoresRepository:
             if result is None:
                 return False
 
-            return result.is_root
+            return result.e_root
