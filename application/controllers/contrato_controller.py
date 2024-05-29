@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.Imagem import Imagem
@@ -205,9 +204,12 @@ class ContratoController:
                     if event == "editar_vistoria":
                         self.editar_vistoria(contrato_instancia, vistoria)
                     elif event == "excluir_vistoria":
-                        contrato_instancia.remover_vistoria(vistoria)
-                        self.__vistoria_repository.delete(vistoria.id)
-                        sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+                        if vistoria.esta_fechada():
+                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
+                            contrato_instancia.remover_vistoria(vistoria)
+                            self.__vistoria_repository.delete(vistoria.id)
+                            sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
             else:
                 criar_contra_vistoria = sg.popup(
                     "Não existe Contra-Vistoria cadastrada",

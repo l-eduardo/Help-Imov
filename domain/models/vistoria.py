@@ -60,10 +60,12 @@ class Vistoria:
     def data_criacao(self, value: date):
         self._data_criacao = value
 
-
     def esta_fechada(self):
         subtr_data = datetime.strptime(f"{date.today()}", "%Y-%m-%d") - datetime.strptime(f"{self._data_criacao}", "%Y-%m-%d")
-        if (subtr_data > 14):
-            return False
-        else:
+        print(subtr_data)
+        print(date.today())
+        print(self._data_criacao)
+        if subtr_data.days > 14:
             return True
+        else:
+            return False
