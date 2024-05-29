@@ -22,6 +22,7 @@ class ContratoInputMapper:
         locatario=contrato_from_db.locatario,
         imovel=contrato_from_db.imovel,
         estaAtivo=contrato_from_db.esta_ativo,
+        data_cadastro=contrato_from_db.data_cadastro,
         # TODO: Vistoria inicial, terminar
         vistoria_inicial=None,
         contra_vistoria=None,
@@ -53,6 +54,7 @@ class ContratoInputMapper:
                 imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.vistoria_inicial.imagens),
                 documento = DocumentoInputMapper.map_documento(contrato_from_db.vistoria_inicial.documento or None),
                 e_contestacao = False,
+
                 id = contrato_from_db.vistoria_inicial.id
             )
 
@@ -62,6 +64,7 @@ class ContratoInputMapper:
                 imagens=ImagemInputMapper.bulk_map_imagens(contrato_from_db.contra_vistoria.imagens),
                 e_contestacao = True,
                 documento = DocumentoInputMapper.map_documento(contrato_from_db.contra_vistoria.documento or None),
+
                 id = contrato_from_db.contra_vistoria.id
             )
 

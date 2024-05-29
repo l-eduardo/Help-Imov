@@ -17,7 +17,6 @@ class VistoriasOutputMapper:
         vistoria_to_db = Vistorias()
         vistoria_to_db.id = vistoria_from_domain.id
         vistoria_to_db.descricao = vistoria_from_domain.descricao
-        vistoria_to_db.data_criacao = vistoria_from_domain.data_criacao
         vistoria_to_db.documento = DocumentoOutputMapper.map(vistoria_from_domain.documento, vistoria_id=vistoria_from_domain.id)
         vistoria_to_db.imagens = imagens
         vistoria_to_db.id_contrato = id_contrato

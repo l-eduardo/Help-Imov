@@ -13,16 +13,17 @@ class Vistoria:
                  descricao: str,
                  documento: Documento,
                  fechada: bool = False,
+                 data_cadastro: 'date' = date.today(),
                  id: uuid.UUID = None):
         if id is None:
             id = uuid.uuid4()
 
         self._id: uuid.UUID = id
         self._descricao = descricao
-        self._data_criacao = date.today()
+        self._data_criacao = data_cadastro
         self._imagens = imagens
         self._documento = documento
-
+        print(data_cadastro)
 
     @property
     def id(self) -> uuid.UUID:

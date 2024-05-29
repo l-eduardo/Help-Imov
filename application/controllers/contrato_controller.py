@@ -203,14 +203,17 @@ class ContratoController:
 
         if events == "contra_vistoria":
             if contrato_instancia.contra_vistoria:
-                caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento) 
+                caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),
                                                      caminho_documento=caminho_documento)
                 if vistoria_result is not None:
                     event, vistoria = vistoria_result
                     if event == "editar_vistoria":
-                        self.editar_vistoria(contrato_instancia, vistoria)
+                        if vistoria.esta_fechada():
+                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
+                            self.editar_vistoria(contrato_instancia, vistoria)
                     elif event == "excluir_vistoria":
                         if vistoria.esta_fechada():
                             sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
@@ -219,13 +222,20 @@ class ContratoController:
                             self.__vistoria_repository.delete(vistoria.id)
                             sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
             else:
-                criar_contra_vistoria = sg.popup(
-                    "Não existe Contra-Vistoria cadastrada",
-                    title="Aviso",
-                    custom_text=("Criar", "Fechar")
-                )
-                if criar_contra_vistoria == "Criar":
-                    self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                if contrato_instancia.esta_fechada():
+                    sg.popup(
+                        "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
+                        title="Aviso",
+                        custom_text=("Fechar")
+                    )
+                else:
+                    criar_contra_vistoria = sg.popup(
+                        "Não existe Contra-Vistoria cadastrada",
+                        title="Aviso",
+                        custom_text=("Criar", "Fechar")
+                    )
+                    if criar_contra_vistoria == "Criar":
+                            self.incluir_vistoria(contrato_instancia, e_contestacao = True)
 
         elif events == "Voltar":
             self.listar_contrato()
@@ -260,4 +270,4 @@ class ContratoController:
             sg.popup("Edição cancelada", title="Aviso")
 
         self.listar_relacionados_contrato(contrato_instancia)
-    
+
