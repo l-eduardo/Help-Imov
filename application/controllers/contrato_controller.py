@@ -1,4 +1,5 @@
 from datetime import datetime
+import subprocess, os, platform
 
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
@@ -40,7 +41,6 @@ class ContratoController:
         dados_contrato = self.__tela_contrato.pega_dados_contrato()
         contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
                             locatario=dados_contrato['locatario'], estaAtivo=True)
-        self.incluir_vistoria(contrato, e_contestacao = False)
         self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
         self.listar_contrato()
         #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
@@ -178,7 +178,7 @@ class ContratoController:
 
         if events == "vistoria_inicial":
             if contrato_instancia.vistoria_inicial:
-                DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
+                caminho_documento = DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens))
                 if vistoria_result is not None:
@@ -189,12 +189,20 @@ class ContratoController:
                         contrato_instancia.remover_vistoria(vistoria)
                         self.__vistoria_repository.delete(vistoria.id)
                         sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+                    elif event == "abrir_documento":
+                        self.abrir_documento(caminho_documento)
             else:
-                sg.popup("Não existe Vistoria Inicial cadastrada", title="Aviso")
+                criar_contra_vistoria = sg.popup(
+                    "Não existe Vistoria Inicial cadastrada",
+                    title="Aviso",
+                    custom_text=("Criar", "Fechar")
+                )
+                if criar_contra_vistoria == "Criar":
+                    self.incluir_vistoria(contrato_instancia, e_contestacao = False)
 
         if events == "contra_vistoria":
             if contrato_instancia.contra_vistoria:
-                DocumentosService.save_file(contrato_instancia.contra_vistoria.documento) # pode dar paw, qualquer coisa remover
+                caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento) 
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens))
                 if vistoria_result is not None:
@@ -232,7 +240,7 @@ class ContratoController:
             self.__vistoria_repository.insert(vistoria=vistoria_to_insert, # colocar depois uma verificação pra mudar pra vistoria_inicial
                                                 id_contrato=contrato.id)
         else:
-            raise (KeyError)
+            sg.popup("A vistoria não foi criada", title="Aviso")
 
     def editar_vistoria(self, contrato_instancia, vistoria):
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
@@ -246,3 +254,22 @@ class ContratoController:
             sg.popup("Edição cancelada", title="Aviso")
 
         self.listar_relacionados_contrato(contrato_instancia)
+    
+    def abrir_documento(self, caminho_documento):
+        try:
+            if platform.system() == 'Darwin':       # macOS
+                teste = subprocess.call(('open', caminho_documento))
+            elif platform.system() == 'Windows':    # Windows
+                teste = os.startfile(caminho_documento)
+            else:                                   # linux variants
+                teste = subprocess.call(('xdg-open', caminho_documento))
+            if teste == 1:
+                raise ValueError("Não há programa padrão para abrir, abrindo diretório")
+        except:
+            caminho_documento = caminho_documento.replace(caminho_documento.split('/')[-1],"")
+            if platform.system() == 'Darwin':       # macOS
+                teste = subprocess.call(('open', caminho_documento))
+            elif platform.system() == 'Windows':    # Windows
+                teste = os.startfile(caminho_documento)
+            else:                                   # linux variants
+                teste = subprocess.call(('xdg-open', caminho_documento))

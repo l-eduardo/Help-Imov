@@ -28,8 +28,8 @@ class DocumentosService:
         if not os.path.exists(DocumentosService.__save_dir):
             os.makedirs(DocumentosService.__save_dir)
         salt = time.time_ns()
-        with open(DocumentosService.__save_dir +
-                  '/' + salt.__str__() +
-                  '_' + documento.id.__str__()  +
-                  '.' + documento.tipo.split(' ')[0].lower(), 'wb') as file:
+        document_path = f"{DocumentosService.__save_dir}/{salt.__str__()}_{documento.id.__str__()}.{documento.tipo.split(' ')[0].lower()}"
+        print(document_path)
+        with open(document_path, 'wb') as file:
             file.write(documento.content)
+        return document_path

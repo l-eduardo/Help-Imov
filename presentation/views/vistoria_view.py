@@ -35,9 +35,11 @@ class TelaVistoria:
                   [sg.Multiline(key="descricao", tooltip="Digite uma descrição...", size=(50, 10), no_scrollbar=True,
                                 expand_x=True)],
                   [sg.Text("Imagens")],
-                  [[sg.Input(key='imagens'), sg.FilesBrowse()]],
+                  [[sg.Input(key='imagens', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'), 
+                    sg.FilesBrowse(file_types=("ALL Files","*.png"))]],
                   [sg.Text("Documento")],
-                  [[sg.Input(key='documento'), sg.FilesBrowse()]],
+                  [[sg.Input(key='documento', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'), 
+                    sg.FilesBrowse(file_types=("ALL Files","*.pdf"))]],
                   [sg.Column([centrilizedButtons], justification="center")]]
 
         window = sg.Window("Nova Vistoria", layout)
@@ -55,8 +57,7 @@ class TelaVistoria:
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
-            [sg.Text("Imagens:", size=(15, 1), justification='left'), sg.Text(vistoria.imagens)],
-            [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Text(vistoria.documento)],
+            [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Button("Abrir",key="abrir_documento")],
             [sg.Button("Voltar"), sg.Button("Excluir"), sg.Button("Editar")],
             Carrossel.carrossel_layout(lista_paths_imagens)
         ]
@@ -101,6 +102,9 @@ class TelaVistoria:
                 if contador_input > 0 and contador_input <= len(lista_paths_imagens):
                     image_index = contador_input - 1
                 window['-IMAGE-'].update(lista_paths_imagens[image_index])
+            
+            if event == 'abrir_documento':
+                return 'abrir_documento',vistoria
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')
