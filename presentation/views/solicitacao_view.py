@@ -52,14 +52,14 @@ class SolicitacaoView:
 
         centrilizedButtons =  [sg.Button("Editar", key="editar_solicitacao"),sg.Button("Voltar")]
 
-        layout = [[sg.Text("Detalhes da ocorrencia")],
+        layout = [[sg.Text("Detalhes da Solicitação")],
                   [sg.Text("Titulo: "), sg.Text(solicitacao.titulo, key="titulo")],
                   [sg.Text("Descrição: "), sg.Text(solicitacao.descricao, key="descricao")],
                   [sg.Text("Status: "), sg.Text(solicitacao.status.name, key="status")],
                   [sg.Text("Data de criação: "), sg.Text(solicitacao.data_criacao, key="data_criacao")],
                   [sg.Column([centrilizedButtons], justification="center")]]
 
-        window = sg.Window(f"Detalhes da ocorrencia ({solicitacao.id})", layout)
+        window = sg.Window(f"Detalhes da solicitação ({solicitacao.id})", layout)
         event, values = window.read()
         window.close()
         return event, values

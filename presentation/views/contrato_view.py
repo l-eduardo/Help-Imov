@@ -97,7 +97,9 @@ class TelaContrato:
                 self.__controlador.listar_contrato()
 
     def mostra_relacionados_contrato(self, solicitacoes_ocorrencias, contrato_instancia):
-
+        excluir_btn_visivel = False
+        if solicitacoes_ocorrencias != [] and solicitacoes_ocorrencias:
+            excluir_btn_visivel = True
         header = ["Tipo", "Título", "Status", "Data Criação"]
         # Convert the list of dictionaries into a list of lists for the table
         table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"], dado] for dado in
@@ -116,13 +118,22 @@ class TelaContrato:
                           select_mode=sg.TABLE_SELECT_MODE_BROWSE,
                           vertical_scroll_only=False)
         # Window layout
+        buttons_layout = [
+            sg.Button("Voltar"),
+            sg.Button("Adicionar solicitação", key="add_solicitacao"),
+            sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
+            sg.Button("Selecionar"),
+            sg.Button("Excluir", key="Excluir", visible=excluir_btn_visivel)
+        ]
+        right_button_layout = [
+            sg.Button("Solicitações para aprovação", key="Solicitações para aprovação")
+        ]
+        # Window layout
         layout = [
             [sg.Button("Vistoria Inicial", key="vistoria_inicial"), sg.Button("Contra Vistoria", key="contra_vistoria")],
             [tabela],
-            [sg.Button("Voltar"),
-             sg.Button("Adicionar solicitação",key="add_solicitacao"),
-             sg.Button("Adicionar ocorrência",key="add_ocorrencia"),
-             sg.Button("Selecionar"), sg.Button("Excluir", key="Excluir")]
+            [sg.Column([buttons_layout], expand_x=True),
+             sg.Column([right_button_layout], justification='right', expand_x=True)]
         ]
         # Create the window
         window = sg.Window("Relacionados do contrato",layout, size=(900, 300), resizable=True, finalize=True)

@@ -120,11 +120,19 @@ class ContratoController:
                                                         contrato_id=contrato_instancia.id)
 
         elif events == "add_solicitacao":
-            event, values = self.__solicitacao_view.pega_dados_solicitacao()
-            if event == "Registrar":
-                contrato_instancia.incluir_solicitacao(values["titulo"], values["descricao"], session.user_id)
-                self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
-                                                     id_contrato=contrato_instancia.id)
+            while True:
+                event, values = self.__solicitacao_view.pega_dados_solicitacao()
+                titulo = values["titulo"]
+                descricao = values["descricao"]
+                if event == "Registrar":
+                    if self.validar_campos_entidade(titulo, descricao):
+                        contrato_instancia.incluir_solicitacao(titulo, descricao, session.user_id)
+                        self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
+                                                             id_contrato=contrato_instancia.id)
+                        self.__tela_contrato.mostra_msg("Solicitação registrada com sucesso")
+                        break  # Sai do loop se validar os dados
+                else:
+                    break  # Sai do loop se clica em cancelar
 
         elif events == "Excluir" and values["-TABELA-"] is not None:
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
@@ -153,27 +161,36 @@ class ContratoController:
 
                 elif mostra_ocorr_event == "editar_ocorrencia":
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(entidade["entity"])
+                    titulo = editar_ocorr_values["titulo"]
+                    descricao = editar_ocorr_values["descricao"]
 
                     if editar_ocorr_events == "confirmar_edicao":
-                        entidade["entity"].titulo = editar_ocorr_values["titulo"]
-                        entidade["entity"].descricao = editar_ocorr_values["descricao"]
-                        entidade["entity"].status = Status(editar_ocorr_values["status"])
-                        self.__ocorrencia_repository.update(entidade["entity"])
+                        if self.validar_campos_entidade(titulo, descricao):
+                            entidade["entity"].titulo = editar_ocorr_values["titulo"]
+                            entidade["entity"].descricao = editar_ocorr_values["descricao"]
+                            entidade["entity"].status = Status(editar_ocorr_values["status"])
+                            self.__ocorrencia_repository.update(entidade["entity"])
 
-            elif entidade["tipo"] == "Solicitação":
-                event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
+            if entidade["tipo"] == "Solicitação":
+                while True:
+                    event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
+                    if entidade["entity"].criador_id != session.user_id:
+                        sg.popup("Você não tem permissão para editar esta solicitação")
 
-                if entidade["entity"].criador_id != session.user_id:
-                    sg.popup("Você não tem permissão para editar esta solicitacao")
-
-                if event_solic == "editar_solicitacao":
-                    edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
-
-                    if edit_solic_events == "confirmar_edicao":
-                        entidade["entity"].titulo = edit_solic_values["titulo"]
-                        entidade["entity"].descricao = edit_solic_values["descricao"]
-                        entidade["entity"].status = Status(edit_solic_values["status"])
-                        self.__solicitacao_repository.update(entidade["entity"])
+                    elif event_solic == "editar_solicitacao":
+                        while True:
+                            edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
+                            titulo = edit_solic_values["titulo"]
+                            descricao = edit_solic_values["descricao"]
+                            if edit_solic_events == "confirmar_edicao":
+                                if self.validar_campos_entidade(titulo, descricao):
+                                    print(edit_solic_events)
+                                    entidade["entity"].titulo = edit_solic_values["titulo"]
+                                    entidade["entity"].descricao = edit_solic_values["descricao"]
+                                    entidade["entity"].status = Status(edit_solic_values["status"])
+                                    self.__solicitacao_repository.update(entidade["entity"])
+                                break
+                    break
 
         if events == "vistoria_inicial":
             if contrato_instancia.vistoria_inicial:
@@ -203,6 +220,7 @@ class ContratoController:
                 )
                 if criar_contra_vistoria == "Criar":
                     self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+
 
         elif events == "Voltar":
             ImagensService.flush_temp_images()
@@ -236,3 +254,15 @@ class ContratoController:
                 return False
             else:
                 return True
+
+    def validar_campos_entidade(self, titulo, descricao):
+        if not titulo or not descricao:
+            sg.popup("Todos os campos devem ser preenchidos.")
+            return False
+        if len(titulo) > 25:
+            sg.popup("O título não pode exceder 25 caracteres.")
+            return False
+        if len(descricao) > 500:
+            sg.popup("A descrição não pode exceder 500 caracteres.")
+            return False
+        return True
