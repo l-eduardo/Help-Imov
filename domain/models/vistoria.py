@@ -12,17 +12,16 @@ class Vistoria:
                  imagens: List[Imagem],
                  descricao: str,
                  documento: Documento,
-                 fechada: bool = False,
+                 data_criacao: 'date',
                  id: uuid.UUID = None):
         if id is None:
             id = uuid.uuid4()
 
         self._id: uuid.UUID = id
         self._descricao = descricao
-        self._data_criacao = date.today()
+        self._data_criacao = data_criacao
         self._imagens = imagens
         self._documento = documento
-
 
     @property
     def id(self) -> uuid.UUID:
@@ -60,10 +59,10 @@ class Vistoria:
     def data_criacao(self, value: date):
         self._data_criacao = value
 
-
     def esta_fechada(self):
         subtr_data = datetime.strptime(f"{date.today()}", "%Y-%m-%d") - datetime.strptime(f"{self._data_criacao}", "%Y-%m-%d")
-        if (subtr_data > 14):
-            return False
-        else:
+
+        if subtr_data.days > 14:
             return True
+        else:
+            return False

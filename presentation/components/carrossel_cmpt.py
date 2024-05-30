@@ -4,7 +4,7 @@ import PySimpleGUI as sg
 class Carrossel:
 
     @staticmethod
-    def carrossel_layout(lista_paths_imagens, image_zoom=1, image_subsample=1):
+    def carrossel_layout(lista_paths_imagens, image_zoom=1, image_subsample=2):
         if len(lista_paths_imagens) == 0:
             carrossel_layout = [[sg.HorizontalSeparator()],
                                 [sg.Text("Imagens", font=('Any', 18),
