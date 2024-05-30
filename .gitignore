@@ -13,6 +13,9 @@ alembic/versions*
 *.gif
 tmp
 
+#docs
+*.pdfs
+
 #Pycharm
 .idea/
 
