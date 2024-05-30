@@ -1,3 +1,5 @@
+*.puml
+
 #alembic
 alembic.ini
 ./alembic/versions
