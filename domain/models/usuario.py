@@ -10,6 +10,7 @@ class Usuario(ABC):
                  senha: str,
                  nome: str,
                  data_nascimento: date,
+                 data_criacao: date = date.today(),
                  id: uuid.UUID = uuid.UUID(int=0)):
         self._id = id
         if id == uuid.UUID(int=0):
@@ -17,7 +18,7 @@ class Usuario(ABC):
         self._nome = nome
         self._email = email
         self._senha = senha
-        self._data_criacao = date.today()
+        self._data_criacao = data_criacao
         self._data_nascimento = data_nascimento
 
     @property
