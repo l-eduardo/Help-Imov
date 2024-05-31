@@ -4,7 +4,7 @@
 
 #alembic
 alembic.ini
-alembic/versions*
+alembic/versions/*.py
 
 #images
 *.png
