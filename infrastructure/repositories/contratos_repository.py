@@ -39,4 +39,22 @@ class ContratosRepositories:
             connection.session.commit()
             return contrato
 
+    def update(self, contrato: Contratos) -> Contratos:
+        if contrato.vistoria_inicial is not None:
+            vistoria_inicial_id = str(contrato.vistoria_inicial.id)
+        else:
+            vistoria_inicial_id = None
+        
+        if contrato.contra_vistoria is not None:
+            contra_vistoria_id = str(contrato.contra_vistoria.id)
+        else:
+            contra_vistoria_id = None
+
+        with Connection() as connection:
+            result = connection.session.query(Contratos).filter(Contratos.id == str(contrato.id)).update(
+                {"contra_vistoria_id": contra_vistoria_id,
+                 "vistoria_inicial_id": vistoria_inicial_id})
+            connection.session.commit()
+            return contrato
+
 

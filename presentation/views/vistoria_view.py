@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+import subprocess, os, platform
 from presentation.components.carrossel_cmpt import Carrossel
 
 
@@ -7,28 +8,6 @@ class TelaVistoria:
     def __init__(self, controlador):
         self.__controlador = controlador
 
-    def pega_dados_vistoria(self):
-        layout = [
-            [sg.Text("Descrição"), sg.InputText(key="descricao")],
-            [sg.Text("Data"), sg.InputText(key="data")],
-            [sg.Button("Salvar"), sg.Button("Cancelar")]
-        ]
-
-        window = sg.Window("Nova Contra-Vistoria", layout)
-
-        while True:
-            event, values = window.read()
-            if event == sg.WIN_CLOSED or event == "Cancelar":
-                window.close()
-                return None
-            if event == "Salvar":
-                descricao = values["descricao"]
-                data = values["data"]
-                # Adicionar validação de dados aqui se necessário
-                window.close()
-                return {"descricao": descricao, "data": data}
-
-
     def __layout_nova_vistoria(self):
         centrilizedButtons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
@@ -36,31 +15,33 @@ class TelaVistoria:
                   [sg.Multiline(key="descricao", tooltip="Digite uma descrição...", size=(50, 10), no_scrollbar=True,
                                 expand_x=True)],
                   [sg.Text("Imagens")],
-                  [[sg.Input(key='imagens'), sg.FilesBrowse()]],
+                  [[sg.Input(key='imagens', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'),
+                    sg.FilesBrowse(file_types=(('ALL Files', '*.png'),))]],
                   [sg.Text("Documento")],
-                  [[sg.Input(key='documento'), sg.FilesBrowse()]],
+                  [[sg.Input(key='documento', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'),
+                    sg.FilesBrowse(file_types=(('ALL Files', '*.pdf'),))]],
                   [sg.Column([centrilizedButtons], justification="center")]]
 
         window = sg.Window("Nova Vistoria", layout)
 
         return window
 
-
     def pega_dados_vistoria(self):
         window = self.__layout_nova_vistoria()
         event, values = window.read()
         window.close()
+        values["documento"] = values["documento"].split(';')[-1]
         return event, values
 
-
-    def mostra_vistoria(self, vistoria, lista_paths_imagens):
+    def mostra_vistoria(self, vistoria, lista_paths_imagens, caminho_documento, e_contestacao, user_role):
         image_index = 0
+
         layout = [
             [sg.Text("Vistoria", font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Descrição:", size=(15, 1), justification='left'), sg.Text(vistoria.descricao)],
-            [sg.Text("Caminho do Documento:", size=(22, 1), justification='left'), sg.Text("./Downloads/1716793569984645000_a8c93ce1-d8f9-4607-be5d-f86548c02a0f.pdf")],
-            [sg.Button("Voltar"), sg.Button("Excluir"), sg.Button("Editar")],
-            Carrossel.carrossel_layout(lista_paths_imagens, image_zoom=1, image_subsample=5)
+            [sg.Text("Documentos:", size=(22, 1), justification='left'), sg.Button("Abrir",key="abrir_documento")],
+            [sg.Button("Voltar"), sg.Button("Editar",visible=not(user_role == 'Locatario') or e_contestacao),sg.Button("Excluir", visible=e_contestacao)],
+            Carrossel.carrossel_layout(lista_paths_imagens)
         ]
 
         window = sg.Window('Vistoria', layout, element_justification='center',
@@ -104,6 +85,48 @@ class TelaVistoria:
                     image_index = contador_input - 1
                 window['-IMAGE-'].update(lista_paths_imagens[image_index])
 
+            if event == 'abrir_documento':
+                self.abrir_documento(caminho_documento)
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')
+
+    def __layout_editar_vistoria(self, vistoria):
+
+        centrilizedButtons = [sg.Button("Salvar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
+
+        layout = [
+            [sg.Text("Descrição")],
+            [sg.Multiline(default_text=vistoria.descricao, key="descricao", tooltip="Digite uma descrição...",
+                          size=(50, 10), no_scrollbar=True, expand_x=True)],
+            [sg.Column([centrilizedButtons], justification="center")]
+        ]
+
+        window = sg.Window("Editar Vistoria", layout)
+        return window
+
+    def pega_dados_editar_vistoria(self, vistoria):
+        window = self.__layout_editar_vistoria(vistoria)
+        event, values = window.read()
+        window.close()
+        return event, values
+
+    def abrir_documento(self, caminho_documento):
+        try:
+            if platform.system() == 'Darwin':       # macOS
+                teste = subprocess.call(('open', caminho_documento))
+            elif platform.system() == 'Windows':    # Windows
+                teste = os.startfile(caminho_documento)
+            else:                                   # linux variants
+                teste = subprocess.call(('xdg-open', caminho_documento))
+            if teste == 1:
+                raise ValueError("Não há programa padrão para abrir, abrindo diretório")
+        except:
+            caminho_documento = caminho_documento.replace(caminho_documento.split('/')[-1],"")
+            if platform.system() == 'Darwin':       # macOS
+                teste = subprocess.call(('open', caminho_documento))
+            elif platform.system() == 'Windows':    # Windows
+                teste = os.startfile(caminho_documento)
+            else:                                   # linux variants
+                teste = subprocess.call(('xdg-open', caminho_documento))
+
