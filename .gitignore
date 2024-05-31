@@ -19,9 +19,6 @@ tmp
 #Pycharm
 .idea/
 
-#Alembic
-alembic/versions/
-
 # Byte-compiled / optimized / DLL files
 *__pycache__
 *.py[cod]
