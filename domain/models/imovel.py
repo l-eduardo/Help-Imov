@@ -1,6 +1,5 @@
 from typing import List
 import uuid
-
 from domain.models.Imagem import Imagem
 
 
@@ -9,10 +8,10 @@ class Imovel:
                  codigo: int,
                  endereco: str,
                  imagens: List[Imagem],
-                 id: uuid.UUID = uuid.UUID(int=0)):
-        self._id = id
-        if id == uuid.UUID(int=0):
-            self._id = uuid.uuid4()
+                 id: uuid.UUID = None):
+        if id is None:
+            id = uuid.uuid4()
+        self._id: uuid.UUID = id
         self._codigo = codigo
         self._endereco = endereco
         self._imagens = imagens
@@ -33,15 +32,17 @@ class Imovel:
     def imagens(self) -> List[Imagem]:
         return self._imagens
 
+    @imagens.setter
+    def imagens(self, value: List[Imagem]) -> None:
+        self._imagens = value
+
     @codigo.setter
-    def codigo(self, codigo: int) -> None:
+    def codigo(self, codigo: int) :
         self._codigo = codigo
 
     @endereco.setter
-    def endereco(self, endereco: str) -> None:
+    def endereco(self, endereco: str):
         self._endereco = endereco
-
-    # a parte de imagens vai ser uma classe separada pra lidar com a manipulação
 
     def __str__(self):
         return f'{self.endereco}'

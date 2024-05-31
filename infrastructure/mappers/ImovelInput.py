@@ -7,12 +7,13 @@ from infrastructure.models.imoveis import Imoveis
 
 
 class ImovelInputMapper:
-
     @staticmethod
-    def map_imovel_input(imovel: Imoveis) -> Imovel:
-        return Imovel(
-            id=UUID(imovel.id),
-            endereco=imovel.endereco,
-            codigo=imovel.codigo,
-            imagens=imovel.imagens
+    def map_imovel_input(imovel_from_db: Imoveis):
+        imovel = Imovel(
+            id=UUID(imovel_from_db.id),
+            codigo=imovel_from_db.codigo,
+            endereco=imovel_from_db.endereco,
+            imagens=imovel_from_db.imagens
         )
+
+        return imovel

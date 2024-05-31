@@ -20,7 +20,7 @@ class ImoveisRepository:
                 imovel_inputs_list.append(ImovelInputMapper.map_imovel_input(i[0], i[1]))
 
             return imovel_inputs_list
-        
+
     def get_all(self) -> list[Imovel]:
          with Connection() as connection:
             result = connection.session.query(Imoveis).all()
@@ -35,16 +35,28 @@ class ImoveisRepository:
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
-            connection.session.query(Imagens).filter(Imagens.id == id).delete()
-            connection.session.query(Imoveis).filter(Imoveis.id == id).delete()
+            result = connection.session.query(Imoveis).filter(Imoveis.id == str(id)).delete()
+            connection.session.commit()
 
-    def insert(self, imovel: Imovel) -> Imoveis:
+    def insert(self, imovel: Imoveis) -> Imoveis:
+        imovel_to_db = ImovelOutputMapper.map_imovel_output(imovel_from_domain=imovel)
+
         with Connection() as connection:
-            imovel_output = ImovelOutputMapper.map_imovel_output(imovel)
-            connection.session.add(imovel_output[0])
-            connection.session.add(imovel_output[1])
+            connection.session.add(imovel_to_db)
+            connection.session.commit()
+            return imovel
 
-            return imovel_output[0]
+    def update(self, imovel: Imoveis) -> Imoveis:
+        with Connection() as connection:
+            result = connection.session.query(Imoveis).filter(Imoveis.id == str(imovel.id)).update(
+                {"codigo": imovel.codigo,
+                 "endereco": imovel.endereco,
+                 "imagens": imovel.imagens}
+
+            )
+
+            connection.session.commit()
+            return imovel
 
     def get_by_id(self, id: UUID) -> Imovel:
         with Connection() as connection:
