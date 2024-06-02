@@ -1,5 +1,7 @@
 import PySimpleGUI as sg
 import subprocess, os, platform
+
+from domain.models.imovel import Imovel
 from presentation.components.carrossel_cmpt import Carrossel
 
 
@@ -12,9 +14,9 @@ class TelaImovel:
         centrilized_buttons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
         layout = [[sg.Text("Codigo")],
-                  [sg.Text(key="codigo", tooltip="digite um codigo", size=(50, 10), expand_x=True)],
+                  [sg.Input(key="codigo", tooltip="digite um codigo", size=(50, 10), expand_x=True)],
                   [sg.Text("Endereço")],
-                  [sg.Multiline(key="endereço", tooltip="digite o endereço", size=(50, 10), no_scrollbar=True,
+                  [sg.Multiline(key="endereco", tooltip="digite o endereço", size=(50, 10), no_scrollbar=True,
                                 expand_x=True)],
                   [sg.Text("Imagens")],
                   [[sg.Input(key='imagens', readonly=True, disabled_readonly_background_color='#ECECEC',
@@ -50,7 +52,7 @@ class TelaImovel:
                           vertical_scroll_only=False)
 
         layout = [[tabela],
-                  [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar"), sg.Button("Selecionar")], ]
+                  [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar")]]
 
         # Create the window
         self.window = sg.Window("Imoveis", layout, size=(900, 300), resizable=True)
@@ -62,13 +64,22 @@ class TelaImovel:
                 exit()  # revisar e adicionar tela principal do sistema
             self.window.close()
             return event, values
-    def mostra_imovel(self, imovel, lista_paths_imagens):
+
+    def vw_novo_imovel(self, imovel: 'Imovel', lista_paths_imagens: list[str]):
+        window = self.mostra_imovel(imovel, lista_paths_imagens)
+
+        event, values = window.read()
+
+        window.close()
+        return event, values
+
+    def mostra_imovel(self, imovel: 'Imovel', lista_paths_imagens: list[str]):
         image_index = 0
 
         layout = [
             [sg.Text("Imovel", font=('Any', 18), justification='center', expand_x=True)],
             [sg.Text("Codigo:", size=(15, 1), justification='left'), sg.Text(imovel.codigo)],
-            [sg.Text("Endereço:", size=(15, 1), justification='left'), sg.Multiline(imovel.endereco)],
+            [sg.Text("Endereço:", size=(15, 1), justification='left'), sg.Text(imovel.endereco)],
             [sg.Button("Voltar"), sg.Button("Editar"), sg.Button("Excluir")],
             Carrossel.carrossel_layout(lista_paths_imagens)
         ]
@@ -82,7 +93,7 @@ class TelaImovel:
             window['-COUNT_IMG-'].bind("<Return>", "_Enter")
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
-                break
+                return "voltar", imovel
 
             if event == "Editar":
                 window.close()
@@ -91,6 +102,9 @@ class TelaImovel:
             if event == "Excluir":
                 window.close()
                 return "excluir_imovel", imovel
+
+            if event == "voltar":
+                window.close()
 
             if event == "-PROX_IMG-":
                 image_index = (image_index + 1) % len(lista_paths_imagens)
@@ -114,7 +128,6 @@ class TelaImovel:
                     image_index = contador_input - 1
                 window['-IMAGE-'].update(lista_paths_imagens[image_index])
 
-
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='imovel', button_justification='left')
 
@@ -125,7 +138,7 @@ class TelaImovel:
         layout = [
             [sg.Text("Codigo")],
             [sg.Text(text=imovel.descricao, key="codigo", tooltip="Digite uma descrição...",
-                          size=(50, 10), expand_x=True)],
+                     size=(50, 10), expand_x=True)],
             [sg.Text("Endereço")],
             [sg.Text(key='endereco', text=imovel.endereco, tooltip="Digite uma descrição...")],
             [sg.Text("Imagens")],
@@ -142,22 +155,3 @@ class TelaImovel:
         event, values = window.read()
         window.close()
         return event, values
-
-    def abrir_documento(self, caminho_documento):
-        try:
-            if platform.system() == 'Darwin':  # macOS
-                teste = subprocess.call(('open', caminho_documento))
-            elif platform.system() == 'Windows':  # Windows
-                teste = os.startfile(caminho_documento)
-            else:  # linux variants
-                teste = subprocess.call(('xdg-open', caminho_documento))
-            if teste == 1:
-                raise ValueError("Não há programa padrão para abrir, abrindo diretório")
-        except:
-            caminho_documento = caminho_documento.replace(caminho_documento.split('/')[-1], "")
-            if platform.system() == 'Darwin':  # macOS
-                teste = subprocess.call(('open', caminho_documento))
-            elif platform.system() == 'Windows':  # Windows
-                teste = os.startfile(caminho_documento)
-            else:  # linux variants
-                teste = subprocess.call(('xdg-open', caminho_documento))

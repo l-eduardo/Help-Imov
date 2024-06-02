@@ -26,7 +26,7 @@ class MainController:
                 break
             if autenticado:
                 self.__set_session(autenticado.id)
-                # self.__contrato_controller.listar_contrato()
+               # self.__contrato_controller.listar_contrato()
                 self.__imoveis_controller.listar_imoveis()
                 break
 

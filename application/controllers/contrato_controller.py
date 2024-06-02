@@ -232,6 +232,8 @@ class ContratoController:
 
         if events == "contra_vistoria":
             if contrato_instancia.contra_vistoria:
+                print(contrato_instancia.contra_vistoria)
+                print(contrato_instancia.contra_vistoria.imagens)
                 caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),

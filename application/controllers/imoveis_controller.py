@@ -1,4 +1,7 @@
+from application.controllers.session_controller import SessionController
+
 from domain.models.imovel import Imovel
+from domain.models.session import Session
 from infrastructure.repositories.imoveis_repository import ImoveisRepository
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.imovel_view import TelaImovel
@@ -8,18 +11,25 @@ import PySimpleGUI as sg
 
 class ImoveisController:
     def __init__(self, controlador_sistema):
-        self.contratos = None
         self.controlador_sistema = controlador_sistema
         self.__imoveis_repository = ImoveisRepository()
         self.__tela_imovel = TelaImovel(self)
         self.imoveis = []
+        self.contratos = []
+        from application.controllers.contrato_controller import ContratoController
 
     def inclui_imovel(self):
-        dados_imovel = self.__tela_imovel.pega_dados_imovel()
-        imovel = Imovel(codigo=dados_imovel['codigo'],
-                        endereco=dados_imovel['endereco'],
-                        imagens=ImagensService.bulk_read(dados_imovel["imagens"].split(';')))
-        self.__imoveis_repository.insert(ImovelOutputMapper.map_imovel_output(imovel))
+        event, values = self.__tela_imovel.pega_dados_imovel()
+        if event == "Registrar":
+            try:
+                imovel = Imovel(codigo=values['codigo'], endereco=values['endereco'],
+                                imagens=ImagensService.bulk_read(values["imagens"].split(';')))
+                self.__imoveis_repository.insert(imovel)
+                self.__imoveis_repository.update(imovel)
+                self.listar_imoveis()
+            except:
+                sg.Popup("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
+
 
     def editar_imovel(self, imovel):
         # Encontra e substitui o imóvel pelo novo
@@ -28,13 +38,25 @@ class ImoveisController:
                 self.imoveis[idx] = imovel
                 break
 
-    def excluir_imovel(self, imovel):
+    def excluir_imovel(self, imovel: Imovel):
         # Exclui um imóvel da lista
-        self.imoveis.remove(imovel)
+        if self.contrato_associado(imovel.id):
+            self.__tela_imovel.mostra_msg("Imovel associado a um contrato. Não é possivel excluir")
+        else:
+            self.imoveis.remove(imovel)
+            self.__imoveis_repository.delete(imovel.id)
 
     def contrato_associado(self, imovel_id):
-        # Verifica se o imóvel tem um contrato associado
-        return imovel_id in self.contratos.values()
+        # Importe localmente dentro do método
+        from application.controllers.contrato_controller import ContratoController
+
+        contratos_controller = ContratoController(self)
+        self.contratos = contratos_controller.obter_contratos_do_banco()
+        for contrato in self.contratos:
+            if contrato.imovel.id == imovel_id:
+                return True
+        return False
+
 
     def buscar_imovel_por_codigo(self, codigo):
         # Busca um imóvel pelo código
@@ -51,28 +73,51 @@ class ImoveisController:
         return [imovel.id for imovel in self.imoveis]
 
     def listar_imoveis(self):
-        self.imoveis = self.obter_imoveis_do_banco()
-        imoveis_listados = []
-        for imovel in self.imoveis:
-            imoveis_listados.append({
-                "idImovel": imovel.id, "codigo": imovel.codigo,
-                "endereco": imovel.endereco,
-            })
-        event, values = self.__tela_imovel.mostra_imoveis_lista(imoveis_listados)
-        if event == "Visualizar":
-            if values["-TABELA-"]:
-                imovel_selecionado = imoveis_listados[values["-TABELA-"][0]]
-                self.selecionar_imovel(imovel_selecionado)
-            else:
-                sg.Popup("Nenhum contrato selecionado")
-        if event == "Adicionar":
-            self.inclui_imovel()
-        # if event == "Selecionar":
-        #     imovel_selecionado = imoveis_listados[values["-TABELA-"][0]]
-        #     for imovel in self.imoveis:
-        #         if imovel_selecionado['idImovel'] == imovel.id:
-        #             imovel_instancia = imovel
-        #             break
+        while True:
+            self.imoveis = self.obter_imoveis_do_banco()
+            imoveis_listados = []
+            for imovel in self.imoveis:
+                imoveis_listados.append({
+                    "idImovel": imovel.id,
+                    "codigo": imovel.codigo,
+                    "endereco": imovel.endereco,
+                    "imagem": imovel.imagens,
+                    "entity": imovel
+                })
 
-    def selecionar_imovel(self, imovel_selecionado):
-        self.__tela_imovel.mostra_imovel(imovel_selecionado)
+            event, values = self.__tela_imovel.mostra_imoveis_lista(imoveis_listados)
+
+            if event == "Visualizar":
+                if values["-TABELA-"]:
+                    # Pega o índice do imóvel selecionado
+                    entidade = imoveis_listados[values["-TABELA-"][0]]
+
+                    img_dir = ImagensService.bulk_local_temp_save(entidade["imagem"])
+                    imovel_result = self.__tela_imovel.mostra_imovel(
+                                entidade["entity"],
+                                lista_paths_imagens=img_dir)
+
+
+                    if imovel_result is not None:
+                        event, imovel = imovel_result
+                        if event == "editar_imovel":
+                            self.editar_imovel(imovel)
+                        if event == "excluir_imovel":
+                            self.excluir_imovel(imovel)
+                            self.__imoveis_repository.delete(imovel)
+                        if event == "voltar":
+                            continue
+                else:
+                    sg.Popup("Nenhum imóvel selecionado")
+
+            if event == "Adicionar":
+                self.inclui_imovel()
+
+            if event in (sg.WIN_CLOSED, "Voltar"):
+                break
+
+    def obter_detalhes_imovel(self, id_imovel):
+        for imovel in self.imoveis:
+            if imovel.id == id_imovel:
+                return imovel
+        return None

@@ -26,12 +26,6 @@ class ImoveisRepository:
             result = connection.session.query(Imoveis).all()
             return [ImovelInputMapper.map_imovel_input(x) for x in result]
 
-    def get_by_id_with_images(self, id: UUID) -> Imoveis:
-        with Connection() as connection:
-            return connection.session.query(Imoveis)\
-                .filter(Imoveis.id == id)\
-                .join(Imagens, Imoveis.id == Imagens.id)\
-                .first()
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
@@ -50,10 +44,7 @@ class ImoveisRepository:
         with Connection() as connection:
             result = connection.session.query(Imoveis).filter(Imoveis.id == str(imovel.id)).update(
                 {"codigo": imovel.codigo,
-                 "endereco": imovel.endereco,
-                 "imagens": imovel.imagens}
-
-            )
+                 "endereco": imovel.endereco})
 
             connection.session.commit()
             return imovel

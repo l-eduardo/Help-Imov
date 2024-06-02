@@ -17,11 +17,10 @@ class ImagensService:
         imagem_bytes = imagem_shape.tobytes()
 
         return Imagem(height=imagem_shape.shape[0],
-               width=imagem_shape.shape[1],
-               channels=imagem_shape.shape[2],
-               tamanho=imagem_shape.size,
-               content=imagem_bytes)
-
+                      width=imagem_shape.shape[1],
+                      channels=imagem_shape.shape[2],
+                      tamanho=imagem_shape.size,
+                      content=imagem_bytes)
 
     @staticmethod
     def bulk_read(dir_list: List[str]) -> List[Imagem]:
@@ -30,17 +29,23 @@ class ImagensService:
     @staticmethod
     @SessionController.inject_session_data
     def local_temp_save(imagem: Imagem,
-                        session: Session=None) -> str:
+                        session: Session = None) -> str:
 
         if imagem is None:
             return None
 
-        np_image = np.frombuffer(imagem.content, dtype=np.uint8)
-
+        np_image = np.frombuffer(imagem.imagem, dtype=np.uint8)
         reshaped_image = np_image.reshape((imagem.height, imagem.width, imagem.channels))
 
+        # Defina o caminho do diretório temporário
+        temp_dir = './tmp'
+
+        # Verifique se o diretório existe, caso contrário, crie-o
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         salt = time.time_ns()
-        path = str('./tmp/' + session.session_id.__str__()) + '_temp_image_' + str(salt) + '.png'
+        path = os.path.join(temp_dir, f"{session.session_id}_temp_image_{salt}.png")
         iio.imwrite(path, image=reshaped_image)
         return path
 
@@ -54,9 +59,12 @@ class ImagensService:
     @SessionController.inject_session_data
     def flush_temp_images(session: Session = None) -> None:
         session_id = session.session_id.__str__()
-        for filename in os.listdir('./tmp'):
-            if filename.startswith(session_id):
-                file_path = os.path.join('./tmp', filename)
+        temp_dir = './tmp'
 
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
+        if os.path.exists(temp_dir):
+            for filename in os.listdir(temp_dir):
+                if filename.startswith(session_id):
+                    file_path = os.path.join(temp_dir, filename)
+
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)

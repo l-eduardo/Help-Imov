@@ -3,7 +3,6 @@ from uuid import UUID
 from domain.models.administrador import Administrador
 from domain.models.imovel import Imovel
 from infrastructure.mappers.ImagemOutput import ImagemOutputMapper
-from infrastructure.models.imagens import Imagens
 from infrastructure.models.imoveis import Imoveis
 
 
@@ -16,7 +15,7 @@ class ImovelOutputMapper:
                                                   imovel_id=imovel_from_domain.id))
 
         imovel_to_db = Imoveis()
-        imovel_to_db.id = imovel_from_domain.id
+        imovel_to_db.id = str(imovel_from_domain.id)
         imovel_to_db.codigo = imovel_from_domain.codigo
         imovel_to_db.endereco = imovel_from_domain.endereco
         imovel_to_db.imagens = imagens

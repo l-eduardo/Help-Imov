@@ -3,8 +3,6 @@ from infrastructure.models import Base
 from sqlalchemy.orm import relationship
 
 
-#Base = declarative_base()
-
 class Imoveis(Base):
     __tablename__ = 'IMOVEIS'
 

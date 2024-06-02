@@ -7,14 +7,14 @@ class Imovel:
     def __init__(self,
                  codigo: int,
                  endereco: str,
-                 imagens: List[Imagem],
+                 imagens: List[Imagem] = None,
                  id: uuid.UUID = None):
         if id is None:
             id = uuid.uuid4()
         self._id: uuid.UUID = id
         self._codigo = codigo
         self._endereco = endereco
-        self._imagens = imagens
+        self._imagens: List[Imagem] = imagens
 
     @property
     def id(self) -> uuid.UUID:
@@ -32,12 +32,12 @@ class Imovel:
     def imagens(self) -> List[Imagem]:
         return self._imagens
 
-    @imagens.setter
-    def imagens(self, value: List[Imagem]) -> None:
-        self._imagens = value
+    # @imagens.setter
+    # def imagens(self, value: List[Imagem]) -> None:
+    #     self._imagens = value
 
     @codigo.setter
-    def codigo(self, codigo: int) :
+    def codigo(self, codigo: int):
         self._codigo = codigo
 
     @endereco.setter
