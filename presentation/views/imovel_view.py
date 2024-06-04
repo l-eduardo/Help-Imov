@@ -14,7 +14,8 @@ class TelaImovel:
         centrilized_buttons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
         layout = [[sg.Text("Codigo")],
-                  [sg.Input(key="codigo", tooltip="digite um codigo", size=(50, 10), expand_x=True)],
+                  [sg.Input(key="codigo", tooltip="digite um codigo", default_text="insira um código numérico válido", size=(50, 10), expand_x=True)],
+                  [sg.Text("", key="-ERROR-", size=(50, 1), text_color="red")],
                   [sg.Text("Endereço")],
                   [sg.Multiline(key="endereco", tooltip="digite o endereço", size=(50, 10), no_scrollbar=True,
                                 expand_x=True)],
@@ -30,7 +31,10 @@ class TelaImovel:
 
     def pega_dados_imovel(self):
         window = self.__layout_novo_imovel()
+
         event, values = window.read()
+
+
         window.close()
         return event, values
 
@@ -90,7 +94,8 @@ class TelaImovel:
 
         while True:
             event, values = window.read()
-            window['-COUNT_IMG-'].bind("<Return>", "_Enter")
+            if '-COUNT_IMG-' in window.AllKeysDict:
+                window['-COUNT_IMG-'].bind("<Return>", "_Enter")
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
                 return "voltar", imovel
@@ -137,14 +142,13 @@ class TelaImovel:
 
         layout = [
             [sg.Text("Codigo")],
-            [sg.Text(text=imovel.descricao, key="codigo", tooltip="Digite uma descrição...",
+            [sg.Input(default_text=imovel.codigo, key="codigo", tooltip="Digite o novo código",
                      size=(50, 10), expand_x=True)],
             [sg.Text("Endereço")],
-            [sg.Text(key='endereco', text=imovel.endereco, tooltip="Digite uma descrição...")],
-            [sg.Text("Imagens")],
-            [sg.Input(key='imagens', readonly=True, disabled_readonly_background_color='#ECECEC',
-                      disabled_readonly_text_color='#545454'),
-             sg.FilesBrowse(file_types=("ALL Files", "*.png"))]
+            [sg.Multiline(key='endereco', default_text=imovel.endereco, tooltip="Digite a nova descricão"
+                          , size=(50, 10), no_scrollbar=True, expand_x=True)],
+            [sg.Column([centrilizedButtons], justification="center")],
+
         ]
 
         window = sg.Window("Editar imovel", layout)

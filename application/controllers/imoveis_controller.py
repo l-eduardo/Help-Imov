@@ -19,24 +19,38 @@ class ImoveisController:
         from application.controllers.contrato_controller import ContratoController
 
     def inclui_imovel(self):
+
         event, values = self.__tela_imovel.pega_dados_imovel()
+
         if event == "Registrar":
             try:
-                imovel = Imovel(codigo=values['codigo'], endereco=values['endereco'],
-                                imagens=ImagensService.bulk_read(values["imagens"].split(';')))
-                self.__imoveis_repository.insert(imovel)
-                self.__imoveis_repository.update(imovel)
-                self.listar_imoveis()
+                imagens = ImagensService.bulk_read(values["imagens"].split(';'))
+                imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
+
+                if imagens_invalidas and len(imagens_invalidas):
+                    self.__tela_imovel.mostra_msg(
+                        "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
+
+                else:
+                    imovel = Imovel(codigo=values['codigo'], endereco=values['endereco'],
+                                    imagens=imagens)
+                    self.__imoveis_repository.insert(imovel)
+                    self.__imoveis_repository.update(imovel)
+                    self.listar_imoveis()
             except:
                 sg.Popup("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
-
     def editar_imovel(self, imovel):
-        # Encontra e substitui o imóvel pelo novo
-        for idx, item in enumerate(self.imoveis):
-            if item.codigo == imovel.codigo:
-                self.imoveis[idx] = imovel
-                break
+        event, values = self.__tela_imovel.pega_dados_editar_imovel(imovel)
+        if event == "Salvar":
+            imovel.codigo = values["codigo"]
+            imovel.endereco = values["endereco"]
+            self.__imoveis_repository.update(imovel)
+            sg.popup("Imovel atualizado com sucesso", title="Sucesso")
+        elif event == "Cancelar":
+            sg.popup("Edição cancelada", title="Aviso")
+
+        self.listar_imoveis()
 
     def excluir_imovel(self, imovel: Imovel):
         # Exclui um imóvel da lista
@@ -53,10 +67,11 @@ class ImoveisController:
         contratos_controller = ContratoController(self)
         self.contratos = contratos_controller.obter_contratos_do_banco()
         for contrato in self.contratos:
-            if contrato.imovel.id == imovel_id:
+            if contrato.imovel.id == str(imovel_id):
                 return True
+            print(imovel_id)
+            print(contrato.imovel.id)
         return False
-
 
     def buscar_imovel_por_codigo(self, codigo):
         # Busca um imóvel pelo código
@@ -94,9 +109,8 @@ class ImoveisController:
 
                     img_dir = ImagensService.bulk_local_temp_save(entidade["imagem"])
                     imovel_result = self.__tela_imovel.mostra_imovel(
-                                entidade["entity"],
-                                lista_paths_imagens=img_dir)
-
+                        entidade["entity"],
+                        lista_paths_imagens=img_dir)
 
                     if imovel_result is not None:
                         event, imovel = imovel_result
