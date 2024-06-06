@@ -283,13 +283,21 @@ class ContratoController:
         event, values = self.__tela_vistoria.pega_dados_vistoria()
         if event == "Registrar":
             try:
-                contrato.incluir_vistoria(descricao=values["descricao"],
-                                        imagens=ImagensService.bulk_read(values["imagens"].split(';')),
-                                        documento=DocumentosService.read_file(values["documento"]),
-                                        e_contestacao=e_contestacao)
-                vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
-                self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
-                self.__contratos_repository.update(contrato)
+                imagens = ImagensService.bulk_read(values['imagens'].split(';'))
+                imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
+
+                if imagens_invalidas and len(imagens_invalidas):
+                    self.__ocorrencia_view.mostra_popup(
+                        "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
+
+                else:
+                    contrato.incluir_vistoria(descricao=values["descricao"],
+                                            imagens=imagens,
+                                            documento=DocumentosService.read_file(values["documento"]),
+                                            e_contestacao=e_contestacao)
+                    vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
+                    self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
+                    self.__contratos_repository.update(contrato)
             except:
                 sg.popup("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
