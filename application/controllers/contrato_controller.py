@@ -287,7 +287,7 @@ class ContratoController:
                 imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
                 if imagens_invalidas and len(imagens_invalidas):
-                    self.__ocorrencia_view.mostra_popup(
+                    self.__tela_vistoria.mostra_msg(
                         "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
 
                 else:
