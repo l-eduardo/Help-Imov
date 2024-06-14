@@ -1,5 +1,9 @@
 import PySimpleGUI as sg
-
+from domain.models.usuario import Usuario
+from domain.models.administrador import Administrador
+from domain.models.assistente import Assistente
+from domain.models.locatario import Locatario
+from domain.models.prestador_servico import PrestadorServico
 
 class UsuarioView:
     def mostra_popup(self, mensagem: str):
@@ -8,13 +12,19 @@ class UsuarioView:
     def lista_usuarios(self, lista_usuarios):
         window = self.__layout_lista_usuarios(lista_usuarios)
         event, values = window.read()
-        #window.close()
+        window.close()
         return event, values
     
     def pega_dados_usuario(self, permissao):
         window = self.__layout_pega_dados_usuario(permissao)
         event, values = window.read()
-        #window.close()
+        window.close()
+        return event, values
+    
+    def mostra_usuario(self, usuario: Usuario):
+        window = self.__layout_mostra_usuario(usuario, usuario.__class__.__name__)
+        event, values = window.read()
+        window.close()
         return event, values
 
     def __layout_lista_usuarios(self, usuarios_listados):
@@ -48,39 +58,91 @@ class UsuarioView:
                   [sg.Button("Voltar"), 
                    sg.Text("Adicionar usuário: ",
                            pad=((130,0), 0)),
-                   sg.Combo(['Administrador', 'Assistente', 'Locatário', 'Prestador de Serviço'],
+                   sg.Combo(['Administrador', 'Assistente', 'Locatario', 'PrestadorServico'],
                              default_value='Escolha a permissão...',
                              enable_events=True,
                              key='-ADC_USUARIO-',
                              readonly=True,
                              pad=((0,130), 0)), 
-                   sg.Button("Selecionar")]]
+                   sg.Button("Selecionar", key='-MOSTRA_USUARIO-')]]
         
         return sg.Window("Lista de Usuários", layout)
     
     def __layout_pega_dados_usuario(self, permissao: str):
-        layout = [[sg.Text(f"Novo {permissao}", 
+        layout_padrao = [[sg.Text(f"Novo {permissao}", 
                            expand_x=True)],
-                  [sg.Text("Nome: "), 
-                   sg.InputText(key="nome", 
-                                tooltip="nome do usuário", 
-                                size=(50, 1),
-                                pad=((72,0),0))],
-                  [sg.Text("E-mail: "), 
-                   sg.InputText(key="email", 
-                                tooltip="e-mail do usuário", 
-                                size=(50, 1),
-                                pad=((70,0),0))],
-                  [sg.Text("Data de Nascimento: "), 
-                   sg.InputText(key="data_nascimento", 
-                                tooltip="data de nascimento do usuário", 
-                                size=(50, 1)),
-                   sg.CalendarButton('Selecionar', 
-                                     target='data_nascimento', 
-                                     format='%Y/%m/%d')],
-                   [sg.Button("Cancelar", pad=(10)), sg.Button("Registrar", pad=(10))]]
-        
-        return sg.Window("Cadastro de Usuário", layout)
+                          [sg.Text("Nome: "), 
+                            sg.InputText(key="nome", 
+                                            tooltip="nome do usuário", 
+                                            size=(50, 1),
+                                            pad=((72,0),5))],
+                          [sg.Text("E-mail: "), 
+                            sg.InputText(key="email", 
+                                            tooltip="e-mail do usuário", 
+                                            size=(50, 1),
+                                            pad=((70,0),5))],
+                          [sg.Text("Senha: "), 
+                            sg.InputText(key="senha", 
+                                            tooltip="senha do usuário", 
+                                            size=(50, 1),
+                                            pad=((69,0),5),
+                                            password_char='*')],
+                          [sg.Text("Data de Nascimento: "), 
+                            sg.InputText(key="data_nascimento", 
+                                            tooltip="data de nascimento do usuário", 
+                                            size=(50, 1)),
+                            sg.CalendarButton('Selecionar', 
+                                                target='data_nascimento', 
+                                                format='%Y/%m/%d')]]
+        if permissao == 'Locatario':
+            layout_padrao.append([sg.Text("Celular: "), 
+                                   sg.InputText(key="celular", 
+                                                tooltip="celular", 
+                                                size=(50, 1),
+                                                pad=((66,0),5))])
+        elif permissao == 'PrestadorServico':
+            layout_padrao.append([[sg.Text("Especialidade: "), 
+                                   sg.InputText(key="especialidade", 
+                                                tooltip="especialidade", 
+                                                size=(50, 1),
+                                                pad=((34,0),5))],
+                                 [sg.Text("Empresa: "), 
+                                   sg.InputText(key="empresa", 
+                                                tooltip="empresa", 
+                                                size=(50, 1),
+                                                pad=((58,0),5))]])
+        layout_completo = [[layout_padrao],
+                           [sg.Button("Cancelar", pad=(10)), 
+                            sg.Button("Registrar", pad=(10))]]
+
+        return sg.Window("Cadastro de Usuário", layout_completo)
+    
+    def __layout_mostra_usuario(self, usuario: Usuario, permissao: str):
+        layout_padrao = [[sg.Text(f"Permissão: {permissao}", 
+                           expand_x=True)],
+                          [sg.Text("Nome: "), 
+                           sg.Text(usuario['nome'])],
+                          #sg.Text(usuario.nome)],
+                          [sg.Text("E-mail: "), 
+                           sg.Text(usuario['email'])],
+                          #sg.Text(usuario.email)],
+                          [sg.Text("Data de Nascimento: "),
+                           sg.Text(usuario['data_nascimento'])]]
+                          #sg.Text(usuario.data_nascimento)]]
+        if permissao == 'Locatario':
+            layout_padrao.append([sg.Text("Celular: "), 
+                                   sg.Text(usuario.celular)])
+        elif permissao == 'PrestadorServico':
+            layout_padrao.append([[sg.Text("Especialidade: "), 
+                                   sg.Text(usuario.especialidade)],
+                                 [sg.Text("Empresa: "), 
+                                   sg.Text(usuario.empresa)]])
+        layout_completo = [[layout_padrao],
+                           [sg.Button("Voltar", pad=(10)), 
+                            sg.Button("Editar", pad=(10)),
+                            sg.Button("Excluir", pad=(10))]]
+
+        return sg.Window("Dados do Usuário", layout_completo)
 
 
 
@@ -88,9 +150,9 @@ class UsuarioView:
 lista_usuarios = [{'permissao': "Administrador", 'nome': "Root", 'email': 'root@root.com', 'data_nascimento': '2000-01-01'},
                   {'permissao': "Administrador", 'nome': "José Carlos", 'email': 'jose.carlos@imov.com', 'data_nascimento': '1989-03-02'},
                   {'permissao': "Assistente", 'nome': "Amanda Silva", 'email': 'amanda.silva@imov.com', 'data_nascimento': '2001-01-01'},
-                  {'permissao': "Locatário", 'nome': "Carlos Figueira", 'email': 'carlinho@gmail.com', 'data_nascimento': '1999-01-01'},
-                  {'permissao': "Locatário", 'nome': "Suelen Almeida", 'email': 'sueli@hotmail.com', 'data_nascimento': '2002-01-01'},
-                  {'permissao': "Prestador de Serviço", 'nome': "Ezequiel Marcos", 'email': 'ezequiel@solucoes.com', 'data_nascimento': '1980-01-01'}]
+                  {'permissao': "Locatario", 'nome': "Carlos Figueira", 'email': 'carlinho@gmail.com', 'data_nascimento': '1999-01-01'},
+                  {'permissao': "Locatario", 'nome': "Suelen Almeida", 'email': 'sueli@hotmail.com', 'data_nascimento': '2002-01-01'},
+                  {'permissao': "PrestadorServico", 'nome': "Ezequiel Marcos", 'email': 'ezequiel@solucoes.com', 'data_nascimento': '1980-01-01'}]
 view = UsuarioView()
 # Controler
 while True:
@@ -99,11 +161,12 @@ while True:
         permissao = values_lista['-ADC_USUARIO-']
         event_usuario,values_usuario = view.pega_dados_usuario(permissao)
         if event_usuario == 'Registrar':
-            # Valida campos
-            # Se está certo
-                # Instancia o usuario
-                # Salva no banco
-            # Senão: Erro
+            # Cases qual é a permissão    
+                # Valida campos
+                # Se está certo
+                    # Instancia o usuario
+                    # Salva no banco
+                # Senão: Erro
             usuario = {'permissao': permissao, 
                         'nome': values_usuario['nome'], 
                         'email': values_usuario['email'], 
@@ -111,6 +174,8 @@ while True:
             lista_usuarios.append(usuario)
         elif event_usuario == 'Cancelar' or event_usuario == sg.WIN_CLOSED:
             pass
-
+    elif event_lista == '-MOSTRA_USUARIO-':
+        view.mostra_usuario(lista_usuarios[values_lista['-TABELA-'][0]])
+        print(values_lista['-TABELA-'])
     elif event_lista == sg.WIN_CLOSED:
         break
