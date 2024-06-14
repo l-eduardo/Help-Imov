@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, Date, ForeignKey, Integer, String
 from infrastructure.models import Base
 
 
@@ -9,8 +9,9 @@ class PrestadoresServicos(Base):
 
     id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), primary_key=True)
     nome = Column(String(255))
+    data_nascimento = Column(Date, nullable=False, name='data_nascimento')
     especialidade = Column(String(255))
-    experiencia = Column(Integer)
+    empresa = Column(String(255))
 
     def __repr__(self):
-        return f"PrestadorServicos(id={self.id}, nome='{self.nome}', especialidade='{self.especialidade}', experiencia={self.experiencia})"
+        return f"PrestadorServicos(id={self.id}, nome='{self.nome}', especialidade='{self.especialidade}', empresa={self.empresa})"

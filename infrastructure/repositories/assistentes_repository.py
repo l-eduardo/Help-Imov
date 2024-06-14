@@ -1,12 +1,22 @@
 from uuid import UUID
 from infrastructure.configs.connection import Connection
 from infrastructure.models.assistentes import Assistentes
+from infrastructure.models.usuarios_identity_infos import UsuariosIdentityInfos
+from infrastructure.mappers.UsuariosInput import UsuariosInputMapper
 
 
 class AssistentesRepository:
     def get_all(self) -> list[Assistentes]:
         with Connection() as connection:
-            return connection.session.query(Assistentes).all()
+            result_user = connection.session.query(Assistentes).all()
+            result_identityInfos = connection.session.query(UsuariosIdentityInfos).all()
+            result = []
+            for user in result_user:
+                for idInfo in result_identityInfos:
+                    if user.id == idInfo.id:
+                        result.append((user,idInfo))
+            result_mapped = [UsuariosInputMapper.map_assistente(x) for x in result]
+            return result_mapped
 
     def get_by_id(self, id: UUID) -> Assistentes:
         with Connection() as connection:

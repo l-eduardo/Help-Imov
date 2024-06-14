@@ -10,11 +10,14 @@ class Administrador(Funcionario):
                  nome: str,
                  data_nascimento: date,
                  id: UUID = UUID(int=0),
-                 is_root: bool = False
+                 e_root: bool = False
                 ):
         super().__init__(email=email, senha=senha, nome=nome, data_nascimento=data_nascimento, id=id)
-        self._is_root: bool = is_root
+        self._e_root: bool = e_root
 
     @property
-    def is_root(self) -> bool:
-        return self._is_root
+    def e_root(self) -> bool:
+        return self._e_root
+
+    def __str__(self):
+        return f'{self.id},{self.nome},{self.senha},{self.data_nascimento},{self.email},{self.e_root}'

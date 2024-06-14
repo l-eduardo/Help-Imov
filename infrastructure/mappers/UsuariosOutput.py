@@ -10,7 +10,7 @@ from infrastructure.models.prestadores_servico import PrestadoresServicos
 from infrastructure.models.usuarios_identity_infos import UsuariosIdentityInfos
 
 
-class UsersOutputMapper:
+class UsuariosOutputMapper:
     @staticmethod
     def map_administrador(administrador: Administrador) -> Tuple[Administradores, UsuariosIdentityInfos]:
         return (
@@ -18,30 +18,12 @@ class UsersOutputMapper:
                 id=administrador.id,
                 data_nascimento=administrador.data_nascimento,
                 nome=administrador.nome,
-                e_root=administrador.root
+                e_root=administrador.e_root
             ),
             UsuariosIdentityInfos(
                 id=administrador.id,
                 email=administrador.email,
                 senha=administrador.senha
-            )
-        )
-
-    @staticmethod
-    def map_prestadores_servicos(prestadorServico: PrestadorServico) -> Tuple[PrestadoresServicos, UsuariosIdentityInfos]:
-        return (
-            PrestadoresServicos(
-                id=prestadorServico.id,
-                nome=prestadorServico.nome,
-                especialidade=prestadorServico.especialidade,
-                empresa=prestadorServico.empresa,
-                data_nascimento=prestadorServico.data_nascimento,
-
-            ),
-            UsuariosIdentityInfos(
-                id=prestadorServico.id,
-                email=prestadorServico.email,
-                senha=prestadorServico.senha
             )
         )
 
@@ -67,10 +49,29 @@ class UsersOutputMapper:
                 id=locatario.id,
                 nome=locatario.nome,
                 data_nascimento=locatario.data_nascimento,
+                celular = locatario.celular
             ),
             UsuariosIdentityInfos(
                 id=locatario.id,
                 email=locatario.email,
                 senha=locatario.senha
+            )
+        )
+
+    @staticmethod
+    def map_prestadores_servicos(prestadorServico: PrestadorServico) -> Tuple[PrestadoresServicos, UsuariosIdentityInfos]:
+        return (
+            PrestadoresServicos(
+                id=prestadorServico.id,
+                nome=prestadorServico.nome,
+                especialidade=prestadorServico.especialidade,
+                empresa=prestadorServico.empresa,
+                data_nascimento=prestadorServico.data_nascimento,
+
+            ),
+            UsuariosIdentityInfos(
+                id=prestadorServico.id,
+                email=prestadorServico.email,
+                senha=prestadorServico.senha
             )
         )
