@@ -187,6 +187,8 @@ class ContratoController:
                             entidade["entity"].descricao = editar_ocorr_values["descricao"]
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
                             self.__ocorrencia_repository.update(entidade["entity"])
+                elif mostra_ocorr_event == "chat":
+                    pass # TODO colocar aqui o caminho para abrir o chat
 
             if entidade["tipo"] == "Solicitação":
                 while True:
