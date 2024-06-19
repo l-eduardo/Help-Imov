@@ -50,7 +50,7 @@ class SolicitacaoView:
 
     def mostra_solicitacao(self, solicitacao: 'Solicitacao'):
 
-        centrilizedButtons =  [sg.Button("Editar", key="editar_solicitacao"),sg.Button("Voltar")]
+        centrilizedButtons = [sg.Button("Editar", key="editar_solicitacao"),sg.Button("Voltar")]
 
         layout = [[sg.Text("Detalhes da Solicitação")],
                   [sg.Text("Titulo: "), sg.Text(solicitacao.titulo, key="titulo")],
@@ -63,3 +63,6 @@ class SolicitacaoView:
         event, values = window.read()
         window.close()
         return event, values
+
+    def mostra_msg(self, msg):
+        sg.Popup(msg, font=('Arial', 14, 'bold'), title='Solicitacao', button_justification='left')

@@ -21,11 +21,12 @@ class ContratosOutputMapper:
             data_inicio=contrato.dataInicio,
             data_fim=contrato.dataFim,
             data_cadastro=contrato.dataCadastro,
-            locatario_id='1111',
-            # locatario_id="202020",
+            #locatario_id='2222',
+            locatario_id=str(contrato.locatario.id),
             imovel_id=str(contrato.imovel.id),
             # imovel_id='e7c3de8c-114d-4eee-a163-9306661ac7a7',
             vistoria_inicial_id=vistoria_inicial_id,
             contra_vistoria_id=contra_vistoria_id,
-            #estaAtivo=contrato.estaAtivo
+            esta_ativo=contrato.estaAtivo,
+            #criador_id=str(contrato.criador_id)
         )
