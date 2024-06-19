@@ -23,9 +23,10 @@ class Contrato:
                  locatario: 'Locatario',
                  imovel: 'Imovel',
                  estaAtivo: bool = True,
+                 #criador_id: uuid.UUID = None,
                  id: uuid.UUID = None,
                  dataFim: 'date | None' = None,
-                 data_cadastro: 'date'=date.today(),
+                 data_cadastro: 'date'= date.today(),
                  vistoria_inicial: 'Vistoria | None' = None,
                  contra_vistoria: 'Vistoria | None' = None,
                  ):
@@ -35,6 +36,7 @@ class Contrato:
         self._id = id
         self._dataInicio = dataInicio
         self._dataFim = dataFim
+        #self._criador_id: uuid.UUID = criador_id
         self._dataCadastro = data_cadastro
         self._locatario = locatario
         self._imovel = imovel
@@ -43,6 +45,15 @@ class Contrato:
         self._vistoria_inicial = vistoria_inicial
         self._contra_vistoria = contra_vistoria
         self._estaAtivo = estaAtivo
+
+
+    '''@property
+    def criador_id(self) -> uuid.UUID:
+        return self._criador_id
+
+    @criador_id.setter
+    def criador_id(self, value: uuid.UUID):
+        self._criador_id = value'''
 
     @property
     def id(self) -> uuid.UUID:

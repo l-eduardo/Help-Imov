@@ -29,7 +29,7 @@ class LocatariosRepository:
             connection.session.add(locatario)
             connection.session.commit()
             return locatario
-        
+
     def update(self, locatario: Locatarios) -> Locatarios:
         with Connection() as connection:
             connection.session.query(Locatarios).filter(Locatarios.id == str(locatario.id)).update(

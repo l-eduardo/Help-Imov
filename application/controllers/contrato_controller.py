@@ -38,12 +38,20 @@ class ContratoController:
 
     def inclui_contrato(self):
         #TODO Inclusao contrato
-        dados_contrato = self.__tela_contrato.pega_dados_contrato()
-        contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
-                            locatario=dados_contrato['locatario'], estaAtivo=True)
-        self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
+        while True:
+            dados_contrato, locatario_selecionado = self.__tela_contrato.pega_dados_contrato()
+            imovel = dados_contrato['imovel']
+            data = dados_contrato['data_inicio']
+            print('data:',data)
+            print(imovel)
+            print(locatario_selecionado)
+            if self.valida_campos_contrato(imovel, locatario_selecionado, data):
+                contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
+                                    locatario=locatario_selecionado, estaAtivo=True)
+                self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
+                self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
+                break
         self.listar_contrato()
-        #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
 
     def listar_contrato(self):
         self.contratos = self.obter_contratos_do_banco()
@@ -51,8 +59,8 @@ class ContratoController:
         contratos_listados = []
         for contrato in self.contratos:
             contratos_listados.append({"idContrato": contrato.id, "dataInicio": contrato.dataInicio,
-                                       "dataFim": contrato.dataFim, "locatario": contrato.locatario.id,
-                                       "imovel": contrato.imovel.endereco})
+                                       "dataFim": contrato.dataFim, "locatario": contrato.locatario.nome,
+                                       "imovel": contrato.imovel.endereco, "estaAtivo": contrato.estaAtivo})
         event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
         if event == "Visualizar":
             if values["-TABELA-"]:
@@ -133,7 +141,7 @@ class ContratoController:
                         contrato_instancia.incluir_solicitacao(titulo, descricao, session.user_id)
                         self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                              id_contrato=contrato_instancia.id)
-                        self.__tela_contrato.mostra_msg("Solicitação registrada com sucesso")
+                        self.__solicitacao_view.mostra_msg("Solicitação registrada com sucesso")
                         break  # Sai do loop se validar os dados
                 else:
                     break  # Sai do loop se clica em cancelar
@@ -326,5 +334,17 @@ class ContratoController:
             return False
         if len(descricao) > 500:
             sg.popup("A descrição não pode exceder 500 caracteres.")
+            return False
+        return True
+
+    def valida_campos_contrato(self, imovel, locatario, data):
+        if imovel == "Selecione":
+            sg.popup("Selecione um imóvel")
+            return False
+        if locatario is None:
+            sg.Popup("Selecione um locatário")
+            return False
+        if data == '':
+            sg.Popup("Selecione uma data")
             return False
         return True
