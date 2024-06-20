@@ -153,5 +153,3 @@ class UsuariosController:
     @property
     def todos_usuarios(self) -> list[Usuario]:
         return self.obter_usuarios_do_banco()
-    
-

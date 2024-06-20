@@ -1,67 +1,86 @@
-from application.controllers.session_controller import SessionController
-
+import re
+import PySimpleGUI as sg
 from domain.models.imovel import Imovel
-from domain.models.session import Session
 from infrastructure.repositories.imoveis_repository import ImoveisRepository
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.imovel_view import TelaImovel
-from infrastructure.mappers.ImovelOutput import ImovelOutputMapper
-import PySimpleGUI as sg
-
 
 class ImoveisController:
-    def __init__(self, controlador_sistema):
+    def __init__(self, controlador_sistema, main_controller):
         self.controlador_sistema = controlador_sistema
+        self.__main_controller = main_controller
         self.__imoveis_repository = ImoveisRepository()
         self.__tela_imovel = TelaImovel(self)
         self.imoveis = []
         self.contratos = []
         from application.controllers.contrato_controller import ContratoController
 
-    def inclui_imovel(self):
+    def valida_endereco(self, endereco):
+        if len(endereco) < 10:
+            raise ValueError("Endereço muito curto. Deve ter pelo menos 10 caracteres.")
+        if not re.search(r'\d', endereco):
+            raise ValueError("Endereço deve conter pelo menos um número.")
+        if not re.search(r'[A-Za-z]', endereco):
+            raise ValueError("Endereço deve conter pelo menos uma letra.")
+        return True
 
+    def inclui_imovel(self):
         event, values = self.__tela_imovel.pega_dados_imovel()
 
         if event == "Registrar":
             try:
+                self.valida_endereco(values['endereco'])
                 imagens = ImagensService.bulk_read(values["imagens"].split(';'))
                 imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
-                if imagens_invalidas and len(imagens_invalidas):
+                if imagens_invalidas:
                     self.__tela_imovel.mostra_msg(
-                        "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
-
+                        "Imagens inválidas. Por favor, selecione imagens com resolução entre 1280x720 e 1820x1280 pixels!")
                 else:
                     imovel = Imovel(codigo=values['codigo'], endereco=values['endereco'],
                                     imagens=imagens)
                     self.__imoveis_repository.insert(imovel)
                     self.__imoveis_repository.update(imovel)
                     self.listar_imoveis()
-            except:
-                sg.Popup("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
+            except ValueError as e:
+                sg.Popup(f"Erro de validação: {str(e)}")
+            except FileNotFoundError as e:
+                sg.Popup(f"Erro ao ler as imagens: {str(e)}")
+            except Exception as e:
+                sg.Popup(f"Algo deu errado, tente novamente. \n\nErro: {str(e)}")
 
     def editar_imovel(self, imovel):
         event, values = self.__tela_imovel.pega_dados_editar_imovel(imovel)
         if event == "Salvar":
-            imovel.codigo = values["codigo"]
-            imovel.endereco = values["endereco"]
-            self.__imoveis_repository.update(imovel)
-            sg.popup("Imovel atualizado com sucesso", title="Sucesso")
+            try:
+                self.valida_endereco(values['endereco'])
+                imovel.codigo = values["codigo"]
+                imovel.endereco = values["endereco"]
+                self.__imoveis_repository.update(imovel)
+                sg.popup("Imóvel atualizado com sucesso", title="Sucesso")
+            except ValueError as e:
+                sg.Popup(f"Erro de validação: {str(e)}")
+            except Exception as e:
+                sg.Popup(f"Algo deu errado ao atualizar o imóvel. \n\nErro: {str(e)}")
         elif event == "Cancelar":
             sg.popup("Edição cancelada", title="Aviso")
 
         self.listar_imoveis()
 
     def excluir_imovel(self, imovel: Imovel):
-        # Exclui um imóvel da lista
-        if self.contrato_associado(imovel.id):
-            self.__tela_imovel.mostra_msg("Imovel associado a um contrato. Não é possivel excluir")
-        else:
-            self.imoveis.remove(imovel)
-            self.__imoveis_repository.delete(imovel.id)
+        try:
+            if self.contrato_associado(imovel.id):
+                self.__tela_imovel.mostra_msg("Imóvel associado a um contrato. Não é possível excluir")
+            else:
+                self.imoveis.remove(imovel)
+                self.__imoveis_repository.delete(imovel.id)
+                sg.Popup("Imóvel excluído com sucesso", title="Sucesso")
+        except KeyError as e:
+            sg.Popup(f"Erro ao excluir o imóvel: {str(e)}")
+        except Exception as e:
+            sg.Popup(f"Algo deu errado ao excluir o imóvel. \n\nErro: {str(e)}")
 
     def contrato_associado(self, imovel_id):
-        # Importe localmente dentro do método
         from application.controllers.contrato_controller import ContratoController
 
         contratos_controller = ContratoController(self)
@@ -69,23 +88,31 @@ class ImoveisController:
         for contrato in self.contratos:
             if contrato.imovel.id == str(imovel_id):
                 return True
-            print(imovel_id)
-            print(contrato.imovel.id)
         return False
 
     def buscar_imovel_por_codigo(self, codigo):
-        # Busca um imóvel pelo código
-        for item in self.imoveis:
-            if item.codigo == codigo:
-                return item
+        try:
+            for item in self.imoveis:
+                if item.codigo == codigo:
+                    return item
+        except Exception as e:
+            sg.Popup(f"Erro ao buscar o imóvel: {str(e)}")
         return None
 
     def obter_imoveis_do_banco(self) -> list[Imovel]:
-        imoveis = self.__imoveis_repository.get_all()
-        return imoveis
+        try:
+            imoveis = self.__imoveis_repository.get_all()
+            return imoveis
+        except Exception as e:
+            sg.Popup(f"Erro ao obter imóveis do banco: {str(e)}")
+            return []
 
     def get_id_imoveis(self):
-        return [imovel.id for imovel in self.imoveis]
+        try:
+            return [imovel.id for imovel in self.imoveis]
+        except Exception as e:
+            sg.Popup(f"Erro ao obter IDs dos imóveis: {str(e)}")
+            return []
 
     def listar_imoveis(self):
         while True:
@@ -104,23 +131,22 @@ class ImoveisController:
 
             if event == "Visualizar":
                 if values["-TABELA-"]:
-                    # Pega o índice do imóvel selecionado
                     entidade = imoveis_listados[values["-TABELA-"][0]]
-
-                    img_dir = ImagensService.bulk_local_temp_save(entidade["imagem"])
-                    imovel_result = self.__tela_imovel.mostra_imovel(
-                        entidade["entity"],
-                        lista_paths_imagens=img_dir)
-
-                    if imovel_result is not None:
-                        event, imovel = imovel_result
-                        if event == "editar_imovel":
-                            self.editar_imovel(imovel)
-                        if event == "excluir_imovel":
-                            self.excluir_imovel(imovel)
-                            self.__imoveis_repository.delete(imovel)
-                        if event == "voltar":
-                            continue
+                    try:
+                        img_dir = ImagensService.bulk_local_temp_save(entidade["imagem"])
+                        imovel_result = self.__tela_imovel.mostra_imovel(
+                            entidade["entity"],
+                            lista_paths_imagens=img_dir)
+                        if imovel_result is not None:
+                            event, imovel = imovel_result
+                            if event == "editar_imovel":
+                                self.editar_imovel(imovel)
+                            if event == "excluir_imovel":
+                                self.excluir_imovel(imovel)
+                    except FileNotFoundError as e:
+                        sg.Popup(f"Erro ao salvar imagens temporárias: {str(e)}")
+                    except Exception as e:
+                        sg.Popup(f"Erro ao visualizar imóvel: {str(e)}")
                 else:
                     sg.Popup("Nenhum imóvel selecionado")
 
@@ -128,10 +154,6 @@ class ImoveisController:
                 self.inclui_imovel()
 
             if event in (sg.WIN_CLOSED, "Voltar"):
+                from application.controllers.main_controller import MainController
+                self.__main_controller.abrir_tela_inicial()
                 break
-
-    def obter_detalhes_imovel(self, id_imovel):
-        for imovel in self.imoveis:
-            if imovel.id == id_imovel:
-                return imovel
-        return None
