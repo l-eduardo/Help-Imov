@@ -31,7 +31,15 @@ class AdministradoresRepository:
     def insert(self, administrador: Administradores) -> Administradores:
         with Connection() as connection:
             connection.session.add(administrador)
+            connection.session.commit()
             return administrador
+    
+    def update(self, administrador: Administradores) -> Administradores:
+        with Connection() as connection:
+            connection.session.query(Administradores).filter(Administradores.id == str(administrador.id)).update(
+                {"nome": administrador.nome,
+                 "data_nascimento": administrador.data_nascimento})
+            connection.session.commit()
 
     def is_root(self, id: UUID):
         with Connection() as connection:

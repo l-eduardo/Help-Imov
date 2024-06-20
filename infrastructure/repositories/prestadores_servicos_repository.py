@@ -16,7 +16,6 @@ class PrestadoresServicosRepository:
                     if user.id == idInfo.id:
                         result.append((user,idInfo))
             result_mapped = [UsuariosInputMapper.map_prestadorServico(x) for x in result]
-            print(result_mapped[0])
             return result_mapped
 
     def get_by_id(self, id: UUID) -> PrestadoresServicos:
@@ -28,7 +27,17 @@ class PrestadoresServicosRepository:
     def insert(self, assist) -> PrestadoresServicos:
         with Connection() as connection:
             connection.session.add(assist)
+            connection.session.commit()
             return assist
+
+    def update(self, prestador_servico: PrestadoresServicos) -> PrestadoresServicos:
+        with Connection() as connection:
+            connection.session.query(PrestadoresServicos).filter(PrestadoresServicos.id == str(prestador_servico.id)).update(
+                {"nome": prestador_servico.nome,
+                 "data_nascimento": prestador_servico.data_nascimento,
+                 "empresa": prestador_servico.empresa,
+                 "especialidade": prestador_servico.especialidade})
+            connection.session.commit()
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:

@@ -29,6 +29,14 @@ class LocatariosRepository:
             connection.session.add(locatario)
             connection.session.commit()
             return locatario
+        
+    def update(self, locatario: Locatarios) -> Locatarios:
+        with Connection() as connection:
+            connection.session.query(Locatarios).filter(Locatarios.id == str(locatario.id)).update(
+                {"nome": locatario.nome,
+                 "data_nascimento": locatario.data_nascimento,
+                 "celular": locatario.celular})
+            connection.session.commit()
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:

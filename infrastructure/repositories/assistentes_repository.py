@@ -24,10 +24,18 @@ class AssistentesRepository:
                 .filter(Assistentes.id == id)\
                 .first()
 
-    def insert(self, assist) -> Assistentes:
+    def insert(self, assistente) -> Assistentes:
         with Connection() as connection:
-            connection.session.add(assist)
-            return assist
+            connection.session.add(assistente)
+            connection.session.commit()
+            return assistente
+    
+    def update(self, assistente: Assistentes) -> Assistentes:
+        with Connection() as connection:
+            connection.session.query(Assistentes).filter(Assistentes.id == str(assistente.id)).update(
+                {"nome": assistente.nome,
+                 "data_nascimento": assistente.data_nascimento})
+            connection.session.commit()
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:

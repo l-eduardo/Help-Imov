@@ -28,10 +28,18 @@ class Usuario(ABC):
     @property
     def email(self) -> str:
         return self._email
+    
+    @email.setter
+    def email(self, value):
+        self._email = value
 
     @property
     def senha(self) -> str:
         return self._senha
+    
+    @senha.setter
+    def senha(self, value):
+        self._senha = value
 
     @property
     def data_criacao(self) -> date:
