@@ -63,9 +63,6 @@ class TelaImovel:
 
         while True:
             event, values = self.window.read()
-            if event == sg.WIN_CLOSED or event == "Voltar":
-                self.window.close()
-                exit()  # revisar e adicionar tela principal do sistema
             self.window.close()
             return event, values
 
