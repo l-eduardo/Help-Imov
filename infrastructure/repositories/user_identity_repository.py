@@ -39,8 +39,18 @@ class UserIdentityRepository(UserRepository):
 
             return user_identity
 
-    def save_user(self, user):
-        raise NotImplementedError
+    def save_user(self, user: UsuariosIdentityInfos):
+        with Connection() as connection:
+            connection.session.add(user)
+            connection.session.commit()
+            return user
+    
+    def update_user(self, user: UsuariosIdentityInfos):
+        with Connection() as connection:
+            connection.session.query(UsuariosIdentityInfos).filter(UsuariosIdentityInfos.id == str(user.id)).update(
+                {"email": user.email,
+                 "senha": user.senha})
+            connection.session.commit()
 
     def delete_user(self, user_id: UUID):
         raise NotImplementedError
