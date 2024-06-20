@@ -16,8 +16,8 @@ class PrestadorServico(Usuario):
     data_nascimento: date,
     id: UUID = UUID(int=0)):
         super().__init__(nome=nome, email=email, senha=senha, data_nascimento=data_nascimento, id=id)
-        self._especialidade: especialidade
-        self._empresa: empresa
+        self._especialidade = especialidade
+        self._empresa = empresa
         self._ocorrencias: List[Ocorrencia] = []
 
     @property
@@ -40,3 +40,5 @@ class PrestadorServico(Usuario):
     def ocorrencias(self) -> 'List[Ocorrencia]':
         return self._ocorrencias
 
+    def __str__(self):
+        return f'<id:{self.id}, nome:{self.nome}, senha:{self.senha}, data_nasc:{self.data_nascimento}, email:{self.email}>, espec:{self.especialidade}, empr:{self.empresa}'

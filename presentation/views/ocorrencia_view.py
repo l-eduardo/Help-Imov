@@ -6,6 +6,7 @@ from domain.models.ocorrencia import Ocorrencia
 class OcorrenciaView:
     def mostra_popup(self, mensagem: str):
         sg.popup(mensagem)
+
     def vw_nova_ocorrencia(self):
         window = self.__add_ocorrencia_layout()
 
@@ -16,13 +17,7 @@ class OcorrenciaView:
         window.close()
         return event, values
 
-    def vw_mostra_ocorrencia(self, ocorrencia: 'Ocorrencia', dirs: list[str]):
-        window = self.__show_details_layout(ocorrencia, dirs)
 
-        event, values = window.read()
-
-        window.close()
-        return event, values
 
     def vw_editar_ocorrencia(self, ocorrencia: 'Ocorrencia'):
         window = self.__edit_ocorrencia_layout(ocorrencia)
@@ -45,6 +40,14 @@ class OcorrenciaView:
         window = sg.Window(f"Help imov - Detalhes da ocorrencia ({ocorrencia.id})", layout)
 
         return window
+
+    def vw_mostra_ocorrencia(self, ocorrencia: 'Ocorrencia', dirs: list[str]):
+        window = self.__show_details_layout(ocorrencia, dirs)
+
+        event, values = window.read()
+
+        window.close()
+        return event, values
 
     def __show_details_layout(self, ocorrencia: 'Ocorrencia', dirs: list[str]):
 

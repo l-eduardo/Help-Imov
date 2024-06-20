@@ -9,6 +9,7 @@ class Imagem:
                  tamanho: int,
                  content: bytes,
                  id: uuid.UUID = None):
+        self.imagem = None
         if id is None:
             id = uuid.uuid4()
         self.__id: uuid.UUID = id

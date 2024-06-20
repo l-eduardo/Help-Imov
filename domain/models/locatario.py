@@ -21,4 +21,4 @@ class Locatario(Usuario):
         self._celular = celular
 
     def __str__(self):
-        return f'{self.nome}'
+        return f'{self.id},{self.nome},{self.senha},{self.data_nascimento},{self.email},{self.celular}'

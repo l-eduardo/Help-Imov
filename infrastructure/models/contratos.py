@@ -19,8 +19,8 @@ class Contratos(Base):
 
     criador_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), name='criador_id')
 
-    imovel_id = Column(String(36), ForeignKey('IMOVEIS.id'), name='imovel_id')
-    imovel = relationship('Imoveis')
+    imovel_id = Column(String(36), ForeignKey('IMOVEIS.id', ondelete='SET NULL'), name='imovel_id')
+    imovel = relationship('Imoveis', foreign_keys=[imovel_id])
 
     locatario_id = Column(String(36), ForeignKey('LOCATARIOS.id'), name='locatario_id')
     locatario = relationship('Locatarios', back_populates='contratos')
