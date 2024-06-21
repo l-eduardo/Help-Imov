@@ -56,11 +56,11 @@ class ContratoController:
     def listar_contrato(self):
         self.contratos = self.obter_contratos_do_banco()
         contrato_instancia = None
-        contratos_listados = []
-        for contrato in self.contratos:
+        contratos_listados = self.contratos
+        '''for contrato in self.contratos:
             contratos_listados.append({"idContrato": contrato.id, "dataInicio": contrato.dataInicio,
                                        "dataFim": contrato.dataFim, "locatario": contrato.locatario.nome,
-                                       "imovel": contrato.imovel.endereco, "estaAtivo": contrato.estaAtivo})
+                                       "imovel": contrato.imovel.endereco, "estaAtivo": contrato.estaAtivo})'''
         event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
         if event == "Visualizar":
             if values["-TABELA-"]:
@@ -73,14 +73,20 @@ class ContratoController:
         if event == "Selecionar":
             contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
             for contrato in self.contratos:
-                if contrato_selecionado['idContrato'] == contrato.id:
+                if contrato_selecionado.id == contrato.id:
                     contrato_instancia = contrato
                     break
             self.listar_relacionados_contrato(contrato_instancia)
             return contrato_selecionado
 
-    def selecionar_contrato(self, contrato_selecionado):
-        self.__tela_contrato.mostra_contrato(contrato_selecionado)
+    def selecionar_contrato(self, contrato_selecionado: Contrato):
+        contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado)
+        print('EEEEEEEEEEEEEE')
+        print(contrato)
+        print('AAAAAAAAAAAAAAA')
+        print(contrato.estaAtivo)
+        self.__contratos_repository.update_contrato(contrato)
+        self.listar_contrato()
 
     def obter_contratos_do_banco(self) -> list[Contrato]:
         contratos = self.__contratos_repository.get_all()
@@ -199,6 +205,8 @@ class ContratoController:
                                     entidade["entity"].titulo = edit_solic_values["titulo"]
                                     entidade["entity"].descricao = edit_solic_values["descricao"]
                                     entidade["entity"].status = Status(edit_solic_values["status"])
+                                    print(entidade)
+                                    print(entidade["entity"])
                                     self.__solicitacao_repository.update(entidade["entity"])
                                 break
                     break
