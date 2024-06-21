@@ -51,7 +51,7 @@ class OcorrenciaView:
 
     def __show_details_layout(self, ocorrencia: 'Ocorrencia', dirs: list[str]):
 
-        centrilizedButtons =  [sg.Button("Editar", key="editar_ocorrencia"),sg.Button("Voltar")]
+        centrilizedButtons =  [sg.Button("Editar", key="editar_ocorrencia"), sg.Button(button_text="Chat", key="abrir_chat"), sg.Button("Voltar")]
 
         layout = [[sg.Text("Detalhes da ocorrencia")],
               [sg.Text("Titulo: "), sg.Text(ocorrencia.titulo, key="titulo")],

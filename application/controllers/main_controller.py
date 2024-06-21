@@ -14,7 +14,7 @@ class MainController:
         self.__session_controller = SessionController()
         # self.__usuarios_controller = UsuariosController(self)
         self.__contrato_controller = ContratoController(self)
-        self.__imoveis_controller = ImoveisController(self, self)
+        self.__imoveis_controller = ImoveisController(self)
         self.__main_window = None
 
     @property

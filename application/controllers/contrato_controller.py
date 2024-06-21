@@ -4,6 +4,7 @@ from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.Imagem import Imagem
 from domain.models.session import Session
+from infrastructure.repositories.chats_repository import ChatsRepository
 from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.contrato_view import TelaContrato
@@ -26,6 +27,7 @@ class ContratoController:
         self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
+        self.__chat_repository = ChatsRepository()
         self.__ocorrencia_repository: OcorrenciasRepository = OcorrenciasRepository()
         self.__solicitacao_repository = SolicitacoesRepository()
         self.__vistoria_repository = VistoriasRepository()
@@ -131,11 +133,13 @@ class ContratoController:
                     self.__ocorrencia_view.mostra_popup("Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
 
                 else:
-                    contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
-                                                          session.user_id, imagens=imagens)
+                    nova_ocorrencia = contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
+                                                                            session.user_id, imagens=imagens)
 
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                         contrato_id=contrato_instancia.id)
+                    #novo_chat = nova_ocorrencia.incluir_chat([contrato_instancia.locatario])
+                    #self.__chat_repository.insert_chat(novo_chat, nova_ocorrencia)
 
         elif events == "add_solicitacao":
             while True:
@@ -187,6 +191,8 @@ class ContratoController:
                             entidade["entity"].descricao = editar_ocorr_values["descricao"]
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
                             self.__ocorrencia_repository.update(entidade["entity"])
+                elif mostra_ocorr_event == "chat":
+                    pass # TODO colocar aqui o caminho para abrir o chat
 
             if entidade["tipo"] == "Solicitação":
                 while True:
@@ -305,7 +311,7 @@ class ContratoController:
                 imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
                 if imagens_invalidas and len(imagens_invalidas):
-                    self.__ocorrencia_view.mostra_popup(
+                    self.__tela_vistoria.mostra_msg(
                         "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
 
                 else:

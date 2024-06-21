@@ -6,8 +6,7 @@ from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.imovel_view import TelaImovel
 
 class ImoveisController:
-    def __init__(self, controlador_sistema, main_controller):
-        self.controlador_sistema = controlador_sistema
+    def __init__(self, main_controller):
         self.__main_controller = main_controller
         self.__imoveis_repository = ImoveisRepository()
         self.__tela_imovel = TelaImovel(self)
