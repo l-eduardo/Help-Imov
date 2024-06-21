@@ -58,12 +58,11 @@ class TelaContrato:
     def mostra_contratos(self, contratos_listados):
 
         # Define the table header
-        header = ["ID Contrato", "Data Início", "Data Fim", "Locatário", "Imóvel", "Status"]
+        header = ["ID Contrato", "Data Início", "Locatário", "Imóvel", "Status"]
 
         # Convert the list of dictionaries into a list of lists for the table
-        table_data = [[contrato["idContrato"], contrato["dataInicio"], contrato["dataFim"], contrato["locatario"],
-                       contrato["imovel"],
-                       "Ativo" if contrato['estaAtivo'] else "Encerrado"] for contrato in contratos_listados]
+        table_data = [[contrato.id, contrato.dataInicio, contrato.locatario.nome, contrato.imovel.endereco,
+                       "Ativo" if contrato.estaAtivo else "Encerrado"] for contrato in contratos_listados]
 
         # Table layout
         tabela = sg.Table(table_data, headings=header,
@@ -93,29 +92,18 @@ class TelaContrato:
             return event, values
 
     def mostra_contrato(self, contrato):
-        '''layout = [
-            [sg.Text('Dados do Contrato', font=('Any', 18), justification='center', expand_x=True)],
-            [sg.Text("Data Início:", size=(15, 1), justification='left'), sg.Text(contrato["dataInicio"])],
-            [sg.Text("Data Fim:", size=(15, 1), justification='left'), sg.Text(contrato["dataFim"])],
-            [sg.Text("Locatário:", size=(20, 1), justification='left'), sg.Text(contrato["locatario"])],
-            [sg.Text("Imóvel:", size=(22, 1), justification='left'), sg.Text(contrato["imovel"])],
-            [sg.Button("Voltar")]]
-
-        window = sg.Window('Dados Contrato', layout, element_justification='center',
-                           size=(500, 400), font=('Arial', 18, 'bold'))'''
-
-        centrilizedButtons = [sg.Button("Encerrar Contrato", key="encerrar_contrato"), sg.Button("Voltar")]
-
+        centrilizedButtons = [sg.Button("Encerrar Contrato"), sg.Button("Voltar")]
+        print(contrato)
         layout = [[sg.Text("Detalhes do contrato", font=('Arial', 18, 'bold'), text_color='Black',)],
-                  [sg.Text("Data Inicio: ", font=('Arial', 14, 'bold')), sg.Text(contrato["dataInicio"], key="dataInicio")],
-                  [sg.Text("Data Fim: ", font=('Arial', 14, 'bold')), sg.Text(contrato["dataFim"], key="dataFim")],
-                  [sg.Text("Locatario: ", font=('Arial', 14, 'bold')), sg.Text(contrato["locatario"], key="locatario")],
-                  [sg.Text("Imovel: ", font=('Arial', 14, 'bold')), sg.Text(contrato["imovel"], key="imovel")],
+                  [sg.Text("Data Inicio: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataInicio, key="dataInicio")],
+                  [sg.Text("Data Fim: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataFim, key="dataFim")],
+                  [sg.Text("Locatario: ", font=('Arial', 14, 'bold')), sg.Text(contrato.locatario.nome, key="locatario")],
+                  [sg.Text("Imovel: ", font=('Arial', 14, 'bold')), sg.Text(contrato.imovel.endereco, key="imovel")],
                   [sg.Text("Status: ", font=('Arial', 14, 'bold')),
-                   sg.Text("Ativo" if contrato["estaAtivo"] else "Encerrado", key="status")],
+                   sg.Text("Ativo" if contrato.estaAtivo else "Encerrado", key="status")],
                   [sg.Column([centrilizedButtons], justification="center")]]
 
-        window = sg.Window(f"Detalhes do contrato ({contrato['idContrato']})",
+        window = sg.Window(f"Detalhes do contrato ({contrato.id})",
                            layout, size=(500, 250), font=('bold'))
 
         while True:
@@ -123,6 +111,11 @@ class TelaContrato:
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
                 self.__controlador.listar_contrato()
+            elif event == "Encerrar Contrato":
+                contrato.estaAtivo = False
+                #window['status'].update("Encerrado")
+                window.close()
+                return contrato, event
 
     def mostra_relacionados_contrato(self, solicitacoes_ocorrencias, contrato_instancia):
         excluir_btn_visivel = False
