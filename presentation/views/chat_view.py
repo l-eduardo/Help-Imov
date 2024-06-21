@@ -1,11 +1,13 @@
 import PySimpleGUI as sg
 from datetime import datetime
+from domain.models.usuario import Usuario
+
 
 class ChatView:
-    def mostra_chat(self, usuario_logado, mensagens_from_db):
+    def mostra_chat(self, usuario_logado: Usuario, mensagens_from_db: list[tuple]):
         layout = [
             [sg.Multiline(size=(160, 40), disabled=True, key='-CHAT-')],
-            [sg.MLine(size=(150, 5), key='-MENSAGEM-'),
+            [sg.Multiline(size=(150, 5), key='-MENSAGEM-'),
              sg.Button('Enviar', key="-ENVIAR-")],
             [sg.Button('Anexar Imagem', key="-IMAGEM-"), 
              sg.Button('Anexar Documento', key="-DOCUMENTO-"),
@@ -21,7 +23,7 @@ class ChatView:
             window['-CHAT-'].print(f"{mensagem[0]} [{mensagem_datetime}]:", text_color="DarkBlue", font='bold')
             window['-CHAT-'].print(f"\n{mensagem[1]}\n" + "_"*126, font='bold')
         
-        new_mensagens = []
+        mensagens_novas = []
         while True:
             event, values = window.read(timeout=100)
 
@@ -30,14 +32,18 @@ class ChatView:
 
             if event == '-ENVIAR-':
                 datetime_atual = datetime.now()
-                window['-CHAT-'].print(f"{usuario_logado} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:", 
+                # Garante apenas 500 caracteres e informa usuário caso passou
+                if len(values['-MENSAGEM-']) > 500:
+                    values['-MENSAGEM-'] = values['-MENSAGEM-'][:500]
+                    sg.popup("Uma mensagem é limitada a 500 caracteres! Só foram enviados os primeiros 500 caracteres ao chat")
+                window['-CHAT-'].print(f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:", 
                                        text_color="DarkBlue", font='bold')
                 window['-CHAT-'].print(f"\n{values['-MENSAGEM-']}\n" + "_"*126, font='bold')
-                new_mensagens.append((usuario_logado, values['-MENSAGEM-'], datetime_atual.strftime("%Y-%m-%d %H:%M:%S")))
+                mensagens_novas.append((usuario_logado.nome, values['-MENSAGEM-'], datetime_atual.strftime("%Y-%m-%d %H:%M:%S")))
                 window['-MENSAGEM-'].update("")
                 window['-CHAR_COUNT-'].update("0/500")
 
-            # Atualiza a contagem de caracteres
+            # Atualiza a contagem de caracteres e limita a mensagem a 500 caracteres
             num_char = len(values['-MENSAGEM-'])
             if num_char < 500:
                 window['-CHAR_COUNT-'].update(f"{num_char}/500", text_color='white')
@@ -47,11 +53,11 @@ class ChatView:
                 window['-MENSAGEM-'].update(values['-MENSAGEM-'][:500])
 
         window.close()
-        return new_mensagens
+        return mensagens_novas
 
 
-messages = [("user1", "Bla bla bla", "2010-01-01 10:20:30"), ("user2", "Mu Mu mu", "2012-05-20 15:15:15"), ("user3", "gla gla", "2014-04-01 20:45:01")]
+# messages = [("user1", "Bla bla bla", "2010-01-01 10:20:30"), ("user2", "Mu Mu mu", "2012-05-20 15:15:15"), ("user3", "gla gla", "2014-04-01 20:45:01")]
 
-chat = ChatView()
-messages += chat.mostra_chat("ehobraia", messages)
-chat.mostra_chat("ehobraia", messages)
+# chat = ChatView()
+# messages += chat.mostra_chat("ehobraia", messages)
+# chat.mostra_chat("ehobraia", messages)

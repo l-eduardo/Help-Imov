@@ -160,13 +160,16 @@ class Contrato:
             data_criacao = date.today()
         imagens = [imagem for imagem in imagens if imagem.e_valida()]
 
-        self._ocorrencias.append(Ocorrencia(titulo=titulo,
+        nova_ocorrencia = Ocorrencia(titulo=titulo,
                                  descricao=descricao,
                                  status=status,
                                  imagens=imagens,
                                  criador_id=criador_id,
                                  data_criacao=data_criacao,
-                                 id=id))
+                                 id=id)
+        self._ocorrencias.append(nova_ocorrencia)
+        return nova_ocorrencia
+
 
     def incluir_vistoria(self,
                          descricao: str,
