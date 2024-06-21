@@ -4,10 +4,10 @@ import PySimpleGUI as sg
 
 class MainView:
     def tela_inicial(self):
-        image_path = os.path.join(os.path.dirname(__file__), '../assets/resized_help-imov-logo.png')
+        image_path = os.path.join(os.path.dirname(__file__), '../assets/help-imov-logo.png')
 
         layout = [
-            [sg.Image(filename=image_path, size=(100, 100), ),
+            [sg.Image(filename=image_path, subsample=3 ),
              sg.Text('Help Imov', font=('Any', 18), justification='right')],
             [sg.Button("Usuários", size=(15, 1), key="usuarios")],
             [sg.Button("Imoveis", size=(15, 1), key="imoveis")],

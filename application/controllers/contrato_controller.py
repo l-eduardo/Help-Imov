@@ -138,8 +138,8 @@ class ContratoController:
 
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                         contrato_id=contrato_instancia.id)
-                    novo_chat = ocorrencia.incluir_chat([contrato_instancia.locatario])
-                    self.__chat_repository.insert_chat(novo_chat, nova_ocorrencia)
+                    #novo_chat = nova_ocorrencia.incluir_chat([contrato_instancia.locatario])
+                    #self.__chat_repository.insert_chat(novo_chat, nova_ocorrencia)
 
         elif events == "add_solicitacao":
             while True:

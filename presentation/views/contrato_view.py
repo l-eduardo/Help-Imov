@@ -7,7 +7,7 @@ from domain.models.locatario import Locatario
 class TelaContrato:
     def __init__(self, controlador):
         self.__controlador = controlador
-        self.__controlador_imovel = ImoveisController(controlador_sistema=controlador)
+        self.__controlador_imovel = ImoveisController(main_controller=controlador)
         self.__locatarios_repository = LocatariosRepository()
 
 
