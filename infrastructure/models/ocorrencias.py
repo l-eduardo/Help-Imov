@@ -18,5 +18,7 @@ class Ocorrencias(Base):
     data_criacao = Column(Date, name='data_criacao')
     contrato_id = Column(String(36), ForeignKey('CONTRATOS.id'), name='id_contrato')
     criador_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), name='criador_id')
+    prestador_id = Column(String(36), ForeignKey('PRESTADORES_SERVICOS.id'), name='prestador_id')
+
 
     imagens = relationship('Imagens', cascade='all, delete-orphan')

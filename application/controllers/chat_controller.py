@@ -1,3 +1,4 @@
+
 from sqlalchemy import UUID
 from application.controllers.session_controller import SessionController
 from domain.models.session import Session
@@ -25,4 +26,3 @@ class ChatCrontroller:
         novas_mensagens = self.__chat_view.mostra_chat(usuario_logado, self.__chat.mensagens)
         self.__chat.mensagens += novas_mensagens
         self.__chat_repository.insert_novas_mensagens(self.__chat.id, novas_mensagens)
-

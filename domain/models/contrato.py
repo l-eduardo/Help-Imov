@@ -149,6 +149,7 @@ class Contrato:
                            titulo: str,
                            descricao: str,
                            criador_id: uuid.UUID,
+                           prestador_id: uuid.UUID or None,
                            imagens: List[Imagem] = None,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
@@ -166,9 +167,8 @@ class Contrato:
                                  imagens=imagens,
                                  criador_id=criador_id,
                                  data_criacao=data_criacao,
-                                 id=id)
-        self._ocorrencias.append(nova_ocorrencia)
-        return nova_ocorrencia
+                                 prestador_id=prestador_id,
+                                 id=id))
 
 
     def incluir_vistoria(self,

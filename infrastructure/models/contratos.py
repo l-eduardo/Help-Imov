@@ -31,11 +31,8 @@ class Contratos(Base):
 
     vistoria_inicial_id = Column(String(36), ForeignKey('VISTORIAS.id', ondelete='SET NULL'),
                                  name='vistoria_inicial_id')
-
     vistoria_inicial = relationship('Vistorias', foreign_keys=[vistoria_inicial_id])
 
-    # erro de não salvar associação de contra_vistoria no banco pode estar aqui
     contra_vistoria_id = Column(String(36), ForeignKey('VISTORIAS.id', ondelete='SET NULL'),
                                              name='contra_vistoria_id')
-
     contra_vistoria = relationship('Vistorias', foreign_keys=[contra_vistoria_id])

@@ -4,6 +4,7 @@ from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.Imagem import Imagem
 from domain.models.session import Session
+from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
 from infrastructure.repositories.chats_repository import ChatsRepository
 from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
@@ -22,13 +23,14 @@ import PySimpleGUI as sg
 
 
 class ContratoController:
-    def __init__(self, controlador_sistema):
-        self.__controlador_sistema = controlador_sistema
+    def __init__(self, main_controller):
+        self.__main_controller = main_controller
         self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
         self.__chat_repository = ChatsRepository()
         self.__ocorrencia_repository: OcorrenciasRepository = OcorrenciasRepository()
+        self.__prestadores_repository = PrestadoresServicosRepository()
         self.__solicitacao_repository = SolicitacoesRepository()
         self.__vistoria_repository = VistoriasRepository()
 
@@ -37,6 +39,8 @@ class ContratoController:
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
 
         self.contratos = []
+
+
 
     def inclui_contrato(self):
         #TODO Inclusao contrato
@@ -56,30 +60,36 @@ class ContratoController:
         self.listar_contrato()
 
     def listar_contrato(self):
-        self.contratos = self.obter_contratos_do_banco()
-        contrato_instancia = None
-        contratos_listados = self.contratos
-        '''for contrato in self.contratos:
-            contratos_listados.append({"idContrato": contrato.id, "dataInicio": contrato.dataInicio,
-                                       "dataFim": contrato.dataFim, "locatario": contrato.locatario.nome,
-                                       "imovel": contrato.imovel.endereco, "estaAtivo": contrato.estaAtivo})'''
-        event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
-        if event == "Visualizar":
-            if values["-TABELA-"]:
-                contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                self.selecionar_contrato(contrato_selecionado)
-            else:
-                sg.popup("Nenhum contrato selecionado")
-        if event == "Adicionar":
-            self.inclui_contrato()
-        if event == "Selecionar":
-            contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+        while True:
+            self.contratos = self.obter_contratos_do_banco()
+            contrato_instancia = None
+            contratos_listados = []
             for contrato in self.contratos:
-                if contrato_selecionado.id == contrato.id:
-                    contrato_instancia = contrato
-                    break
-            self.listar_relacionados_contrato(contrato_instancia)
-            return contrato_selecionado
+                contratos_listados.append({"idContrato": contrato.id, "dataInicio": contrato.dataInicio,
+                                           "dataFim": contrato.dataFim, "locatario": contrato.locatario.id,
+                                           "imovel": contrato.imovel.endereco})
+            event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
+            if event == "Visualizar":
+                if values["-TABELA-"]:
+                    contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+                    self.selecionar_contrato(contrato_selecionado)
+                else:
+                    sg.popup("Nenhum contrato selecionado")
+            if event == "Adicionar":
+                self.inclui_contrato()
+
+            if event in (sg.WIN_CLOSED, "Voltar"):
+                self.__main_controller.abrir_tela_inicial()
+                break
+
+            if event == "Selecionar":
+                contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+                for contrato in self.contratos:
+                    if contrato_selecionado['idContrato'] == contrato.id:
+                        contrato_instancia = contrato
+                        break
+                self.listar_relacionados_contrato(contrato_instancia)
+                return contrato_selecionado
 
     def selecionar_contrato(self, contrato_selecionado: Contrato):
         contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado)
@@ -104,9 +114,13 @@ class ContratoController:
             return
 
         ocorrencias_para_tela = []
+
         for ocorrencia in contrato_instancia.ocorrencias:
-            ocorrencias_para_tela.append({"tipo": "Ocorrência", "titulo": ocorrencia.titulo,
-                                          "status": ocorrencia.status.value, "dataCriacao": ocorrencia.data_criacao,
+            ocorrencias_para_tela.append({"tipo": "Ocorrência",
+                                          "titulo": ocorrencia.titulo,
+                                          "status": ocorrencia.status.value,
+                                          "dataCriacao": ocorrencia.data_criacao,
+                                          "prestador_id": ocorrencia.prestador_id,
                                           "entity": ocorrencia})
 
         solicitacoes_para_tela = []
@@ -118,10 +132,12 @@ class ContratoController:
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
         if solicitacoes_ocorrencias:
-            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato(solicitacoes_ocorrencias, contrato_instancia)
+            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato(solicitacoes_ocorrencias,
+                                                                                         contrato_instancia)
         else:
             self.__tela_contrato.mostra_msg("Não há solicitações ou ocorrências cadastradas neste contrato")
-            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato(solicitacoes_ocorrencias, contrato_instancia)
+            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato(solicitacoes_ocorrencias,
+                                                                                         contrato_instancia)
 
         if events == "add_ocorrencia":
             event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
@@ -133,8 +149,9 @@ class ContratoController:
                     self.__ocorrencia_view.mostra_popup("Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
 
                 else:
-                    nova_ocorrencia = contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
-                                                                            session.user_id, imagens=imagens)
+                    contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
+                                                          session.user_id, imagens=imagens, prestador_id=None)
+
 
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                         contrato_id=contrato_instancia.id)
@@ -172,16 +189,19 @@ class ContratoController:
 
         elif events == "-TABELA-DOUBLE-CLICK-":
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
+
             if entidade["tipo"] == "Ocorrência":
                 imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
-
-                mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"], dirs=imagens_dir)
+                mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
+                                                                                    dirs=imagens_dir)
 
                 if entidade["entity"].criador_id != session.user_id:
                     sg.popup("Você não tem permissão para editar esta ocorrência")
 
                 elif mostra_ocorr_event == "editar_ocorrencia":
-                    editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(entidade["entity"])
+
+                    editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
+                        entidade["entity"])
                     titulo = editar_ocorr_values["titulo"]
                     descricao = editar_ocorr_values["descricao"]
 
@@ -190,16 +210,19 @@ class ContratoController:
                             entidade["entity"].titulo = editar_ocorr_values["titulo"]
                             entidade["entity"].descricao = editar_ocorr_values["descricao"]
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
+                            entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
                             self.__ocorrencia_repository.update(entidade["entity"])
                 elif mostra_ocorr_event == "chat":
                     pass # TODO colocar aqui o caminho para abrir o chat
+
+                elif mostra_ocorr_event == "chat":
+                    pass  # TODO colocar aqui o caminho para abrir o chat
 
             if entidade["tipo"] == "Solicitação":
                 while True:
                     event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
                     if entidade["entity"].criador_id != session.user_id:
                         sg.popup("Você não tem permissão para editar esta solicitação")
-
                     elif event_solic == "editar_solicitacao":
                         while True:
                             edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
@@ -207,7 +230,6 @@ class ContratoController:
                             descricao = edit_solic_values["descricao"]
                             if edit_solic_events == "confirmar_edicao":
                                 if self.validar_campos_entidade(titulo, descricao):
-                                    print(edit_solic_events)
                                     entidade["entity"].titulo = edit_solic_values["titulo"]
                                     entidade["entity"].descricao = edit_solic_values["descricao"]
                                     entidade["entity"].status = Status(edit_solic_values["status"])
@@ -254,8 +276,6 @@ class ContratoController:
 
         if events == "contra_vistoria":
             if contrato_instancia.contra_vistoria:
-                print(contrato_instancia.contra_vistoria)
-                print(contrato_instancia.contra_vistoria.imagens)
                 caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),
@@ -301,7 +321,6 @@ class ContratoController:
             ImagensService.flush_temp_images()
             return
         self.listar_relacionados_contrato(contrato_instancia)
-
 
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()

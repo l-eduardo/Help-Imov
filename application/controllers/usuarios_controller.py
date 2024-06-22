@@ -88,7 +88,7 @@ class UsuariosController:
             case 'Cancelar':
                 self.__tela_usuarios.mostra_popup("Operação cancelada, usuário não foi adicionado!")
         self.lista_usuarios()
-    
+
     def edita_usuario(self, usuario):
         permissao = usuario.__class__.__name__
         event,values = self.__tela_usuarios.pega_dados_usuario(permissao, usuario=usuario, edit_mode=True)
@@ -133,7 +133,16 @@ class UsuariosController:
         self.__prestadores_servicos = self.__prestadores_servicos_repository.get_all()
         self.__todos_usuarios = self.__administradores + self.__assistentes + self.__locatarios + self.__prestadores_servicos
         return self.__todos_usuarios
-    
+
+    def obter_prestadores_servicos(self):
+        # Buscar a lista de prestadores de serviços
+        prestadores = self.__prestadores_servicos_repository.get_all()
+
+        # Extrair apenas os nomes dos prestadores
+        nomes_prestadores = [prestador.nome for prestador in prestadores]
+
+        return nomes_prestadores
+
     @property
     def administradores(self) -> list[Administrador]:
         return self.__administradores_repository.get_all()
