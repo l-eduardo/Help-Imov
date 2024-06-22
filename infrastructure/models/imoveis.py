@@ -8,5 +8,5 @@ class Imoveis(Base):
 
     id = Column(String(36), primary_key=True, name='id')
     codigo = Column(Integer, nullable=False, name='codigo')
-    endereco = Column(String(36), nullable=False, name='endereco')
+    endereco = Column(String(150), nullable=False, name='endereco')
     imagens = relationship('Imagens', cascade='all, delete-orphan')
