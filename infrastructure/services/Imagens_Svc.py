@@ -34,7 +34,7 @@ class ImagensService:
         if imagem is None:
             return None
 
-        np_image = np.frombuffer(imagem.imagem, dtype=np.uint8)
+        np_image = np.frombuffer(imagem.content, dtype=np.uint8)
         reshaped_image = np_image.reshape((imagem.height, imagem.width, imagem.channels))
 
         # Defina o caminho do diretório temporário
