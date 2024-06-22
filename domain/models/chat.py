@@ -1,17 +1,15 @@
 from datetime import date
 from typing import List
 import uuid
-
 from domain.models.usuario import Usuario
 
 
 class Chat:
-    def __init__(self, participants: List[Usuario],
-                 messages: List[tuple[uuid.UUID, str, date]],
+    def __init__(self, participantes: List[Usuario],
                  id: uuid.UUID = uuid.UUID(int=0)):
         self._id = id
-        self._participantes = participants
-        self._mensagens = messages
+        self._participantes = participantes
+        self._mensagens: List[tuple[uuid.UUID, Usuario, str, date]] = []
 
     @property
     def id(self) -> uuid.UUID:
@@ -22,5 +20,5 @@ class Chat:
         return self._participantes
 
     @property
-    def mensagens(self) -> List[tuple[uuid.UUID, str, date]]:
+    def mensagens(self) -> List[tuple[uuid.UUID, Usuario, str, date]]:
         return self._mensagens

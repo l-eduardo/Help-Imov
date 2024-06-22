@@ -5,6 +5,7 @@ from domain.enums.status import Status
 from domain.models.Imagem import Imagem
 from domain.models.session import Session
 from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
+from infrastructure.repositories.chats_repository import ChatsRepository
 from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.contrato_view import TelaContrato
@@ -27,6 +28,7 @@ class ContratoController:
         self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
+        self.__chat_repository = ChatsRepository()
         self.__ocorrencia_repository: OcorrenciasRepository = OcorrenciasRepository()
         self.__prestadores_repository = PrestadoresServicosRepository()
         self.__solicitacao_repository = SolicitacoesRepository()
@@ -42,12 +44,20 @@ class ContratoController:
 
     def inclui_contrato(self):
         #TODO Inclusao contrato
-        dados_contrato = self.__tela_contrato.pega_dados_contrato()
-        contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
-                            locatario=dados_contrato['locatario'], estaAtivo=True)
-        self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
+        while True:
+            dados_contrato, locatario_selecionado = self.__tela_contrato.pega_dados_contrato()
+            imovel = dados_contrato['imovel']
+            data = dados_contrato['data_inicio']
+            print('data:',data)
+            print(imovel)
+            print(locatario_selecionado)
+            if self.valida_campos_contrato(imovel, locatario_selecionado, data):
+                contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
+                                    locatario=locatario_selecionado, estaAtivo=True)
+                self.__contratos_repository.insert(ContratosOutputMapper.map_contrato(contrato))
+                self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
+                break
         self.listar_contrato()
-        #self.__tela_contrato.mostra_msg('Contrato Criado com sucesso')
 
     def listar_contrato(self):
         while True:
@@ -81,8 +91,14 @@ class ContratoController:
                 self.listar_relacionados_contrato(contrato_instancia)
                 return contrato_selecionado
 
-    def selecionar_contrato(self, contrato_selecionado):
-        self.__tela_contrato.mostra_contrato(contrato_selecionado)
+    def selecionar_contrato(self, contrato_selecionado: Contrato):
+        contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado)
+        print('EEEEEEEEEEEEEE')
+        print(contrato)
+        print('AAAAAAAAAAAAAAA')
+        print(contrato.estaAtivo)
+        self.__contratos_repository.update_contrato(contrato)
+        self.listar_contrato()
 
     def obter_contratos_do_banco(self) -> list[Contrato]:
         contratos = self.__contratos_repository.get_all()
@@ -136,8 +152,11 @@ class ContratoController:
                     contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
                                                           session.user_id, imagens=imagens, prestador_id=None)
 
+
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                         contrato_id=contrato_instancia.id)
+                    #novo_chat = nova_ocorrencia.incluir_chat([contrato_instancia.locatario])
+                    #self.__chat_repository.insert_chat(novo_chat, nova_ocorrencia)
 
         elif events == "add_solicitacao":
             while True:
@@ -149,7 +168,7 @@ class ContratoController:
                         contrato_instancia.incluir_solicitacao(titulo, descricao, session.user_id)
                         self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                              id_contrato=contrato_instancia.id)
-                        self.__tela_contrato.mostra_msg("Solicitação registrada com sucesso")
+                        self.__solicitacao_view.mostra_msg("Solicitação registrada com sucesso")
                         break  # Sai do loop se validar os dados
                 else:
                     break  # Sai do loop se clica em cancelar
@@ -193,6 +212,8 @@ class ContratoController:
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
                             entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
                             self.__ocorrencia_repository.update(entidade["entity"])
+                elif mostra_ocorr_event == "chat":
+                    pass # TODO colocar aqui o caminho para abrir o chat
 
                 elif mostra_ocorr_event == "chat":
                     pass  # TODO colocar aqui o caminho para abrir o chat
@@ -212,6 +233,8 @@ class ContratoController:
                                     entidade["entity"].titulo = edit_solic_values["titulo"]
                                     entidade["entity"].descricao = edit_solic_values["descricao"]
                                     entidade["entity"].status = Status(edit_solic_values["status"])
+                                    print(entidade)
+                                    print(entidade["entity"])
                                     self.__solicitacao_repository.update(entidade["entity"])
                                 break
                     break
@@ -344,5 +367,17 @@ class ContratoController:
             return False
         if len(descricao) > 500:
             sg.popup("A descrição não pode exceder 500 caracteres.")
+            return False
+        return True
+
+    def valida_campos_contrato(self, imovel, locatario, data):
+        if imovel == "Selecione":
+            sg.popup("Selecione um imóvel")
+            return False
+        if locatario is None:
+            sg.Popup("Selecione um locatário")
+            return False
+        if data == '':
+            sg.Popup("Selecione uma data")
             return False
         return True

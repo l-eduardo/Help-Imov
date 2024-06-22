@@ -11,7 +11,9 @@ from infrastructure.models import Base,\
                                   solicitacoes,\
                                   usuarios_identity_infos,\
                                   usuarios_ocorrencias,\
-                                  vistorias
+                                  vistorias,\
+                                  chats,\
+                                  mensagens
 
 from infrastructure.configs.connection import Connection
 

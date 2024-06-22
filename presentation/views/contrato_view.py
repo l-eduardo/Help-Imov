@@ -1,24 +1,34 @@
 import PySimpleGUI as sg
 from application.controllers.imoveis_controller import ImoveisController
-
+from infrastructure.repositories.locatarios_repository import LocatariosRepository
+from domain.models.locatario import Locatario
 
 # Definição do layout da janela
 class TelaContrato:
     def __init__(self, controlador):
         self.__controlador = controlador
         self.__controlador_imovel = ImoveisController(main_controller=controlador)
+        self.__locatarios_repository = LocatariosRepository()
+
 
     def pega_dados_contrato(self):
         imoveis = self.__controlador_imovel.obter_imoveis_do_banco()
+        locatarios = self.__locatarios_repository.get_all()
+        nomes_locatarios = [locatario.nome for locatario in locatarios]
+
         try:
             layout = [
                 [sg.Text('Cadastrar Contrato', font=('Any', 18), justification='center', expand_x=True)],
                 [sg.Text('Locatário', size=(15, 1), justification='center'),
-                 sg.Combo(['Locatario 1', 'Locatario 2'], size=(20, 1), default_value='Selecione', key='locatario')],
+                 sg.Combo(nomes_locatarios, size=(20, 1), default_value='Selecione', key='locatario')],
+                 #sg.Combo(['Locatario 1', 'Locatario 2'], size=(20, 1), default_value='Selecione', key='locatario')],
                 [sg.Text('Imóvel', size=(15, 1), justification='center'),
                  sg.Combo(imoveis, size=(20, 1), default_value='Selecione', key='imovel')],
-                [sg.Text('Data Início', size=(15, 1), justification='center'),                 sg.Input(key='data_inicio', size=(11, 1)),
-                 sg.CalendarButton('Selecionar', target='data_inicio', format='%Y/%m/%d')],
+                [sg.Text('Data Início', size=(15, 1), justification='center'), sg.Input(key='data_inicio',
+                                                                                        text_color='White',
+                                                                                        disabled=True, size=(11, 1)),
+
+                 sg.CalendarButton('Selecionar', size=(9, 1), target='data_inicio', format='%Y/%m/%d')],
                 [sg.Button('Voltar'), sg.Button('Próximo')]
             ]
             # Criação da janela
@@ -32,9 +42,12 @@ class TelaContrato:
                     window.close()
                     self.__controlador.listar_contrato()
                 elif event == 'Próximo':
-                    '''Pega os dados do contrato e chama no return a próxima tela que é a da vistoria'''
+                    nome_selecionado = values['locatario']
+                    # Encontra o objeto locatario com base no nome
+                    locatario_selecionado = next((loc for loc in locatarios if loc.nome == nome_selecionado), None)
+
                     window.close()
-                    return values
+                    return values, locatario_selecionado
             # Fechamento da janela
             window.close()
             return None
@@ -45,11 +58,11 @@ class TelaContrato:
     def mostra_contratos(self, contratos_listados):
 
         # Define the table header
-        header = ["ID Contrato", "Data Início", "Data Fim", "Locatário", "Imóvel"]
+        header = ["ID Contrato", "Data Início", "Locatário", "Imóvel", "Status"]
 
         # Convert the list of dictionaries into a list of lists for the table
-        table_data = [[contrato["idContrato"], contrato["dataInicio"], contrato["dataFim"], contrato["locatario"],
-                       contrato["imovel"]] for contrato in contratos_listados]
+        table_data = [[contrato.id, contrato.dataInicio, contrato.locatario.nome, contrato.imovel.endereco,
+                       "Ativo" if contrato.estaAtivo else "Encerrado"] for contrato in contratos_listados]
 
         # Table layout
         tabela = sg.Table(table_data, headings=header,
@@ -76,21 +89,30 @@ class TelaContrato:
             return event, values
 
     def mostra_contrato(self, contrato):
-        layout = [
-            [sg.Text('Dados do Contrato', font=('Any', 18), justification='center', expand_x=True)],
-            [sg.Text("Data Início:", size=(15, 1), justification='left'), sg.Text(contrato["dataInicio"])],
-            [sg.Text("Data Fim:", size=(15, 1), justification='left'), sg.Text(contrato["dataFim"])],
-            [sg.Text("Locatário:", size=(20, 1), justification='left'), sg.Text(contrato["locatario"])],
-            [sg.Text("Imóvel:", size=(22, 1), justification='left'), sg.Text(contrato["imovel"])],
-            [sg.Button("Voltar")]]
+        centrilizedButtons = [sg.Button("Encerrar Contrato"), sg.Button("Voltar")]
+        print(contrato)
+        layout = [[sg.Text("Detalhes do contrato", font=('Arial', 18, 'bold'), text_color='Black',)],
+                  [sg.Text("Data Inicio: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataInicio, key="dataInicio")],
+                  [sg.Text("Data Fim: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataFim, key="dataFim")],
+                  [sg.Text("Locatario: ", font=('Arial', 14, 'bold')), sg.Text(contrato.locatario.nome, key="locatario")],
+                  [sg.Text("Imovel: ", font=('Arial', 14, 'bold')), sg.Text(contrato.imovel.endereco, key="imovel")],
+                  [sg.Text("Status: ", font=('Arial', 14, 'bold')),
+                   sg.Text("Ativo" if contrato.estaAtivo else "Encerrado", key="status")],
+                  [sg.Column([centrilizedButtons], justification="center")]]
 
-        window = sg.Window('Dados Contrato', layout, element_justification='center',
-                           size=(500, 400), font=('Arial', 18, 'bold'))
+        window = sg.Window(f"Detalhes do contrato ({contrato.id})",
+                           layout, size=(500, 250), font=('bold'))
+
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
                 self.__controlador.listar_contrato()
+            elif event == "Encerrar Contrato":
+                contrato.estaAtivo = False
+                #window['status'].update("Encerrado")
+                window.close()
+                return contrato, event
 
     def mostra_relacionados_contrato(self, solicitacoes_ocorrencias, contrato_instancia):
         excluir_btn_visivel = False

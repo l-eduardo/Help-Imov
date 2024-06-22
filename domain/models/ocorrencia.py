@@ -4,6 +4,7 @@ import uuid
 from typing import TYPE_CHECKING
 from domain.enums.status import Status
 from domain.models.Imagem import Imagem
+from domain.models.chat import Chat
 if TYPE_CHECKING:
     from domain.models.prestador_servico import PrestadorServico
 
@@ -84,3 +85,6 @@ class Ocorrencia:
     def imagens(self) -> List[Imagem]:
         return self._imagens
 
+
+    def incluir_chat(self, participantes):
+        return Chat(participantes = participantes, id = uuid.uuid4())
