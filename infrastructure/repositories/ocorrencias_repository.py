@@ -24,16 +24,14 @@ class OcorrenciasRepository:
 
     def update(self, ocorrencia: Ocorrencia) -> Ocorrencia:
         prestadores_servicos_repository = PrestadoresServicosRepository()
-        prestador_id = prestadores_servicos_repository.get_id_by_name(ocorrencia.prestador_id)
-        # if prestador_id is None:
-            # raise ValueError(f"Prestador de serviço com nome {ocorrencia.prestador_id} não encontrado.")
+        prestador_id = prestadores_servicos_repository.get_id_by_name(str(ocorrencia.prestador_id))
 
         with Connection() as connection:
             result = connection.session.query(Ocorrencias).filter(Ocorrencias.id == str(ocorrencia.id)).update(
                 {
                     "titulo": ocorrencia.titulo,
                     "descricao": ocorrencia.descricao,
-                    "prestador_id": prestador_id,
+                    "prestador_id": ocorrencia.prestador_id,
                     "status": ocorrencia.status.name
                 }
             )

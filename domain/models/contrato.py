@@ -138,7 +138,7 @@ class Contrato:
                            titulo: str,
                            descricao: str,
                            criador_id: uuid.UUID,
-                           prestador_id: uuid.UUID,
+                           prestador_id: uuid.UUID or None,
                            imagens: List[Imagem] = None,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
