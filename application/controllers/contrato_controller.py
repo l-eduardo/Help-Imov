@@ -63,11 +63,7 @@ class ContratoController:
         while True:
             self.contratos = self.obter_contratos_do_banco()
             contrato_instancia = None
-            contratos_listados = []
-            for contrato in self.contratos:
-                contratos_listados.append({"idContrato": contrato.id, "dataInicio": contrato.dataInicio,
-                                           "dataFim": contrato.dataFim, "locatario": contrato.locatario.id,
-                                           "imovel": contrato.imovel.endereco})
+            contratos_listados = self.contratos
             event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
             if event == "Visualizar":
                 if values["-TABELA-"]:
@@ -85,7 +81,7 @@ class ContratoController:
             if event == "Selecionar":
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
                 for contrato in self.contratos:
-                    if contrato_selecionado['idContrato'] == contrato.id:
+                    if contrato_selecionado.id == contrato.id:
                         contrato_instancia = contrato
                         break
                 self.listar_relacionados_contrato(contrato_instancia)

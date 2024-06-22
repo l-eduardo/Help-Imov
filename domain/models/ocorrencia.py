@@ -88,3 +88,31 @@ class Ocorrencia:
 
     def incluir_chat(self, participantes):
         return Chat(participantes = participantes, id = uuid.uuid4())
+
+    def e_valida(self) -> bool:
+        return self.__titulo_e_valido() and \
+               self.__descricao_e_valido() and \
+               self.__status_e_valido() and \
+               self.__data_criacao_e_valido() and \
+               self.__criador_id_e_valido() and \
+                self.__imagens_sao_validas()
+
+    def __titulo_e_valido(self) -> bool:
+        return self._titulo is not None and len(self._titulo) > 0
+
+    def __descricao_e_valido(self) -> bool:
+        return self._descricao is not None and len(self._descricao) > 0
+
+    def __status_e_valido(self) -> bool:
+        return self._status is not None
+
+    def __data_criacao_e_valido(self) -> bool:
+        return self._data_criacao is not None and self._data_criacao < date.today()
+
+    def __criador_id_e_valido(self) -> bool:
+        return self._criador_id is not None
+
+    def __imagens_sao_validas(self) -> bool:
+        return self._imagens is not None and all([imagem.e_valida() for imagem in self._imagens])
+
+

@@ -168,7 +168,9 @@ class Contrato:
                                  criador_id=criador_id,
                                  data_criacao=data_criacao,
                                  prestador_id=prestador_id,
-                                 id=id))
+                                 id=id)
+
+        self._ocorrencias.append(nova_ocorrencia)
 
 
     def incluir_vistoria(self,
