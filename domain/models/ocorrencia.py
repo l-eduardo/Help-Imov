@@ -10,14 +10,14 @@ if TYPE_CHECKING:
 
 class Ocorrencia:
     def __init__(self,
-    titulo: str,
-    descricao: str,
-    criador_id: uuid.UUID,
-    imagens: List[Imagem] = None,
-    status: Status = Status.ABERTO,
-    data_criacao: date = None,
-    id: uuid.UUID = None):
-
+                 titulo: str,
+                 descricao: str,
+                 criador_id: uuid.UUID,
+                 prestador_id: uuid.UUID = None,
+                 imagens: List[Imagem] = None,
+                 status: Status = Status.ABERTO,
+                 data_criacao: date = None,
+                 id: uuid.UUID = None):
         if id is None:
             id = uuid.uuid4()
         if data_criacao is None:
@@ -30,7 +30,7 @@ class Ocorrencia:
         self._status: Status = status
         self._data_criacao: date = data_criacao
         self._criador_id: uuid.UUID = criador_id
-        self._prestadores_servico: List[PrestadorServico] = []
+        self._prestador_id: uuid.UUID = prestador_id
 
     @property
     def criador_id(self) -> uuid.UUID:
@@ -73,9 +73,14 @@ class Ocorrencia:
         return self._data_criacao
 
     @property
-    def prestador_servico(self) -> 'List[PrestadorServico]':
-        return self._prestadores_servico
+    def prestador_id(self) -> uuid.UUID:
+        return self._prestador_id
+
+    @prestador_id.setter
+    def prestador_id(self, value: uuid.UUID):
+        self._prestador_id = value
 
     @property
     def imagens(self) -> List[Imagem]:
         return self._imagens
+

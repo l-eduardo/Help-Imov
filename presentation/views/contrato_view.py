@@ -6,7 +6,7 @@ from application.controllers.imoveis_controller import ImoveisController
 class TelaContrato:
     def __init__(self, controlador):
         self.__controlador = controlador
-        self.__controlador_imovel = ImoveisController(controlador_sistema=controlador, main_controller=controlador)
+        self.__controlador_imovel = ImoveisController(main_controller=controlador)
 
     def pega_dados_contrato(self):
         imoveis = self.__controlador_imovel.obter_imoveis_do_banco()
@@ -72,9 +72,6 @@ class TelaContrato:
 
         while True:
             event, values = self.window.read()
-            if event == sg.WIN_CLOSED or event == "Voltar":
-                self.window.close()
-                exit() #revisar e adicionar tela principal do sistema
             self.window.close()
             return event, values
 

@@ -46,6 +46,7 @@ class ContratoInputMapper:
                 criador_id=ocorrencia.criador_id,
                 imagens=ImagemInputMapper.bulk_map_imagens(ocorrencia.imagens),
                 data_criacao=ocorrencia.data_criacao,
+                prestador_id=ocorrencia.prestador_id,
                 id=UUID(ocorrencia.id))
 
         if contrato_from_db.vistoria_inicial is not None:
