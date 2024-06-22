@@ -39,7 +39,6 @@ class ContratoController:
         self.contratos = []
 
     def inclui_contrato(self):
-        #TODO Inclusao contrato
         while True:
             dados_contrato, locatario_selecionado = self.__tela_contrato.pega_dados_contrato()
             imovel = dados_contrato['imovel']
@@ -55,19 +54,27 @@ class ContratoController:
                 break
         self.listar_contrato()
 
-    def listar_contrato(self):
-        self.contratos = self.obter_contratos_do_banco()
+    @SessionController.inject_session_data
+    def listar_contrato(self, session: Session=None):
         contrato_instancia = None
-        contratos_listados = self.contratos
-        '''for contrato in self.contratos:
-            contratos_listados.append({"idContrato": contrato.id, "dataInicio": contrato.dataInicio,
-                                       "dataFim": contrato.dataFim, "locatario": contrato.locatario.nome,
-                                       "imovel": contrato.imovel.endereco, "estaAtivo": contrato.estaAtivo})'''
-        event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
+        self.contratos = self.obter_contratos_do_banco()
+        btn_visible_locatario = True
+        if session.user_role == "Locatario":
+            btn_visible_locatario = False
+        contratos_listados = []
+        for contrato in self.contratos:
+            if session.user_id == contrato.locatario.id:
+                if contrato.estaAtivo:
+                    contratos_listados.append(contrato)
+            if session.user_role in ["Administrador", "Assistente"]:
+                contratos_listados = self.obter_contratos_do_banco()
+
+        event, values, btn_visible_locatario = self.__tela_contrato.mostra_contratos(contratos_listados, btn_visible_locatario)
         if event == "Visualizar":
             if values["-TABELA-"]:
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                self.selecionar_contrato(contrato_selecionado)
+                self.selecionar_contrato(contrato_selecionado, btn_visible_locatario)
+
             else:
                 sg.popup("Nenhum contrato selecionado")
         if event == "Adicionar":
@@ -81,12 +88,8 @@ class ContratoController:
             self.listar_relacionados_contrato(contrato_instancia)
             return contrato_selecionado
 
-    def selecionar_contrato(self, contrato_selecionado: Contrato):
-        contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado)
-        print('EEEEEEEEEEEEEE')
-        print(contrato)
-        print('AAAAAAAAAAAAAAA')
-        print(contrato.estaAtivo)
+    def selecionar_contrato(self, contrato_selecionado: Contrato, btn_visible_locatario):
+        contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado, btn_visible_locatario)
         self.__contratos_repository.update_contrato(contrato)
         self.listar_contrato()
 
@@ -207,12 +210,9 @@ class ContratoController:
                             descricao = edit_solic_values["descricao"]
                             if edit_solic_events == "confirmar_edicao":
                                 if self.validar_campos_entidade(titulo, descricao):
-                                    print(edit_solic_events)
                                     entidade["entity"].titulo = edit_solic_values["titulo"]
                                     entidade["entity"].descricao = edit_solic_values["descricao"]
                                     entidade["entity"].status = Status(edit_solic_values["status"])
-                                    print(entidade)
-                                    print(entidade["entity"])
                                     self.__solicitacao_repository.update(entidade["entity"])
                                 break
                     break

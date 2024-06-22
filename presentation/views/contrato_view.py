@@ -20,10 +20,9 @@ class TelaContrato:
             layout = [
                 [sg.Text('Cadastrar Contrato', font=('Any', 18), justification='center', expand_x=True)],
                 [sg.Text('Locatário', size=(15, 1), justification='center'),
-                 sg.Combo(nomes_locatarios, size=(20, 1), default_value='Selecione', key='locatario')],
-                 #sg.Combo(['Locatario 1', 'Locatario 2'], size=(20, 1), default_value='Selecione', key='locatario')],
+                 sg.Combo(nomes_locatarios, size=(30, 1), default_value='Selecione', key='locatario')],
                 [sg.Text('Imóvel', size=(15, 1), justification='center'),
-                 sg.Combo(imoveis, size=(20, 1), default_value='Selecione', key='imovel')],
+                 sg.Combo(imoveis, size=(30, 1), default_value='Selecione', key='imovel')],
                 [sg.Text('Data Início', size=(15, 1), justification='center'), sg.Input(key='data_inicio',
                                                                                         text_color='White',
                                                                                         disabled=True, size=(11, 1)),
@@ -55,7 +54,7 @@ class TelaContrato:
             print("Erro ao obter dados do contrato", e)
             return None
 
-    def mostra_contratos(self, contratos_listados):
+    def mostra_contratos(self, contratos_listados, btn_visible_locatario):
 
         # Define the table header
         header = ["ID Contrato", "Data Início", "Locatário", "Imóvel", "Status"]
@@ -78,7 +77,7 @@ class TelaContrato:
                           vertical_scroll_only=False)
         # Window layout
         layout = [[tabela],
-                  [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar"), sg.Button("Selecionar")], ]
+                  [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar", visible=btn_visible_locatario), sg.Button("Selecionar")], ]
 
         # Create the window
         self.window = sg.Window("Contratos", layout, size=(900, 300), resizable=True)
@@ -89,14 +88,14 @@ class TelaContrato:
                 self.window.close()
                 exit() #revisar e adicionar tela principal do sistema
             self.window.close()
-            return event, values
+            return event, values, btn_visible_locatario
 
-    def mostra_contrato(self, contrato):
-        centrilizedButtons = [sg.Button("Encerrar Contrato"), sg.Button("Voltar")]
+    def mostra_contrato(self, contrato, btn_visible_locatario):
+        centrilizedButtons = [sg.Button("Encerrar Contrato", visible=btn_visible_locatario), sg.Button("Voltar")]
         print(contrato)
         layout = [[sg.Text("Detalhes do contrato", font=('Arial', 18, 'bold'), text_color='Black',)],
                   [sg.Text("Data Inicio: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataInicio, key="dataInicio")],
-                  [sg.Text("Data Fim: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataFim, key="dataFim")],
+                  #[sg.Text("Data Fim: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataFim, key="dataFim")],
                   [sg.Text("Locatario: ", font=('Arial', 14, 'bold')), sg.Text(contrato.locatario.nome, key="locatario")],
                   [sg.Text("Imovel: ", font=('Arial', 14, 'bold')), sg.Text(contrato.imovel.endereco, key="imovel")],
                   [sg.Text("Status: ", font=('Arial', 14, 'bold')),
@@ -143,18 +142,13 @@ class TelaContrato:
             sg.Button("Voltar"),
             sg.Button("Adicionar solicitação", key="add_solicitacao"),
             sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
-            sg.Button("Selecionar"),
             sg.Button("Excluir", key="Excluir", visible=excluir_btn_visivel)
-        ]
-        right_button_layout = [
-            sg.Button("Solicitações para aprovação", key="Solicitações para aprovação")
         ]
         # Window layout
         layout = [
             [sg.Button("Vistoria Inicial", key="vistoria_inicial"), sg.Button("Contra Vistoria", key="contra_vistoria")],
             [tabela],
-            [sg.Column([buttons_layout], expand_x=True),
-             sg.Column([right_button_layout], justification='right', expand_x=True)]
+            [sg.Column([buttons_layout], expand_x=True),]
         ]
         # Create the window
         window = sg.Window("Relacionados do contrato",layout, size=(900, 300), resizable=True, finalize=True)
