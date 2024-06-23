@@ -20,11 +20,6 @@ class PrestadoresServicosRepository:
             print(result_mapped)
             return result_mapped
 
-    def get_id_by_name(self, nome: str) -> Optional[UUID]:
-        with Connection() as connection:
-            prestador = connection.session.query(PrestadoresServicos).filter_by(nome=nome).first()
-            return prestador.id if prestador else None
-
     def __convert_to_uuid(self, id_str_or_uuid):
         if isinstance(id_str_or_uuid, str):
             return id_str_or_uuid
