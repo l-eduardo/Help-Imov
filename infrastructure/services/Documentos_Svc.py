@@ -7,7 +7,10 @@ from domain.models.session import Session
 
 
 class DocumentosService:
+    # TODO colocar verificação para ver qual o SO, se Windows:
     __save_dir = os.path.join(os.path.dirname(__file__), '..', 'presentation', 'downloads')
+    # Se mac ou linux:
+    # __save_dir = './downloads'
 
     @staticmethod
     def read_file(dir: str) -> 'Documento':
