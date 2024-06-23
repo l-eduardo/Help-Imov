@@ -161,7 +161,6 @@ class Contrato:
             id = uuid.uuid4()
         if data_criacao is None:
             data_criacao = date.today()
-        imagens = [imagem for imagem in imagens if imagem.e_valida()]
 
         nova_ocorrencia = Ocorrencia(titulo=titulo,
                                  descricao=descricao,
@@ -173,7 +172,11 @@ class Contrato:
                                  chat=chat,
                                  id=id)
 
-        self._ocorrencias.append(nova_ocorrencia)
+        if nova_ocorrencia.e_valida():
+            self._ocorrencias.append(nova_ocorrencia)
+            return []
+
+        return nova_ocorrencia.get_validation_errors()
 
 
     def incluir_vistoria(self,

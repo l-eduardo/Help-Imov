@@ -11,6 +11,7 @@ from infrastructure.repositories.chats_repository import ChatsRepository
 from infrastructure.repositories.user_identity_repository import UserIdentityRepository
 from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
+from presentation.components.validations_errors_popup import ValidationErrorsPopup
 from presentation.views.contrato_view import TelaContrato
 from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
@@ -47,8 +48,6 @@ class ContratoController:
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
 
         self.contratos = []
-
-
 
     def inclui_contrato(self):
         while True:
@@ -145,15 +144,17 @@ class ContratoController:
             event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
             if event == "Salvar":
                 imagens = ImagensService.bulk_read(values['imagens'])
-                imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
+                # imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
-                if imagens_invalidas and len(imagens_invalidas):
-                    self.__ocorrencia_view.mostra_popup("Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
+                # if imagens_invalidas and len(imagens_invalidas):
+                #     self.__ocorrencia_view.mostra_popup("Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
 
-                else:
-                    contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
-                                                          session.user_id, imagens=imagens, prestador_id=None)
+                # else:
+                errors = contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
+                                                                   session.user_id, imagens=imagens, prestador_id=None)
 
+                if len(errors) > 0:
+                    ValidationErrorsPopup.show_errors(errors)
 
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                         contrato_id=contrato_instancia.id)
@@ -344,7 +345,6 @@ class ContratoController:
                     self.__contratos_repository.update(contrato)
             except:
                 sg.popup("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
-
 
     def editar_vistoria(self, contrato_instancia, vistoria):
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
