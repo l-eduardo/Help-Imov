@@ -9,6 +9,7 @@ class MainView:
         layout = [
             [sg.Image(filename=image_path, subsample=3 ),
              sg.Text('Help Imov', font=('Any', 18), justification='right')],
+            [sg.Text("", size=(0, 1))],
             [sg.Button("Usuários", size=(15, 1), key="usuarios")],
             [sg.Button("Imoveis", size=(15, 1), key="imoveis")],
             [sg.Button("Contratos", key="contratos", size=(15, 1))],

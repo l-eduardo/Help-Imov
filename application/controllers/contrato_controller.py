@@ -298,7 +298,7 @@ class ContratoController:
                     sg.popup(
                         "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
                         title="Aviso",
-                        custom_text=("Fechar")
+                        custom_text="Fechar"
                     )
                 else:
                     criar_contra_vistoria = sg.popup(

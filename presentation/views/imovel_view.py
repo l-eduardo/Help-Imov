@@ -13,13 +13,13 @@ class TelaImovel:
     def __layout_novo_imovel(self):
         centrilized_buttons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
-        layout = [[sg.Text("Codigo")],
+        layout = [[sg.Text("Codigo *")],
                   [sg.Input(key="codigo", tooltip="digite um codigo", default_text="insira um código numérico válido", size=(50, 10), expand_x=True)],
                   [sg.Text("", key="-ERROR-", size=(50, 1), text_color="red")],
-                  [sg.Text("Endereço")],
+                  [sg.Text("Endereço *")],
                   [sg.Multiline(key="endereco", tooltip="digite o endereço", size=(50, 10), no_scrollbar=True,
                                 expand_x=True)],
-                  [sg.Text("Imagens")],
+                  [sg.Text("Imagens *")],
                   [[sg.Input(key='imagens', readonly=True, disabled_readonly_background_color='#ECECEC',
                              disabled_readonly_text_color='#545454'),
                     sg.FilesBrowse(file_types=("ALL Files", "*.png"))]],
@@ -138,10 +138,10 @@ class TelaImovel:
         centrilizedButtons = [sg.Button("Salvar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
         layout = [
-            [sg.Text("Codigo")],
+            [sg.Text("Codigo *")],
             [sg.Input(default_text=imovel.codigo, key="codigo", tooltip="Digite o novo código",
                      size=(50, 10), expand_x=True)],
-            [sg.Text("Endereço")],
+            [sg.Text("Endereço *")],
             [sg.Multiline(key='endereco', default_text=imovel.endereco, tooltip="Digite a nova descricão"
                           , size=(50, 10), no_scrollbar=True, expand_x=True)],
             [sg.Column([centrilizedButtons], justification="center")],

@@ -11,6 +11,7 @@ class Imagem:
                  id: uuid.UUID = None):
         if id is None:
             id = uuid.uuid4()
+        self.imagem = None
         self.__id: uuid.UUID = id
         self.__width: int = width
         self.__height: int = height
