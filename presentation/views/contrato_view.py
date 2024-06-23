@@ -139,7 +139,8 @@ class TelaContrato:
             sg.Button("Voltar"),
             sg.Button("Adicionar solicitação", key="add_solicitacao"),
             sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
-            sg.Button("Excluir", key="Excluir", visible=excluir_btn_visivel)
+            sg.Button("Excluir", key="Excluir", visible=excluir_btn_visivel),
+            sg.Button("Selecionar")
         ]
         # Window layout
         layout = [
@@ -149,8 +150,6 @@ class TelaContrato:
         ]
         # Create the window
         window = sg.Window("Relacionados do contrato",layout, size=(900, 300), resizable=True, finalize=True)
-
-        window['-TABELA-'].bind("<Double-Button-1>", "DOUBLE-CLICK-")
 
         while True:
             event, values = window.read()
