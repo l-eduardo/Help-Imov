@@ -33,8 +33,12 @@ class ImagensService:
 
         if imagem is None:
             return None
+        buffer = getattr(imagem, 'imagem', None) or getattr(imagem, 'content', None)
 
-        np_image = np.frombuffer(imagem.imagem if hasattr(imagem, 'imagem') else imagem.content, dtype=np.uint8)
+        if buffer is None:
+            raise ValueError("O objeto não contém os atributos 'imagem' ou 'content'.")
+
+        np_image = np.frombuffer(buffer, dtype=np.uint8)
         reshaped_image = np_image.reshape((imagem.height, imagem.width, imagem.channels))
 
         # Defina o caminho do diretório temporário

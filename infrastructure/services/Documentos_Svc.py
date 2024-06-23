@@ -7,7 +7,7 @@ from domain.models.session import Session
 
 
 class DocumentosService:
-    __save_dir = './downloads'
+    __save_dir = os.path.join(os.path.dirname(__file__), '..', 'presentation', 'downloads')
 
     @staticmethod
     def read_file(dir: str) -> 'Documento':
@@ -24,7 +24,7 @@ class DocumentosService:
 
     @staticmethod
     @SessionController.inject_session_data
-    def save_file(documento: Documento, session: Session = None) -> None:
+    def save_file(documento: Documento, session: Session = None) -> str:
         if not os.path.exists(DocumentosService.__save_dir):
             os.makedirs(DocumentosService.__save_dir)
         salt = time.time_ns()
