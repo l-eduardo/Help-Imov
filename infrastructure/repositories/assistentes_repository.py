@@ -20,9 +20,14 @@ class AssistentesRepository:
 
     def get_by_id(self, id: UUID) -> Assistentes:
         with Connection() as connection:
-            return connection.session.query(Assistentes)\
+            result_user = connection.session.query(Assistentes)\
                 .filter(Assistentes.id == id)\
                 .first()
+            result_identity = connection.session.query(UsuariosIdentityInfos)\
+                .filter(UsuariosIdentityInfos.id == id)\
+                .first()
+            assistente_mapped = UsuariosInputMapper.map_assistente((result_user,result_identity))
+            return assistente_mapped
 
     def insert(self, assistente) -> Assistentes:
         with Connection() as connection:

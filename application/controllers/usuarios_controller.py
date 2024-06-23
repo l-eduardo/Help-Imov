@@ -1,3 +1,4 @@
+import uuid
 from presentation.views.usuario_view import UsuarioView
 from domain.models.administrador import Administrador
 from domain.models.assistente import Assistente
@@ -162,3 +163,10 @@ class UsuariosController:
     @property
     def todos_usuarios(self) -> list[Usuario]:
         return self.obter_usuarios_do_banco()
+    
+    def usuario_by_id(self, id) -> Usuario:
+        for usuario in self.obter_usuarios_do_banco():
+            if id == str(usuario.id):
+                return usuario
+        # Se não encontrar
+        return None

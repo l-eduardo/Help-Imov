@@ -20,9 +20,14 @@ class LocatariosRepository:
 
     def get_by_id(self, id: UUID) -> Locatarios:
         with Connection() as connection:
-            return connection.session.query(Locatarios)\
+            result_user = connection.session.query(Locatarios)\
                 .filter(Locatarios.id == id)\
                 .first()
+            result_identity = connection.session.query(UsuariosIdentityInfos)\
+                .filter(UsuariosIdentityInfos.id == id)\
+                .first()
+            locatarios_mapped = UsuariosInputMapper.map_locatario((result_user,result_identity))
+            return locatarios_mapped
 
     def insert(self, locatario: Locatarios) -> Locatarios:
         with Connection() as connection:

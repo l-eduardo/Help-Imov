@@ -8,9 +8,7 @@ class Mensagens(Base):
     __tablename__ = "MENSAGENS"
 
     id = Column(String(36), primary_key=True)
-    chat_id = Column(String(36), ForeignKey('CHATS.id'), name='chat_id')
-    chat = relationship('Chats', foreign_keys=[chat_id])
+    chat_id = Column(String(36), ForeignKey("CHATS.id"), nullable=False, name='chat_id')
     usuario_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), name='usuario_id')
-    usuario = relationship('UsuariosIdentityInfos', foreign_keys=[usuario_id])
     datetime = Column(String(36), name='datetime')
     mensagem = Column(String(500), name='mensagem')

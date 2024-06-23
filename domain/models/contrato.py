@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from domain.models.Imagem import Imagem
+from domain.models.chat import Chat
 from domain.models.documento import Documento
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
@@ -153,7 +154,8 @@ class Contrato:
                            imagens: List[Imagem] = None,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
-                           id: uuid.UUID = None) -> List[str]:
+                           chat: Chat = None,
+                           id: uuid.UUID = None):
 
         if id is None:
             id = uuid.uuid4()
@@ -167,6 +169,7 @@ class Contrato:
                                  criador_id=criador_id,
                                  data_criacao=data_criacao,
                                  prestador_id=prestador_id,
+                                 chat=chat,
                                  id=id)
 
         if nova_ocorrencia.e_valida():

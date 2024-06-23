@@ -19,8 +19,10 @@ class Ocorrencia(DomainModel):
                  imagens: List[Imagem] = None,
                  status: Status = Status.ABERTO,
                  data_criacao: date = None,
-                 id: uuid.UUID = None):
+                 id: uuid.UUID = None,
+                 chat: Chat = None):
         super().__init__()
+
         if id is None:
             id = uuid.uuid4()
         if data_criacao is None:
@@ -34,6 +36,7 @@ class Ocorrencia(DomainModel):
         self._data_criacao: date = data_criacao
         self._criador_id: uuid.UUID = criador_id
         self._prestador_id: uuid.UUID = prestador_id
+        self._chat: Chat = chat
 
     @property
     def criador_id(self) -> uuid.UUID:
@@ -87,8 +90,13 @@ class Ocorrencia(DomainModel):
     def imagens(self) -> List[Imagem]:
         return self._imagens
 
-    def incluir_chat(self, participantes):
-        return Chat(participantes = participantes, id = uuid.uuid4())
+    @property
+    def chat(self) -> Chat:
+        return self._chat
+
+
+    def incluir_chat(self):
+        return Chat()
 
     def e_valida(self) -> bool:
         if not self.__titulo_e_valido():

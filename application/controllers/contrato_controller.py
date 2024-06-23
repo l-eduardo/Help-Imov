@@ -1,11 +1,14 @@
 from datetime import datetime
 
+from application.controllers.chat_controller import ChatCrontroller
+from application.controllers.usuarios_controller import UsuariosController
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.Imagem import Imagem
 from domain.models.session import Session
 from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
 from infrastructure.repositories.chats_repository import ChatsRepository
+from infrastructure.repositories.user_identity_repository import UserIdentityRepository
 from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.components.validations_errors_popup import ValidationErrorsPopup
@@ -14,18 +17,22 @@ from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
 from presentation.views.vistoria_view import TelaVistoria
 from domain.models.contrato import Contrato
+from domain.models.contrato import Chat
 from domain.models.vistoria import Vistoria
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
 from infrastructure.repositories.solicitacoes_repository import SolicitacoesRepository
 from infrastructure.repositories.vistorias_repository import VistoriasRepository
 from infrastructure.mappers.ContratosOutput import ContratosOutputMapper
+
 import PySimpleGUI as sg
 
 
 class ContratoController:
     def __init__(self, main_controller):
         self.__main_controller = main_controller
+        self.__chat_controller = ChatCrontroller()
+        self.__usuario_controller = UsuariosController()
         self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
@@ -33,6 +40,7 @@ class ContratoController:
         self.__ocorrencia_repository: OcorrenciasRepository = OcorrenciasRepository()
         self.__prestadores_repository = PrestadoresServicosRepository()
         self.__solicitacao_repository = SolicitacoesRepository()
+        self.__user_identity_repository = UserIdentityRepository()
         self.__vistoria_repository = VistoriasRepository()
 
         self.__tela_contrato = TelaContrato(self)
@@ -42,14 +50,10 @@ class ContratoController:
         self.contratos = []
 
     def inclui_contrato(self):
-        #TODO Inclusao contrato
         while True:
             dados_contrato, locatario_selecionado = self.__tela_contrato.pega_dados_contrato()
             imovel = dados_contrato['imovel']
             data = dados_contrato['data_inicio']
-            print('data:',data)
-            print(imovel)
-            print(locatario_selecionado)
             if self.valida_campos_contrato(imovel, locatario_selecionado, data):
                 contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
                                     locatario=locatario_selecionado, estaAtivo=True)
@@ -58,40 +62,42 @@ class ContratoController:
                 break
         self.listar_contrato()
 
-    def listar_contrato(self):
-        while True:
-            self.contratos = self.obter_contratos_do_banco()
-            contrato_instancia = None
-            contratos_listados = self.contratos
-            event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
-            if event == "Visualizar":
-                if values["-TABELA-"]:
-                    contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                    self.selecionar_contrato(contrato_selecionado)
-                else:
-                    sg.popup("Nenhum contrato selecionado")
-            if event == "Adicionar":
-                self.inclui_contrato()
+    @SessionController.inject_session_data
+    def listar_contrato(self, session: Session=None):
+        contrato_instancia = None
+        self.contratos = self.obter_contratos_do_banco()
+        btn_visible_locatario = True
+        if session.user_role == "Locatario":
+            btn_visible_locatario = False
+        contratos_listados = []
+        for contrato in self.contratos:
+            if session.user_id == contrato.locatario.id:
+                if contrato.estaAtivo:
+                    contratos_listados.append(contrato)
+            if session.user_role in ["Administrador", "Assistente"]:
+                contratos_listados = self.obter_contratos_do_banco()
 
-            if event in (sg.WIN_CLOSED, "Voltar"):
-                self.__main_controller.abrir_tela_inicial()
-                break
-
-            if event == "Selecionar":
+        event, values, btn_visible_locatario = self.__tela_contrato.mostra_contratos(contratos_listados, btn_visible_locatario)
+        if event == "Visualizar":
+            if values["-TABELA-"]:
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                for contrato in self.contratos:
-                    if contrato_selecionado.id == contrato.id:
-                        contrato_instancia = contrato
-                        break
-                self.listar_relacionados_contrato(contrato_instancia)
-                return contrato_selecionado
+                self.selecionar_contrato(contrato_selecionado, btn_visible_locatario)
 
-    def selecionar_contrato(self, contrato_selecionado: Contrato):
-        contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado)
-        print('EEEEEEEEEEEEEE')
-        print(contrato)
-        print('AAAAAAAAAAAAAAA')
-        print(contrato.estaAtivo)
+            else:
+                sg.popup("Nenhum contrato selecionado")
+        if event == "Adicionar":
+            self.inclui_contrato()
+        if event == "Selecionar":
+            contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+            for contrato in self.contratos:
+                if contrato_selecionado.id == contrato.id:
+                    contrato_instancia = contrato
+                    break
+            self.listar_relacionados_contrato(contrato_instancia)
+            return contrato_selecionado
+
+    def selecionar_contrato(self, contrato_selecionado: Contrato, btn_visible_locatario):
+        contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado, btn_visible_locatario)
         self.__contratos_repository.update_contrato(contrato)
         self.listar_contrato()
 
@@ -150,11 +156,8 @@ class ContratoController:
                 if len(errors) > 0:
                     ValidationErrorsPopup.show_errors(errors)
 
-
-                    # self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
-                                                        # contrato_id=contrato_instancia.id)
-                    #novo_chat = nova_ocorrencia.incluir_chat([contrato_instancia.locatario])
-                    #self.__chat_repository.insert_chat(novo_chat, nova_ocorrencia)
+                    self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
+                                                        contrato_id=contrato_instancia.id)
 
         elif events == "add_solicitacao":
             while True:
@@ -197,7 +200,6 @@ class ContratoController:
                     sg.popup("Você não tem permissão para editar esta ocorrência")
 
                 elif mostra_ocorr_event == "editar_ocorrencia":
-
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
                         entidade["entity"])
                     titulo = editar_ocorr_values["titulo"]
@@ -210,11 +212,15 @@ class ContratoController:
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
                             entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
                             self.__ocorrencia_repository.update(entidade["entity"])
-                elif mostra_ocorr_event == "chat":
-                    pass # TODO colocar aqui o caminho para abrir o chat
 
-                elif mostra_ocorr_event == "chat":
-                    pass  # TODO colocar aqui o caminho para abrir o chat
+                elif mostra_ocorr_event == "Chat":
+                    chat = entidade["entity"].chat
+                    if not isinstance(chat, Chat):
+                        chat = entidade["entity"].incluir_chat()
+                        self.__chat_repository.insert_chat(chat)
+                    usuario_logado_id = session.user_id
+                    usuario_logado = self.__usuario_controller.usuario_by_id(usuario_logado_id)
+                    self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
 
             if entidade["tipo"] == "Solicitação":
                 while True:
@@ -231,8 +237,6 @@ class ContratoController:
                                     entidade["entity"].titulo = edit_solic_values["titulo"]
                                     entidade["entity"].descricao = edit_solic_values["descricao"]
                                     entidade["entity"].status = Status(edit_solic_values["status"])
-                                    print(entidade)
-                                    print(entidade["entity"])
                                     self.__solicitacao_repository.update(entidade["entity"])
                                 break
                     break

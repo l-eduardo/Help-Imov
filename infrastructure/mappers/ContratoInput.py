@@ -8,6 +8,7 @@ from domain.models.imovel import Imovel
 from domain.models.locatario import Locatario
 from domain.models.ocorrencia import Ocorrencia
 from domain.models.solicitacao import Solicitacao
+from infrastructure.mappers.ChatInput import ChatInputMapper
 from infrastructure.mappers.DocumentoInput import DocumentoInputMapper
 from infrastructure.mappers.ImagemInput import ImagemInputMapper
 from infrastructure.models.contratos import Contratos
@@ -47,7 +48,8 @@ class ContratoInputMapper:
                 imagens=ImagemInputMapper.bulk_map_imagens(ocorrencia.imagens),
                 data_criacao=ocorrencia.data_criacao,
                 prestador_id=ocorrencia.prestador_id,
-                id=UUID(ocorrencia.id))
+                id=UUID(ocorrencia.id),
+                chat = ChatInputMapper.map_chat(ocorrencia.chat) if ocorrencia.chat is not None else [])
 
         if contrato_from_db.vistoria_inicial is not None:
             contrato.incluir_vistoria(
