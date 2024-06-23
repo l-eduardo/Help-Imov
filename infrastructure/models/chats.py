@@ -7,5 +7,5 @@ class Chats(Base):
     __tablename__ = 'CHATS'
 
     id = Column(String(36), primary_key=True)
-    ocorrencia_id = Column(String(36), ForeignKey('OCORRENCIAS.id'),primary_key=True, name='ocorrencia_id')
+    ocorrencia_id = Column(String(36), ForeignKey('OCORRENCIAS.id'), name='ocorrencia_id')
     ocorrencia = relationship('Ocorrencias', uselist=False, cascade='all')

@@ -46,10 +46,6 @@ class ContratoController:
         while True:
             dados_contrato, locatario_selecionado = self.__tela_contrato.pega_dados_contrato()
             imovel = dados_contrato['imovel']
-            data = dados_contrato['data_inicio']
-            print('data:',data)
-            print(imovel)
-            print(locatario_selecionado)
             if self.valida_campos_contrato(imovel, locatario_selecionado, data):
                 contrato = Contrato(dataInicio=dados_contrato['data_inicio'], imovel=dados_contrato['imovel'],
                                     locatario=locatario_selecionado, estaAtivo=True)
