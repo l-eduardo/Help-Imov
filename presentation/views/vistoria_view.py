@@ -11,13 +11,13 @@ class TelaVistoria:
     def __layout_nova_vistoria(self):
         centrilizedButtons = [sg.Button("Registrar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
-        layout = [[sg.Text("Descrição")],
+        layout = [[sg.Text("Descrição *")],
                   [sg.Multiline(key="descricao", tooltip="Digite uma descrição...", size=(50, 10), no_scrollbar=True,
                                 expand_x=True)],
-                  [sg.Text("Imagens")],
+                  [sg.Text("Imagens *")],
                   [[sg.Input(key='imagens', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'),
                     sg.FilesBrowse(file_types=(('ALL Files', '*.png'),))]],
-                  [sg.Text("Documento")],
+                  [sg.Text("Documento *")],
                   [[sg.Input(key='documento', readonly=True, disabled_readonly_background_color='#ECECEC', disabled_readonly_text_color='#545454'),
                     sg.FilesBrowse(file_types=(('ALL Files', '*.pdf'),))]],
                   [sg.Column([centrilizedButtons], justification="center")]]
@@ -96,7 +96,7 @@ class TelaVistoria:
         centrilizedButtons = [sg.Button("Salvar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
 
         layout = [
-            [sg.Text("Descrição")],
+            [sg.Text("Descrição *")],
             [sg.Multiline(default_text=vistoria.descricao, key="descricao", tooltip="Digite uma descrição...",
                           size=(50, 10), no_scrollbar=True, expand_x=True)],
             [sg.Column([centrilizedButtons], justification="center")]
@@ -113,20 +113,26 @@ class TelaVistoria:
 
     def abrir_documento(self, caminho_documento):
         try:
-            if platform.system() == 'Darwin':       # macOS
+            if not os.path.isfile(caminho_documento):
+                raise FileNotFoundError(f"Arquivo não encontrado: {caminho_documento}")
+
+            if platform.system() == 'Darwin':  # macOS
                 teste = subprocess.call(('open', caminho_documento))
-            elif platform.system() == 'Windows':    # Windows
-                teste = os.startfile(caminho_documento)
-            else:                                   # linux variants
+            elif platform.system() == 'Windows':  # Windows
+                os.startfile(caminho_documento)
+            else:  # linux variants
                 teste = subprocess.call(('xdg-open', caminho_documento))
+
             if teste == 1:
                 raise ValueError("Não há programa padrão para abrir, abrindo diretório")
-        except:
-            caminho_documento = caminho_documento.replace(caminho_documento.split('/')[-1],"")
-            if platform.system() == 'Darwin':       # macOS
+
+        except FileNotFoundError as e:
+            print(e)
+            caminho_documento = os.path.dirname(caminho_documento)
+            if platform.system() == 'Darwin':  # macOS
                 teste = subprocess.call(('open', caminho_documento))
-            elif platform.system() == 'Windows':    # Windows
-                teste = os.startfile(caminho_documento)
-            else:                                   # linux variants
+            elif platform.system() == 'Windows':  # Windows
+                os.startfile(caminho_documento)
+            else:  # linux variants
                 teste = subprocess.call(('xdg-open', caminho_documento))
 
