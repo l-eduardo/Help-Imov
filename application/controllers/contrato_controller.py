@@ -29,10 +29,9 @@ import PySimpleGUI as sg
 
 
 class ContratoController:
-    def __init__(self, main_controller):
-        self.__main_controller = main_controller
+    def __init__(self, user_controller):
         self.__chat_controller = ChatCrontroller()
-        self.__usuario_controller = UsuariosController()
+        self.__usuario_controller = user_controller
         self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
@@ -95,6 +94,8 @@ class ContratoController:
                     break
             self.listar_relacionados_contrato(contrato_instancia)
             return contrato_selecionado
+        if event == "Voltar" or sg.WIN_CLOSED:
+            return 0
 
     def selecionar_contrato(self, contrato_selecionado: Contrato, btn_visible_locatario):
         contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado, btn_visible_locatario)
@@ -184,7 +185,7 @@ class ContratoController:
                 contrato_instancia.remover_solicitacao(entidade["entity"])
                 self.__solicitacao_repository.delete(entidade["entity"].id)
 
-        elif events == "-TABELA-DOUBLE-CLICK-":
+        elif events == "Selecionar":
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
             if entidade["tipo"] == "Ocorrência":
                 imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
@@ -211,6 +212,7 @@ class ContratoController:
                     if not isinstance(chat, Chat):
                         chat = entidade["entity"].incluir_chat()
                         self.__chat_repository.insert_chat(chat)
+                        self.__ocorrencia_repository.update(entidade["entity"])
 
                     usuario_logado_id = session.user_id
                     usuario_logado = self.__usuario_controller.usuario_by_id(usuario_logado_id)

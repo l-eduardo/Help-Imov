@@ -30,7 +30,8 @@ class OcorrenciasRepository:
                     "titulo": ocorrencia.titulo,
                     "descricao": ocorrencia.descricao,
                     "prestador_id": ocorrencia.prestador_id,
-                    "status": ocorrencia.status.name
+                    "status": ocorrencia.status.name,
+                    "chat_id": ocorrencia.chat.id
                 }
             )
             connection.session.commit()

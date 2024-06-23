@@ -96,7 +96,8 @@ class Ocorrencia(DomainModel):
 
 
     def incluir_chat(self):
-        return Chat()
+        self._chat = Chat()
+        return self._chat
 
     def e_valida(self) -> bool:
         if not self.__titulo_e_valido():
