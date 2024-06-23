@@ -23,8 +23,6 @@ class OcorrenciasRepository:
             connection.session.commit()
 
     def update(self, ocorrencia: Ocorrencia) -> Ocorrencia:
-        prestadores_servicos_repository = PrestadoresServicosRepository()
-        prestador_id = prestadores_servicos_repository.get_id_by_name(str(ocorrencia.prestador_id))
 
         with Connection() as connection:
             result = connection.session.query(Ocorrencias).filter(Ocorrencias.id == str(ocorrencia.id)).update(

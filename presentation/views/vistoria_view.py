@@ -123,8 +123,8 @@ class TelaVistoria:
             else:  # linux variants
                 teste = subprocess.call(('xdg-open', caminho_documento))
 
-            if teste == 1:
-                raise ValueError("Não há programa padrão para abrir, abrindo diretório")
+            #if teste == 1:
+                #raise ValueError("Não há programa padrão para abrir, abrindo diretório")
 
         except FileNotFoundError as e:
             print(e)
