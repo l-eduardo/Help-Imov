@@ -19,14 +19,15 @@ class AdministradoresRepository:
 
     def get_by_id(self, id: UUID):
         with Connection() as connection:
-            result = connection.session.query(Administradores)\
+            result_user = connection.session.query(Administradores)\
             .filter(Administradores.id == id)\
             .first()
+            result_identity = connection.session.query(UsuariosIdentityInfos)\
+                .filter(UsuariosIdentityInfos.id == id)\
+                .first()
+            administrador_mapped = UsuariosInputMapper.map_admnistrador((result_user,result_identity))
+            return administrador_mapped
 
-            if result is None:
-                return None
-
-            return result
 
     def insert(self, administrador: Administradores) -> Administradores:
         with Connection() as connection:

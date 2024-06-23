@@ -12,7 +12,7 @@ class MainController:
         self.__login_view = LoginView()
         self.__main_view = MainView()
         self.__session_controller = SessionController()
-        # self.__usuarios_controller = UsuariosController(self)
+        self.__usuarios_controller = UsuariosController()
         self.__contrato_controller = ContratoController(self)
         self.__imoveis_controller = ImoveisController(self)
         self.__main_window = None
@@ -47,7 +47,7 @@ class MainController:
                 break
             match event:
                 case "usuarios":
-                    pass  # self.__usuarios_controller.lista_usuarios()
+                    self.__usuarios_controller.lista_usuarios()
                 case "imoveis":
                     self.__imoveis_controller.listar_imoveis()
                 case "contratos":

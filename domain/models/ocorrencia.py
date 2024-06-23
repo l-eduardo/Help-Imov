@@ -18,7 +18,8 @@ class Ocorrencia:
                  imagens: List[Imagem] = None,
                  status: Status = Status.ABERTO,
                  data_criacao: date = None,
-                 id: uuid.UUID = None):
+                 id: uuid.UUID = None,
+                 chat: Chat = None):
         if id is None:
             id = uuid.uuid4()
         if data_criacao is None:
@@ -32,6 +33,7 @@ class Ocorrencia:
         self._data_criacao: date = data_criacao
         self._criador_id: uuid.UUID = criador_id
         self._prestador_id: uuid.UUID = prestador_id
+        self._chat: Chat = chat
 
     @property
     def criador_id(self) -> uuid.UUID:
@@ -85,9 +87,13 @@ class Ocorrencia:
     def imagens(self) -> List[Imagem]:
         return self._imagens
 
+    @property
+    def chat(self) -> Chat:
+        return self._chat
 
-    def incluir_chat(self, participantes):
-        return Chat(participantes = participantes, id = uuid.uuid4())
+
+    def incluir_chat(self):
+        return Chat()
 
     def e_valida(self) -> bool:
         return self.__titulo_e_valido() and \

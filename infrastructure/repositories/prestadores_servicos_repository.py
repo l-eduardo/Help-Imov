@@ -45,9 +45,14 @@ class PrestadoresServicosRepository:
 
     def get_by_id(self, id: UUID) -> PrestadoresServicos:
         with Connection() as connection:
-            return connection.session.query(PrestadoresServicos) \
+            result_user = connection.session.query(PrestadoresServicos) \
                 .filter(PrestadoresServicos.id == id) \
                 .first()
+            result_identity = connection.session.query(UsuariosIdentityInfos)\
+                .filter(UsuariosIdentityInfos.id == id)\
+                .first()
+            prestador_servico_mapped = UsuariosInputMapper.map_prestadorServico((result_user,result_identity))
+            return prestador_servico_mapped
 
     def insert(self, assist) -> PrestadoresServicos:
         with Connection() as connection:

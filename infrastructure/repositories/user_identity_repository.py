@@ -2,6 +2,10 @@ from uuid import UUID
 from application.interfaces.UserRepository import UserRepository
 from infrastructure.configs.connection import Connection
 from infrastructure.models.usuarios_identity_infos import UsuariosIdentityInfos
+from infrastructure.repositories.administradores_repository import AdministradoresRepository
+from infrastructure.repositories.assistentes_repository import AssistentesRepository
+from infrastructure.repositories.locatarios_repository import LocatariosRepository
+from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
 from infrastructure.repositories.sql.pure_sql_queries import PureSqlQueries
 
 class UserIdentityRepository(UserRepository):
@@ -12,7 +16,12 @@ class UserIdentityRepository(UserRepository):
                 .first() != None
 
     def get_user(self, user_id: UUID):
-        raise NotImplementedError
+        role = self.check_user_table(user_id)
+        repository = {'Administrador': AdministradoresRepository().get_by_id,
+                      'Assistente': AssistentesRepository().get_by_id,
+                      'Locatario': LocatariosRepository().get_by_id,
+                      'Prestador_servico': PrestadoresServicosRepository().get_by_id}
+        return repository[role](user_id)
 
     def check_user_table(self, id: UUID):
         with Connection() as connection:

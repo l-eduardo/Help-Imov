@@ -1,11 +1,14 @@
 from datetime import datetime
 
+from application.controllers.chat_controller import ChatCrontroller
+from application.controllers.usuarios_controller import UsuariosController
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.Imagem import Imagem
 from domain.models.session import Session
 from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
 from infrastructure.repositories.chats_repository import ChatsRepository
+from infrastructure.repositories.user_identity_repository import UserIdentityRepository
 from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.contrato_view import TelaContrato
@@ -13,18 +16,22 @@ from presentation.views.ocorrencia_view import OcorrenciaView
 from presentation.views.solicitacao_view import SolicitacaoView
 from presentation.views.vistoria_view import TelaVistoria
 from domain.models.contrato import Contrato
+from domain.models.contrato import Chat
 from domain.models.vistoria import Vistoria
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
 from infrastructure.repositories.solicitacoes_repository import SolicitacoesRepository
 from infrastructure.repositories.vistorias_repository import VistoriasRepository
 from infrastructure.mappers.ContratosOutput import ContratosOutputMapper
+
 import PySimpleGUI as sg
 
 
 class ContratoController:
     def __init__(self, main_controller):
         self.__main_controller = main_controller
+        self.__chat_controller = ChatCrontroller()
+        self.__usuario_controller = UsuariosController()
         self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
@@ -32,6 +39,7 @@ class ContratoController:
         self.__ocorrencia_repository: OcorrenciasRepository = OcorrenciasRepository()
         self.__prestadores_repository = PrestadoresServicosRepository()
         self.__solicitacao_repository = SolicitacoesRepository()
+        self.__user_identity_repository = UserIdentityRepository()
         self.__vistoria_repository = VistoriasRepository()
 
         self.__tela_contrato = TelaContrato(self)
@@ -151,8 +159,6 @@ class ContratoController:
 
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                         contrato_id=contrato_instancia.id)
-                    #novo_chat = nova_ocorrencia.incluir_chat([contrato_instancia.locatario])
-                    #self.__chat_repository.insert_chat(novo_chat, nova_ocorrencia)
 
         elif events == "add_solicitacao":
             while True:
@@ -208,11 +214,15 @@ class ContratoController:
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
                             entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
                             self.__ocorrencia_repository.update(entidade["entity"])
-                elif mostra_ocorr_event == "chat":
-                    pass # TODO colocar aqui o caminho para abrir o chat
 
-                elif mostra_ocorr_event == "chat":
-                    pass  # TODO colocar aqui o caminho para abrir o chat
+                elif mostra_ocorr_event == "Chat":
+                    chat = entidade["entity"].chat
+                    if not isinstance(chat, Chat):
+                        chat = entidade["entity"].incluir_chat()
+                        self.__chat_repository.insert_chat(chat)
+                    usuario_logado_id = session.user_id
+                    usuario_logado = self.__usuario_controller.usuario_by_id(usuario_logado_id)
+                    self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
 
             if entidade["tipo"] == "Solicitação":
                 while True:

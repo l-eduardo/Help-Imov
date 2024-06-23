@@ -1,10 +1,11 @@
 import PySimpleGUI as sg
 from datetime import datetime
 from domain.models.usuario import Usuario
+from domain.models.chat import Chat
 
 
 class ChatView:
-    def mostra_chat(self, usuario_logado: Usuario, mensagens_from_db: list[tuple]):
+    def mostra_chat(self, usuario_logado: Usuario, chat: Chat):
         layout = [
             [sg.Multiline(size=(160, 40), disabled=True, key='-CHAT-')],
             [sg.Multiline(size=(150, 5), key='-MENSAGEM-'),
@@ -17,12 +18,11 @@ class ChatView:
         window = sg.Window("Chat de Ocorrência", layout, finalize=True)
 
         # Popula o chat com mensagens do DB
-        for mensagem in mensagens_from_db:
-            datetime_from_db = datetime.strptime(mensagem[2], "%Y-%m-%d %H:%M:%S")
+        for mensagem in chat.mensagens:
+            datetime_from_db = datetime.strptime(mensagem.datetime, "%Y-%m-%d %H:%M:%S")
             mensagem_datetime = datetime_from_db.strftime("%d/%m/%Y %H:%M:%S")
-            window['-CHAT-'].print(f"{mensagem[0]} [{mensagem_datetime}]:", text_color="DarkBlue", font='bold')
-            window['-CHAT-'].print(f"\n{mensagem[1]}\n" + "_"*126, font='bold')
-        
+            window['-CHAT-'].print(f"{mensagem.usuario.nome} [{mensagem_datetime}]:", text_color="DarkBlue", font='bold')
+            window['-CHAT-'].print(f"\n{mensagem.mensagem}\n" + "_"*126, font='bold')
         mensagens_novas = []
         while True:
             event, values = window.read(timeout=100)
@@ -39,7 +39,9 @@ class ChatView:
                 window['-CHAT-'].print(f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:", 
                                        text_color="DarkBlue", font='bold')
                 window['-CHAT-'].print(f"\n{values['-MENSAGEM-']}\n" + "_"*126, font='bold')
-                mensagens_novas.append((usuario_logado.nome, values['-MENSAGEM-'], datetime_atual.strftime("%Y-%m-%d %H:%M:%S")))
+                mensagens_novas.append({'usuario': usuario_logado,
+                                        'mensagem': values['-MENSAGEM-'],
+                                        'datetime': datetime_atual.strftime("%Y-%m-%d %H:%M:%S")})
                 window['-MENSAGEM-'].update("")
                 window['-CHAR_COUNT-'].update("0/500")
 
@@ -54,10 +56,3 @@ class ChatView:
 
         window.close()
         return mensagens_novas
-
-
-# messages = [("user1", "Bla bla bla", "2010-01-01 10:20:30"), ("user2", "Mu Mu mu", "2012-05-20 15:15:15"), ("user3", "gla gla", "2014-04-01 20:45:01")]
-
-# chat = ChatView()
-# messages += chat.mostra_chat("ehobraia", messages)
-# chat.mostra_chat("ehobraia", messages)
