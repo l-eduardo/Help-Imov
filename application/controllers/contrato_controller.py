@@ -109,26 +109,31 @@ class ContratoController:
         return [contrato.id for contrato in self.contratos]
 
     @SessionController.inject_session_data
-    def listar_relacionados_contrato(self, contrato_instancia: Contrato, session: Session=None):
+    def listar_relacionados_contrato(self, contrato_instancia: Contrato, session: Session = None):
         if contrato_instancia is None:
             self.__tela_contrato.mostra_msg("Nenhum contrato selecionado")
             return
 
         ocorrencias_para_tela = []
-
         for ocorrencia in contrato_instancia.ocorrencias:
-            ocorrencias_para_tela.append({"tipo": "Ocorrência",
-                                          "titulo": ocorrencia.titulo,
-                                          "status": ocorrencia.status.value,
-                                          "dataCriacao": ocorrencia.data_criacao,
-                                          "prestador_id": ocorrencia.prestador_id,
-                                          "entity": ocorrencia})
+            ocorrencias_para_tela.append({
+                "tipo": "Ocorrência",
+                "titulo": ocorrencia.titulo,
+                "status": ocorrencia.status.value,
+                "dataCriacao": ocorrencia.data_criacao,
+                "prestador_id": ocorrencia.prestador_id,
+                "entity": ocorrencia
+            })
 
         solicitacoes_para_tela = []
         for solicitacao in contrato_instancia.solicitacoes:
-            solicitacoes_para_tela.append({"tipo": "Solicitação", "titulo": solicitacao.titulo,
-                                           "status": solicitacao.status.value, "dataCriacao": solicitacao.data_criacao,
-                                           "entity": solicitacao})
+            solicitacoes_para_tela.append({
+                "tipo": "Solicitação",
+                "titulo": solicitacao.titulo,
+                "status": solicitacao.status.value,
+                "dataCriacao": solicitacao.data_criacao,
+                "entity": solicitacao
+            })
 
         solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
@@ -144,15 +149,14 @@ class ContratoController:
             event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
             if event == "Salvar":
                 imagens = ImagensService.bulk_read(values['imagens'])
-
-                errors = contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
-                                                                   session.user_id, imagens=imagens, prestador_id=None)
+                errors = contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"], session.user_id,
+                                                               imagens=imagens, prestador_id=None)
 
                 if len(errors) > 0:
                     ValidationErrorsPopup.show_errors(errors)
                 else:
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
-                                                    contrato_id=contrato_instancia.id)
+                                                        contrato_id=contrato_instancia.id)
 
         elif events == "add_solicitacao":
             while True:
@@ -171,41 +175,35 @@ class ContratoController:
 
         elif events == "Excluir" and values["-TABELA-"] is not None:
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
-
             if entidade["entity"].criador_id != session.user_id:
                 self.__ocorrencia_view.mostra_popup("Você não tem permissão para excluir esta ocorrência/solicitacao")
-
             elif entidade["tipo"] == "Ocorrência":
                 contrato_instancia.remover_ocorrencia(entidade["entity"])
                 self.__ocorrencia_repository.delete(entidade["entity"].id)
-
             elif entidade["tipo"] == "Solicitação":
                 contrato_instancia.remover_solicitacao(entidade["entity"])
                 self.__solicitacao_repository.delete(entidade["entity"].id)
 
         elif events == "-TABELA-DOUBLE-CLICK-":
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
-
             if entidade["tipo"] == "Ocorrência":
                 imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
                 mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
-                                                                                    dirs=imagens_dir)
-
+                                                                dirs=imagens_dir)
                 if entidade["entity"].criador_id != session.user_id:
                     sg.popup("Você não tem permissão para editar esta ocorrência")
-
                 elif mostra_ocorr_event == "editar_ocorrencia":
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
                         entidade["entity"])
-                    titulo = editar_ocorr_values["titulo"]
-                    descricao = editar_ocorr_values["descricao"]
-
                     if editar_ocorr_events == "confirmar_edicao":
+                        titulo = editar_ocorr_values["titulo"]
+                        descricao = editar_ocorr_values["descricao"]
+                        prestador_id = editar_ocorr_values.get("prestadores")
                         if self.validar_campos_entidade(titulo, descricao):
                             entidade["entity"].titulo = editar_ocorr_values["titulo"]
                             entidade["entity"].descricao = editar_ocorr_values["descricao"]
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
-                            entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
+                            entidade["entity"].prestador_id = prestador_id
                             self.__ocorrencia_repository.update(entidade["entity"])
 
                 elif mostra_ocorr_event == "Chat":
@@ -213,6 +211,7 @@ class ContratoController:
                     if not isinstance(chat, Chat):
                         chat = entidade["entity"].incluir_chat()
                         self.__chat_repository.insert_chat(chat)
+
                     usuario_logado_id = session.user_id
                     usuario_logado = self.__usuario_controller.usuario_by_id(usuario_logado_id)
                     self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
@@ -309,7 +308,6 @@ class ContratoController:
                     if criar_contra_vistoria == "Criar":
                             self.incluir_vistoria(contrato_instancia, e_contestacao = True)
 
-
         elif events == "Voltar":
             ImagensService.flush_temp_images()
             self.listar_contrato()
@@ -345,8 +343,6 @@ class ContratoController:
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
         if event == "Salvar":
             vistoria.descricao = values["descricao"]
-            # vistoria.imagens = [Imagem(caminho=img_path) for img_path in values["imagens"].split(";")]
-            # vistoria.documento = values["documento"]
             self.__vistoria_repository.update(vistoria)
             sg.popup("Vistoria atualizada com sucesso", title="Sucesso")
         elif event == "Cancelar":
