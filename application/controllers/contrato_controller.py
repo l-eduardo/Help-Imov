@@ -43,7 +43,6 @@ class ContratoController:
 
 
     def inclui_contrato(self):
-        #TODO Inclusao contrato
         while True:
             dados_contrato, locatario_selecionado = self.__tela_contrato.pega_dados_contrato()
             imovel = dados_contrato['imovel']
@@ -59,40 +58,42 @@ class ContratoController:
                 break
         self.listar_contrato()
 
-    def listar_contrato(self):
-        while True:
-            self.contratos = self.obter_contratos_do_banco()
-            contrato_instancia = None
-            contratos_listados = self.contratos
-            event, values = self.__tela_contrato.mostra_contratos(contratos_listados)
-            if event == "Visualizar":
-                if values["-TABELA-"]:
-                    contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                    self.selecionar_contrato(contrato_selecionado)
-                else:
-                    sg.popup("Nenhum contrato selecionado")
-            if event == "Adicionar":
-                self.inclui_contrato()
+    @SessionController.inject_session_data
+    def listar_contrato(self, session: Session=None):
+        contrato_instancia = None
+        self.contratos = self.obter_contratos_do_banco()
+        btn_visible_locatario = True
+        if session.user_role == "Locatario":
+            btn_visible_locatario = False
+        contratos_listados = []
+        for contrato in self.contratos:
+            if session.user_id == contrato.locatario.id:
+                if contrato.estaAtivo:
+                    contratos_listados.append(contrato)
+            if session.user_role in ["Administrador", "Assistente"]:
+                contratos_listados = self.obter_contratos_do_banco()
 
-            if event in (sg.WIN_CLOSED, "Voltar"):
-                self.__main_controller.abrir_tela_inicial()
-                break
-
-            if event == "Selecionar":
+        event, values, btn_visible_locatario = self.__tela_contrato.mostra_contratos(contratos_listados, btn_visible_locatario)
+        if event == "Visualizar":
+            if values["-TABELA-"]:
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                for contrato in self.contratos:
-                    if contrato_selecionado.id == contrato.id:
-                        contrato_instancia = contrato
-                        break
-                self.listar_relacionados_contrato(contrato_instancia)
-                return contrato_selecionado
+                self.selecionar_contrato(contrato_selecionado, btn_visible_locatario)
 
-    def selecionar_contrato(self, contrato_selecionado: Contrato):
-        contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado)
-        print('EEEEEEEEEEEEEE')
-        print(contrato)
-        print('AAAAAAAAAAAAAAA')
-        print(contrato.estaAtivo)
+            else:
+                sg.popup("Nenhum contrato selecionado")
+        if event == "Adicionar":
+            self.inclui_contrato()
+        if event == "Selecionar":
+            contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+            for contrato in self.contratos:
+                if contrato_selecionado.id == contrato.id:
+                    contrato_instancia = contrato
+                    break
+            self.listar_relacionados_contrato(contrato_instancia)
+            return contrato_selecionado
+
+    def selecionar_contrato(self, contrato_selecionado: Contrato, btn_visible_locatario):
+        contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado, btn_visible_locatario)
         self.__contratos_repository.update_contrato(contrato)
         self.listar_contrato()
 
@@ -195,7 +196,6 @@ class ContratoController:
                     sg.popup("Você não tem permissão para editar esta ocorrência")
 
                 elif mostra_ocorr_event == "editar_ocorrencia":
-
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
                         entidade["entity"])
                     titulo = editar_ocorr_values["titulo"]
@@ -229,8 +229,6 @@ class ContratoController:
                                     entidade["entity"].titulo = edit_solic_values["titulo"]
                                     entidade["entity"].descricao = edit_solic_values["descricao"]
                                     entidade["entity"].status = Status(edit_solic_values["status"])
-                                    print(entidade)
-                                    print(entidade["entity"])
                                     self.__solicitacao_repository.update(entidade["entity"])
                                 break
                     break
