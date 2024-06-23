@@ -110,7 +110,7 @@ class Ocorrencia(DomainModel):
         if not self.__criador_id_e_valido():
             self.add_validation_error('Criador é obrigatório')
         if not self.__imagens_sao_validas():
-            self.add_validation_error('Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!')
+            self.add_validation_error('Imagens inválidas. Por favor, selecione somente imagens com resolucao entre 1280x720 e 1820x1280 pixels!')
 
         return len(self.get_validation_errors()) == 0
 

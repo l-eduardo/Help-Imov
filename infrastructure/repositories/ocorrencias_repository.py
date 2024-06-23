@@ -37,12 +37,8 @@ class OcorrenciasRepository:
             )
             connection.session.commit()
             return ocorrencia
-    
+
     def get_by_id(self, id_ocorrencia):
         with Connection() as connection:
             result = connection.session.query(Ocorrencias).filter(Ocorrencias.id == str(id_ocorrencia)).first()
             return result
-
-rep = OcorrenciasRepository()
-rep.get_by_id(UUID('0b72d84e-2b01-4448-8ca1-31e1ced8a00d'))
-
