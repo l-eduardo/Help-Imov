@@ -11,8 +11,7 @@ class OcorrenciaOutputMapper:
     def map_ocorrencia(ocorrencia_from_domain: 'Ocorrencia', contrato_id: uuid.UUID) -> 'Ocorrencias':
         imagens = []
         for imagem in ocorrencia_from_domain.imagens:
-            imagens.append(ImagemOutputMapper.map(imagem,
-                                                  ocorrencia_id=ocorrencia_from_domain.id))
+            imagens.append(ImagemOutputMapper.map(imagem, ocorrencia_id=ocorrencia_from_domain.id))
 
         ocorrencia_to_db = Ocorrencias()
         ocorrencia_to_db.id = str(ocorrencia_from_domain.id)
@@ -23,5 +22,7 @@ class OcorrenciaOutputMapper:
         ocorrencia_to_db.imagens = imagens
         ocorrencia_to_db.contrato_id = contrato_id
         ocorrencia_to_db.criador_id = ocorrencia_from_domain.criador_id
+        ocorrencia_to_db.prestador_id = ocorrencia_from_domain.prestador_id if ocorrencia_from_domain.prestador_id else None
+
 
         return ocorrencia_to_db
