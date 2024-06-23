@@ -149,17 +149,16 @@ class Contrato:
                            titulo: str,
                            descricao: str,
                            criador_id: uuid.UUID,
-                           prestador_id: uuid.UUID or None,
+                           prestador_id: uuid.UUID | None,
                            imagens: List[Imagem] = None,
                            status: Status = Status.ABERTO,
                            data_criacao: date = None,
-                           id: uuid.UUID = None):
+                           id: uuid.UUID = None) -> List[str]:
 
         if id is None:
             id = uuid.uuid4()
         if data_criacao is None:
             data_criacao = date.today()
-        imagens = [imagem for imagem in imagens if imagem.e_valida()]
 
         nova_ocorrencia = Ocorrencia(titulo=titulo,
                                  descricao=descricao,
@@ -170,7 +169,11 @@ class Contrato:
                                  prestador_id=prestador_id,
                                  id=id)
 
-        self._ocorrencias.append(nova_ocorrencia)
+        if nova_ocorrencia.e_valida():
+            self._ocorrencias.append(nova_ocorrencia)
+            return []
+
+        return nova_ocorrencia.get_validation_errors()
 
 
     def incluir_vistoria(self,

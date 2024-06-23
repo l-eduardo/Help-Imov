@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING
 from domain.enums.status import Status
 from domain.models.Imagem import Imagem
 from domain.models.chat import Chat
+from domain.models.domain_model import DomainModel
 if TYPE_CHECKING:
     from domain.models.prestador_servico import PrestadorServico
 
 
-class Ocorrencia:
+class Ocorrencia(DomainModel):
     def __init__(self,
                  titulo: str,
                  descricao: str,
@@ -19,6 +20,7 @@ class Ocorrencia:
                  status: Status = Status.ABERTO,
                  data_criacao: date = None,
                  id: uuid.UUID = None):
+        super().__init__()
         if id is None:
             id = uuid.uuid4()
         if data_criacao is None:
@@ -85,17 +87,25 @@ class Ocorrencia:
     def imagens(self) -> List[Imagem]:
         return self._imagens
 
-
     def incluir_chat(self, participantes):
         return Chat(participantes = participantes, id = uuid.uuid4())
 
     def e_valida(self) -> bool:
-        return self.__titulo_e_valido() and \
-               self.__descricao_e_valido() and \
-               self.__status_e_valido() and \
-               self.__data_criacao_e_valido() and \
-               self.__criador_id_e_valido() and \
-                self.__imagens_sao_validas()
+        if not self.__titulo_e_valido():
+            self.add_validation_error('Título é obrigatório')
+        if not self.__descricao_e_valido():
+            self.add_validation_error('Descrição é obrigatória')
+        if not self.__status_e_valido():
+            self.add_validation_error('Status é obrigatório')
+        if not self.__data_criacao_e_valido():
+            self.add_validation_error('Data de criação é obrigatória e deve ser anterior a data atual')
+        if not self.__criador_id_e_valido():
+            self.add_validation_error('Criador é obrigatório')
+        if not self.__imagens_sao_validas():
+            self.add_validation_error('Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!')
+
+        return len(self.get_validation_errors()) == 0
+
 
     def __titulo_e_valido(self) -> bool:
         return self._titulo is not None and len(self._titulo) > 0
@@ -107,12 +117,10 @@ class Ocorrencia:
         return self._status is not None
 
     def __data_criacao_e_valido(self) -> bool:
-        return self._data_criacao is not None and self._data_criacao < date.today()
+        return self._data_criacao is not None and self._data_criacao <= date.today()
 
     def __criador_id_e_valido(self) -> bool:
         return self._criador_id is not None
 
     def __imagens_sao_validas(self) -> bool:
         return self._imagens is not None and all([imagem.e_valida() for imagem in self._imagens])
-
-
