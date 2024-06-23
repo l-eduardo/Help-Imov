@@ -93,7 +93,8 @@ class Ocorrencia:
 
 
     def incluir_chat(self):
-        return Chat()
+        self._chat = Chat()
+        return self._chat
 
     def e_valida(self) -> bool:
         return self.__titulo_e_valido() and \

@@ -13,7 +13,7 @@ class MainController:
         self.__main_view = MainView()
         self.__session_controller = SessionController()
         self.__usuarios_controller = UsuariosController()
-        self.__contrato_controller = ContratoController(self)
+        self.__contrato_controller = ContratoController(self.__usuarios_controller)
         self.__imoveis_controller = ImoveisController(self)
         self.__main_window = None
 
