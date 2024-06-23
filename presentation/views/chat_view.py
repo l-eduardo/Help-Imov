@@ -39,10 +39,20 @@ class ChatView:
                 break
 
             if event == '-IMAGEM-':
+                datetime_atual = datetime.now()
                 event_imagem, values_imagem = self.pega_imagem()
                 print(event_imagem)
                 print(values_imagem["imagens"])
                 imagens_novas += values_imagem["imagens"].split(";")
+                window['-CHAT-'].print(f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:",
+                                       text_color="DarkBlue", font='bold')
+                imagens_to_view += imagens_novas
+                window['-CHAT-'].print(f"\nAdiciou um novo anexo \n" + "_" * 126, font='bold')
+                mensagens_novas.append({'usuario': usuario_logado,
+                                        'mensagem': 'Adiciou um novo anexo',
+                                        'datetime': datetime_atual.strftime("%Y-%m-%d %H:%M:%S")})
+
+
 
             if event == '-ANEXOS-':
                 print(chat.imagens)
