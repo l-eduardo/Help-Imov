@@ -144,20 +144,15 @@ class ContratoController:
             event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
             if event == "Salvar":
                 imagens = ImagensService.bulk_read(values['imagens'])
-                # imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
-                # if imagens_invalidas and len(imagens_invalidas):
-                #     self.__ocorrencia_view.mostra_popup("Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
-
-                # else:
                 errors = contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
                                                                    session.user_id, imagens=imagens, prestador_id=None)
 
                 if len(errors) > 0:
                     ValidationErrorsPopup.show_errors(errors)
-
+                else:
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
-                                                        contrato_id=contrato_instancia.id)
+                                                    contrato_id=contrato_instancia.id)
 
         elif events == "add_solicitacao":
             while True:
