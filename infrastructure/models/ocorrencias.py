@@ -19,6 +19,7 @@ class Ocorrencias(Base):
     contrato_id = Column(String(36), ForeignKey('CONTRATOS.id'), name='id_contrato')
     criador_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), name='criador_id')
     prestador_id = Column(String(36), ForeignKey('PRESTADORES_SERVICOS.id'), name='prestador_id')
-
+    chat_id = Column(String(36), ForeignKey('CHATS.id', ondelete='SET NULL'), name='chat_id')
+    chat = relationship('Chats', foreign_keys=[chat_id])
 
     imagens = relationship('Imagens', cascade='all, delete-orphan')

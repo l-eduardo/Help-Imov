@@ -77,7 +77,7 @@ class OcorrenciaView:
         return event, values
 
     def __show_details_layout(self, ocorrencia: 'Ocorrencia', dirs: List[str]):
-        centrilizedButtons = [sg.Button("Editar", key="editar_ocorrencia"), sg.Button("Voltar")]
+        centrilizedButtons = [sg.Button("Voltar"), sg.Button("Editar", key="editar_ocorrencia"), sg.Button("Chat")]
         prestador_nome = self.prestadores_repository.get_name_by_id(
             ocorrencia.prestador_id) if ocorrencia.prestador_id else 'Nenhum'
 

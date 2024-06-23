@@ -23,7 +23,7 @@ class Contratos(Base):
     imovel = relationship('Imoveis', foreign_keys=[imovel_id])
 
     locatario_id = Column(String(36), ForeignKey('LOCATARIOS.id'), name='locatario_id')
-    locatario = relationship('Locatarios', back_populates='contratos')
+    locatario = relationship('Locatarios')
 
     solicitacoes = relationship('Solicitacoes', cascade='all, delete-orphan')
 

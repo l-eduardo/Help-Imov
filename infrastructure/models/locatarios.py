@@ -15,5 +15,4 @@ class Locatarios(Base):
     celular = Column(String(50), nullable=False, name='celular')
     user_identity = relationship('UsuariosIdentityInfos')
 
-    contratos = relationship('Contratos', back_populates='locatario', cascade='all, delete-orphan')
-
+    relationship('Contratos', back_populates='locatario', cascade='all, delete-orphan')
