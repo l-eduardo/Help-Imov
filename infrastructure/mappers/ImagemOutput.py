@@ -1,5 +1,5 @@
 from sqlalchemy import UUID
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 from infrastructure.models.imagens import Imagens
 
 
@@ -8,6 +8,7 @@ class ImagemOutputMapper:
     def map(image_to_output: 'Imagem',
             vistoria_id: UUID | None = None,
             ocorrencia_id: UUID | None = None,
+            chat_id: UUID | None = None,
             imovel_id: UUID | None = None) -> 'Imagens':
 
         imagem = Imagens()
@@ -19,6 +20,7 @@ class ImagemOutputMapper:
         imagem.id_vistoria = vistoria_id
         imagem.id_ocorrencia = ocorrencia_id
         imagem.id_imovel = imovel_id
+        imagem.id_chat = chat_id
         imagem.id = image_to_output.id
 
         return imagem

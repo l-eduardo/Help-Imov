@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 from domain.models.chat import Chat
 from domain.models.documento import Documento
 from domain.models.ocorrencia import Ocorrencia

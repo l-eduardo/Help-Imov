@@ -5,7 +5,7 @@ import imageio.v3 as iio
 import numpy as np
 
 from application.controllers.session_controller import SessionController
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 from domain.models.session import Session
 import os
 

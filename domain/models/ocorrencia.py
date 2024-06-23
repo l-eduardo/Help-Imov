@@ -3,7 +3,7 @@ from typing import List
 import uuid
 from typing import TYPE_CHECKING
 from domain.enums.status import Status
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 from domain.models.chat import Chat
 from domain.models.domain_model import DomainModel
 if TYPE_CHECKING:

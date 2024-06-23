@@ -1,5 +1,6 @@
 from uuid import UUID
 from domain.models.mensagem import Mensagem
+from infrastructure.mappers.ImagemInput import ImagemInputMapper
 from infrastructure.models.chats import Chats
 from infrastructure.models.mensagens import Mensagens
 from infrastructure.repositories.user_identity_repository import UserIdentityRepository
@@ -10,7 +11,7 @@ class MensagemInputMapper:
     def map_chat(mensagem: Mensagens):
             mensagem = Mensagem(id=mensagem.id,
                         usuario=UserIdentityRepository().get_user(user_id=mensagem.usuario_id),
-                        mensagem=mensagem.mensagem, 
+                        mensagem=mensagem.mensagem,
                         datetime=mensagem.datetime)
             return mensagem
 
@@ -19,5 +20,6 @@ class ChatInputMapper:
     def map_chat(chat: Chats):
             lista_mensagens = [MensagemInputMapper.map_chat(mensagem) for mensagem in chat.mensagens]
             chat = Chat(id=chat.id,
-                 mensagens=lista_mensagens)
+                        imagens=ImagemInputMapper.bulk_map_imagens(chat.imagens),
+                        mensagens=lista_mensagens)
             return chat

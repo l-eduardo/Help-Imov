@@ -4,7 +4,7 @@ from application.controllers.chat_controller import ChatCrontroller
 from application.controllers.usuarios_controller import UsuariosController
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 from domain.models.session import Session
 from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
 from infrastructure.repositories.chats_repository import ChatsRepository

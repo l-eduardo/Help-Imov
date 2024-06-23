@@ -1,4 +1,4 @@
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 from infrastructure.models.imagens import Imagens
 
 
