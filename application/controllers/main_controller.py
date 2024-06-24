@@ -1,4 +1,6 @@
+from application.controllers.relatorio_controller import RelatorioController
 from application.controllers.session_controller import SessionController
+from domain.models.session import Session
 from infrastructure.repositories.contratos_repository import ContratosRepositories
 from presentation.views.login_view import LoginView
 from presentation.views.main_view import MainView
@@ -15,7 +17,7 @@ class MainController:
         self.__usuarios_controller = UsuariosController()
         self.__contrato_controller = ContratoController(self)
         self.__imoveis_controller = ImoveisController(self)
-        self.__main_window = None
+        self.__relatorio_controller = RelatorioController()
 
     @property
     def contrato_controller(self):
@@ -40,11 +42,11 @@ class MainController:
         self.__session_controller.get_new_session(id)
         pass
 
-    def abrir_tela_inicial(self):
+    @SessionController.inject_session_data
+    def abrir_tela_inicial(self, session: Session=None):
         while True:
-            event, values = self.__main_view.tela_inicial()
-            if event == "Voltar":
-                break
+            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or session.user_role == "Assistente")
+
             match event:
                 case "usuarios":
                     self.__usuarios_controller.lista_usuarios()
@@ -52,3 +54,7 @@ class MainController:
                     self.__imoveis_controller.listar_imoveis()
                 case "contratos":
                     self.__contrato_controller.listar_contrato()
+                case "relatorios":
+                    self.__relatorio_controller.menu_relatorios()
+                case _:
+                    self.run()

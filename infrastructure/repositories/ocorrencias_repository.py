@@ -42,3 +42,8 @@ class OcorrenciasRepository:
         with Connection() as connection:
             result = connection.session.query(Ocorrencias).filter(Ocorrencias.id == str(id_ocorrencia)).first()
             return result
+
+    def get_all(self):
+        with Connection() as connection:
+            result = connection.session.query(Ocorrencias).all()
+            return result

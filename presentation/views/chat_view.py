@@ -10,7 +10,7 @@ class ChatView:
             [sg.Multiline(size=(160, 40), disabled=True, key='-CHAT-')],
             [sg.Multiline(size=(150, 5), key='-MENSAGEM-'),
              sg.Button('Enviar', key="-ENVIAR-")],
-            [sg.Button('Anexar Imagem', key="-IMAGEM-"), 
+            [sg.Button('Anexar Imagem', key="-IMAGEM-"),
              sg.Button('Anexar Documento', key="-DOCUMENTO-"),
              sg.Button('Sair', key="-SAIR-"),
              sg.Text("0/500", key='-CHAR_COUNT-')]
@@ -36,7 +36,7 @@ class ChatView:
                 if len(values['-MENSAGEM-']) > 500:
                     values['-MENSAGEM-'] = values['-MENSAGEM-'][:500]
                     sg.popup("Uma mensagem é limitada a 500 caracteres! Só foram enviados os primeiros 500 caracteres ao chat")
-                window['-CHAT-'].print(f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:", 
+                window['-CHAT-'].print(f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:",
                                        text_color="DarkBlue", font='bold')
                 window['-CHAT-'].print(f"\n{values['-MENSAGEM-']}\n" + "_"*126, font='bold')
                 mensagens_novas.append({'usuario': usuario_logado,
