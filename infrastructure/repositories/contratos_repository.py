@@ -1,7 +1,8 @@
+from datetime import date
 from uuid import UUID
 
-from sqlalchemy.orm import joinedload
 
+from domain.models.contrato import Contrato
 from infrastructure.configs.connection import Connection
 from infrastructure.models.contratos import Contratos
 from infrastructure.mappers.ContratoInput import ContratoInputMapper
@@ -14,7 +15,7 @@ from infrastructure.models.solicitacoes import Solicitacoes
 from infrastructure.models.ocorrencias import Ocorrencias
 
 class ContratosRepositories:
-    def get_all(self) -> list[Contratos]:
+    def get_all(self) -> list[Contrato]:
         with Connection() as connection:
             result = connection.session.query(Contratos).all()
             result_mapped = [ContratoInputMapper.map_contrato(x) for x in result]
@@ -66,3 +67,18 @@ class ContratosRepositories:
                  })
             connection.session.commit()
             return contrato
+
+    def get_by_criador_id(self, criador_id: UUID) -> list[Contratos]:
+        with Connection() as connection:
+            return connection.session.query(Contratos)\
+                .filter(Contratos.criador_id == criador_id)\
+                .all()
+
+    def get_all_with_start_and_date(self, start_date: date, end_date: date) -> list[Contrato]:
+        with Connection() as connection:
+            result = connection.session.query(Contratos).filter(Contratos.data_inicio >= start_date, Contratos.data_inicio <= end_date).all()
+            result_mapped = [ContratoInputMapper.map_contrato(x) for x in result]
+
+            print()
+
+            return result_mapped
