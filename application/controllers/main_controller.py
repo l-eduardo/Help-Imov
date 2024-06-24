@@ -61,13 +61,18 @@ class MainController:
         pass
 
     def abrir_tela_inicial(self):
+        usuario_atual = self.__session_controller.get_current_user()
+        is_locatario = usuario_atual.user_role == "Locatario"
+        print(usuario_atual.user_role)
+
         while True:
-            event, values = self.__main_view.tela_inicial()
-            if event == "Voltar":
+            event, values = self.__main_view.tela_inicial(disable_usuarios=is_locatario)
+            if event == "Sair":
                 break
             match event:
                 case "usuarios":
-                    self.__usuarios_controller.lista_usuarios()
+                    if not is_locatario:
+                        self.__usuarios_controller.lista_usuarios()
                 case "imoveis":
                     self.__imoveis_controller.listar_imoveis()
                 case "contratos":
@@ -75,50 +80,57 @@ class MainController:
 
     @SessionController.inject_session_data
     def abrir_tela_prestadores(self, session: Session = None):
-        ocorrencias = self.ocorrencias_repository.get_all_to_domain()
-        prestador_atual = self.__session_controller.get_current_user()
-        ocorrencias_para_tela = []
+        while True:
+            ocorrencias = self.ocorrencias_repository.get_all_to_domain()
+            prestador_atual = self.__session_controller.get_current_user()
+            ocorrencias_para_tela = []
 
-        for ocorrencia in ocorrencias:
-            if prestador_atual.user_id == ocorrencia.prestador_id:
+            for ocorrencia in ocorrencias:
+                if prestador_atual.user_id == ocorrencia.prestador_id:
+                    ocorrencia_dict = {
+                        "tipo": "Ocorrência",
+                        "titulo": ocorrencia.titulo,
+                        "status": ocorrencia.status.value,
+                        "dataCriacao": ocorrencia.data_criacao,
+                        "prestador_id": ocorrencia.prestador_id,
+                        "entity": ocorrencia
+                    }
+                    ocorrencias_para_tela.append(ocorrencia_dict)
 
-                ocorrencia_dict = {
-                    "tipo": "Ocorrência",
-                    "titulo": ocorrencia.titulo,
-                    "status": ocorrencia.status.value,
-                    "dataCriacao": ocorrencia.data_criacao,
-                    "prestador_id": ocorrencia.prestador_id,
-                    "entity": ocorrencia
-                }
-                ocorrencias_para_tela.append(ocorrencia_dict)
+            event_lista, values_lista = self.__main_view.tela_inicial_prestadores(ocorrencias_para_tela)
 
-        event_lista, values_lista = self.__main_view.tela_inicial_prestadores(ocorrencias_para_tela)
+            if event_lista == "Sair":
+                break
 
-        if event_lista == "-TABELA-DOUBLE-CLICK-":
-            entidade = ocorrencias_para_tela[values_lista["-TABELA-"][0]]
+            if event_lista == "-TABELA-DOUBLE-CLICK-":
+                while True:
+                    entidade = ocorrencias_para_tela[values_lista["-TABELA-"][0]]
 
-            if entidade["tipo"] == "Ocorrência":
-                imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
-                mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
-                                                                                    dirs=imagens_dir)
+                    if entidade["tipo"] == "Ocorrência":
+                        imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
+                        mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
+                                                                                            dirs=imagens_dir)
 
-                if mostra_ocorr_event == "editar_ocorrencia":
-                    editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
-                        entidade["entity"])
-                    if editar_ocorr_events == "confirmar_edicao":
-                        prestador_id = editar_ocorr_values.get("prestadores")
-                        entidade["entity"].titulo = editar_ocorr_values["titulo"]
-                        entidade["entity"].descricao = editar_ocorr_values["descricao"]
-                        entidade["entity"].status = Status(editar_ocorr_values["status"])
-                        entidade["entity"].prestador_id = prestador_id
-                        self.ocorrencias_repository.update(entidade["entity"])
+                        if mostra_ocorr_event == "Voltar":
+                            break  # Voltar para a tela inicial dos prestadores
 
-                elif mostra_ocorr_event == "Chat":
-                    chat = entidade["entity"].chat
-                    if not isinstance(chat, Chat):
-                        chat = entidade["entity"].incluir_chat()
-                        self.__chat_repository.insert_chat(chat)
+                        if mostra_ocorr_event == "editar_ocorrencia":
+                            editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
+                                entidade["entity"])
+                            if editar_ocorr_events == "confirmar_edicao":
+                                prestador_id = editar_ocorr_values.get("prestadores")
+                                entidade["entity"].titulo = editar_ocorr_values["titulo"]
+                                entidade["entity"].descricao = editar_ocorr_values["descricao"]
+                                entidade["entity"].status = Status(editar_ocorr_values["status"])
+                                entidade["entity"].prestador_id = prestador_id
+                                self.ocorrencias_repository.update(entidade["entity"])
 
-                    usuario_logado_id = session.user_id
-                    usuario_logado = self.__usuarios_controller.usuario_by_id(usuario_logado_id)
-                    self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
+                        elif mostra_ocorr_event == "Chat":
+                            chat = entidade["entity"].chat
+                            if not isinstance(chat, Chat):
+                                chat = entidade["entity"].incluir_chat()
+                                self.__chat_repository.insert_chat(chat)
+
+                            usuario_logado_id = session.user_id
+                            usuario_logado = self.__usuarios_controller.usuario_by_id(usuario_logado_id)
+                            self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)

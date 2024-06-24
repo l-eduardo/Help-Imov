@@ -55,15 +55,10 @@ class TelaContrato:
             return None
 
     def mostra_contratos(self, contratos_listados, btn_visible_locatario):
-
-        # Define the table header
         header = ["ID Contrato", "Data Início", "Locatário", "Imóvel", "Status"]
-
-        # Convert the list of dictionaries into a list of lists for the table
         table_data = [[contrato.id, contrato.dataInicio, contrato.locatario.nome, contrato.imovel.endereco,
                        "Ativo" if contrato.estaAtivo else "Encerrado"] for contrato in contratos_listados]
 
-        # Table layout
         tabela = sg.Table(table_data, headings=header,
                           auto_size_columns=True,
                           display_row_numbers=False,
@@ -75,11 +70,10 @@ class TelaContrato:
                           enable_click_events=False,
                           select_mode=sg.TABLE_SELECT_MODE_BROWSE,
                           vertical_scroll_only=False)
-        # Window layout
         layout = [[tabela],
-                  [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar", visible=btn_visible_locatario), sg.Button("Selecionar")], ]
+                  [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar", visible=btn_visible_locatario),
+                   sg.Button("Selecionar")]]
 
-        # Create the window
         self.window = sg.Window("Contratos", layout, size=(900, 300), resizable=True)
 
         while True:
@@ -136,7 +130,7 @@ class TelaContrato:
                           vertical_scroll_only=False)
         # Window layout
         buttons_layout = [
-            sg.Button("Voltar"),
+            sg.Button("Voltar", key="Voltar"),
             sg.Button("Adicionar solicitação", key="add_solicitacao"),
             sg.Button("Adicionar ocorrência", key="add_ocorrencia"),
             sg.Button("Excluir", key="Excluir", visible=excluir_btn_visivel)

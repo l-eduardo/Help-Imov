@@ -1,19 +1,20 @@
 import os
-
 import PySimpleGUI as sg
+from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
+
 
 class MainView:
-    def tela_inicial(self):
+    def tela_inicial(self, disable_usuarios=False):
         image_path = os.path.join(os.path.dirname(__file__), '../assets/help-imov-logo.png')
 
         layout = [
-            [sg.Image(filename=image_path, subsample=3 ),
+            [sg.Image(filename=image_path, subsample=3),
              sg.Text('Help Imov', font=('Any', 18), justification='right')],
             [sg.Text("", size=(0, 1))],
-            [sg.Button("Usuários", size=(15, 1), key="usuarios")],
+            [sg.Button("Usuários", size=(15, 1), key="usuarios", disabled=disable_usuarios)],
             [sg.Button("Imoveis", size=(15, 1), key="imoveis")],
             [sg.Button("Contratos", key="contratos", size=(15, 1))],
-            [sg.Button("Voltar")]
+            [sg.Button("Sair")]
         ]
 
         window = sg.Window('Help Imov', layout, element_justification='center',
@@ -27,10 +28,6 @@ class MainView:
             return event, values
 
     def tela_inicial_prestadores(self, ocorrencias):
-        excluir_btn_visivel = False
-
-        if ocorrencias:
-            excluir_btn_visivel = True
 
         header = ["Tipo", "Título", "Status", "Data Criação"]
         table_data = [[dado["tipo"], dado["titulo"], dado["status"], dado["dataCriacao"], dado] for dado in ocorrencias]
@@ -49,7 +46,7 @@ class MainView:
                           vertical_scroll_only=False)
 
         buttons_layout = [
-            sg.Button("Voltar"),
+            sg.Button("Sair"),
         ]
 
         layout = [
@@ -57,7 +54,7 @@ class MainView:
             [sg.Column([buttons_layout], expand_x=True), ]
         ]
 
-        window = sg.Window("Relacionados do contrato", layout, size=(900, 300), resizable=True, finalize=True)
+        window = sg.Window("Suas ocorrências relacionadas", layout, size=(900, 300), resizable=True, finalize=True)
 
         window['-TABELA-'].bind("<Double-Button-1>", "DOUBLE-CLICK-")
 

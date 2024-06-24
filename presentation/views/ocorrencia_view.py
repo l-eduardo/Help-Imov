@@ -5,6 +5,7 @@ from domain.models.ocorrencia import Ocorrencia
 from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
 from infrastructure.repositories.ocorrencias_repository import OcorrenciasRepository
 from application.controllers.usuarios_controller import UsuariosController
+from application.controllers.session_controller import SessionController
 
 
 class OcorrenciaView:
@@ -12,6 +13,7 @@ class OcorrenciaView:
         self.ocorrencia_repository = OcorrenciasRepository()
         self.prestadores_repository = PrestadoresServicosRepository()
         self.usuarios_controller = UsuariosController()
+        self.__session_controller = SessionController()
 
     def mostra_popup(self, mensagem: str):
         sg.popup(mensagem)
@@ -106,7 +108,13 @@ class OcorrenciaView:
         return event, values
 
     def __show_details_layout(self, ocorrencia, dirs: List[str]):
-        centrilizedButtons = [sg.Button("Voltar"), sg.Button("Editar", key="editar_ocorrencia"), sg.Button("Chat")]
+        usuario = self.__session_controller.get_current_user()
+        editar_btn_visivel = True
+        if usuario.user_role == "Prestador_servico":
+            editar_btn_visivel = False
+        centrilizedButtons = [sg.Button("Voltar", key="Voltar"),
+                              sg.Button("Editar", key="editar_ocorrencia",
+                                        visible=editar_btn_visivel), sg.Button("Chat")]
         prestador_nome = self.prestadores_repository.get_name_by_id(
             ocorrencia.prestador_id) if ocorrencia.prestador_id else 'Nenhum'
 
