@@ -45,7 +45,8 @@ class MainController:
     @SessionController.inject_session_data
     def abrir_tela_inicial(self, session: Session=None):
         while True:
-            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or session.user_role == "Assistente")
+            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or session.user_role == "Assistente",
+                                                          visao_locatario=True if session.user_role != "Locatario" else False)
 
             match event:
                 case "usuarios":
