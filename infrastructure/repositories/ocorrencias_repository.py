@@ -34,7 +34,8 @@ class OcorrenciasRepository:
                     "titulo": ocorrencia.titulo,
                     "descricao": ocorrencia.descricao,
                     "prestador_id": ocorrencia.prestador_id,
-                    "status": ocorrencia.status.name
+                    "status": ocorrencia.status.name,
+                    "chat_id": ocorrencia.chat.id
                 }
             )
             connection.session.commit()
@@ -44,6 +45,7 @@ class OcorrenciasRepository:
         with Connection() as connection:
             result = connection.session.query(Ocorrencias).filter(Ocorrencias.id == str(id_ocorrencia)).first()
             return result
+
     def get_all_to_domain(self):
         with Connection() as connection:
             ocorrencias_from_db = connection.session.query(Ocorrencias).options(joinedload(Ocorrencias.imagens)).all()
@@ -64,4 +66,5 @@ class OcorrenciasRepository:
         """
         with Connection() as connection:
             return connection.session.object_session(ocorrencia) is not None
+
 

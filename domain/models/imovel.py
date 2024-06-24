@@ -1,6 +1,6 @@
 from typing import List
 import uuid
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 
 
 class Imovel:

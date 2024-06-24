@@ -1,9 +1,12 @@
+from application.controllers.relatorio_controller import RelatorioController
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
 from domain.models.chat import Chat
 from domain.models.contrato import Contrato
 from domain.models.session import Session
 from infrastructure.services.Imagens_Svc import ImagensService
+from domain.models.session import Session
+from infrastructure.repositories.contratos_repository import ContratosRepositories
 from presentation.views.login_view import LoginView
 from presentation.views.main_view import MainView
 from presentation.views.ocorrencia_view import OcorrenciaView
@@ -23,7 +26,7 @@ class MainController:
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
         self.__session_controller = SessionController()
         self.__usuarios_controller = UsuariosController()
-        self.__contrato_controller = ContratoController(self)
+        self.__contrato_controller = ContratoController(self.__usuarios_controller)
         self.__imoveis_controller = ImoveisController(self)
         self.__chat_controller = ChatCrontroller()
         self.user_identity_repository = UserIdentityRepository()
@@ -31,6 +34,8 @@ class MainController:
         self.__chat_repository = ChatsRepository()
 
         self.__main_window = None
+        self.__relatorio_controller = RelatorioController()
+
 
     @property
     def contrato_controller(self):
@@ -60,15 +65,11 @@ class MainController:
         self.__session_controller.get_new_session(usuario.id)
         pass
 
-    def abrir_tela_inicial(self):
-        usuario_atual = self.__session_controller.get_current_user()
-        is_locatario = usuario_atual.user_role == "Locatario"
-        print(usuario_atual.user_role)
 
+    @SessionController.inject_session_data
+    def abrir_tela_inicial(self, session: Session=None):
         while True:
-            event, values = self.__main_view.tela_inicial(disable_usuarios=is_locatario)
-            if event == "Sair":
-                break
+            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or session.user_role == "Assistente")
             match event:
                 case "usuarios":
                     if not is_locatario:
@@ -77,6 +78,11 @@ class MainController:
                     self.__imoveis_controller.listar_imoveis()
                 case "contratos":
                     self.__contrato_controller.listar_contrato()
+                case "relatorios":
+                    self.__relatorio_controller.menu_relatorios()
+                case _:
+                    self.run()
+
 
     @SessionController.inject_session_data
     def abrir_tela_prestadores(self, session: Session = None):
@@ -113,17 +119,6 @@ class MainController:
 
                         if mostra_ocorr_event == "Voltar":
                             break  # Voltar para a tela inicial dos prestadores
-
-                        if mostra_ocorr_event == "editar_ocorrencia":
-                            editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
-                                entidade["entity"])
-                            if editar_ocorr_events == "confirmar_edicao":
-                                prestador_id = editar_ocorr_values.get("prestadores")
-                                entidade["entity"].titulo = editar_ocorr_values["titulo"]
-                                entidade["entity"].descricao = editar_ocorr_values["descricao"]
-                                entidade["entity"].status = Status(editar_ocorr_values["status"])
-                                entidade["entity"].prestador_id = prestador_id
-                                self.ocorrencias_repository.update(entidade["entity"])
 
                         elif mostra_ocorr_event == "Chat":
                             chat = entidade["entity"].chat

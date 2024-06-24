@@ -4,7 +4,7 @@ from application.controllers.chat_controller import ChatCrontroller
 from application.controllers.usuarios_controller import UsuariosController
 from application.controllers.session_controller import SessionController
 from domain.enums.status import Status
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 from domain.models.session import Session
 from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
 from infrastructure.repositories.chats_repository import ChatsRepository
@@ -29,10 +29,9 @@ import PySimpleGUI as sg
 
 
 class ContratoController:
-    def __init__(self, main_controller):
-        self.__main_controller = main_controller
+    def __init__(self, user_controller):
         self.__chat_controller = ChatCrontroller()
-        self.__usuario_controller = UsuariosController()
+        self.__usuario_controller = user_controller
         self.__tela_vistoria = TelaVistoria(self)
 
         self.__contratos_repository = ContratosRepositories()
@@ -86,6 +85,7 @@ class ContratoController:
             elif event == "Selecionar" and values["-TABELA-"]:
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
                 self.listar_relacionados_contrato(contrato_selecionado)
+
 
     def selecionar_contrato(self, contrato_selecionado: Contrato, btn_visible_locatario):
         contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado, btn_visible_locatario)

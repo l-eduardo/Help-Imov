@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List
 import uuid
-from domain.models.Imagem import Imagem
+from domain.models.imagem import Imagem
 from domain.models.documento import Documento
 if TYPE_CHECKING:
     from domain.models.contrato import Contrato

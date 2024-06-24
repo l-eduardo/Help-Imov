@@ -12,3 +12,4 @@ class Mensagens(Base):
     usuario_id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'), name='usuario_id')
     datetime = Column(String(36), name='datetime')
     mensagem = Column(String(500), name='mensagem')
+
