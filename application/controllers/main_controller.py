@@ -1,12 +1,8 @@
 from application.controllers.relatorio_controller import RelatorioController
 from application.controllers.session_controller import SessionController
-from domain.enums.status import Status
 from domain.models.chat import Chat
-from domain.models.contrato import Contrato
-from domain.models.session import Session
 from infrastructure.services.Imagens_Svc import ImagensService
 from domain.models.session import Session
-from infrastructure.repositories.contratos_repository import ContratosRepositories
 from presentation.views.login_view import LoginView
 from presentation.views.main_view import MainView
 from presentation.views.ocorrencia_view import OcorrenciaView
@@ -69,10 +65,10 @@ class MainController:
     @SessionController.inject_session_data
     def abrir_tela_inicial(self, session: Session=None):
         while True:
-            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or session.user_role == "Assistente")
+            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or
+                                                                      session.user_role == "Assistente")
             match event:
                 case "usuarios":
-                    if not is_locatario:
                         self.__usuarios_controller.lista_usuarios()
                 case "imoveis":
                     self.__imoveis_controller.listar_imoveis()

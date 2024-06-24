@@ -12,7 +12,7 @@ class MainView:
             [sg.Image(filename=image_path, subsample=3),
              sg.Text('Help Imov', font=('Any', 18), justification='right')],
             [sg.Text("", size=(0, 1))],
-            [sg.Button("Usuários", size=(15, 1), key="usuarios", disabled=disable_usuarios)],
+            [sg.Button("Usuários", size=(15, 1), key="usuarios", visible=show_report)],
             [sg.Button("Imoveis", size=(15, 1), key="imoveis")],
             [sg.Button("Contratos", key="contratos", size=(15, 1))],
             [sg.Button("Relatórios", key="relatorios", size=(15, 1), visible=show_report)],

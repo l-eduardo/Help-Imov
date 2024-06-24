@@ -177,7 +177,7 @@ class ContratoController:
                     contrato_instancia.remover_solicitacao(entidade["entity"])
                     self.__solicitacao_repository.delete(entidade["entity"].id)
 
-            elif events == "-TABELA-DOUBLE-CLICK-":
+            elif events == "-TABELA-DOUBLE-CLICK-" or "Selecionar":
                 entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
                 if entidade["tipo"] == "Ocorrência":
                     imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
