@@ -8,7 +8,7 @@ from infrastructure.repositories.user_identity_repository import UserIdentityRep
 
 
 class SessionController:
-    session : Session | None = None
+    session: Session | None = None
     def __init__(self):
         self.__session_repository = UserIdentityRepository()
         pass
@@ -38,6 +38,9 @@ class SessionController:
 
     def autheticate(self, email, password):
         return self.__session_repository.get_user_identity_by_login_infos(email, password)
+
+    def get_current_user(self):
+        return SessionController.session
 
     def inject_session_data(func):
         @functools.wraps(func)

@@ -188,6 +188,7 @@ class ContratoController:
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
             if entidade["tipo"] == "Ocorrência":
                 imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
+
                 mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
                                                                 dirs=imagens_dir)
                 if entidade["entity"].criador_id != session.user_id:

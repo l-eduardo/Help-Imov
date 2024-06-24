@@ -39,6 +39,7 @@ class OcorrenciaView:
                 prestador_id = id
                 window['prestador_selecionado'].update(value=prestador_nome)
 
+
             if event == "confirmar_edicao":
                 if prestador_nome == 'Nenhum':
                     prestador_id = None
@@ -98,13 +99,13 @@ class OcorrenciaView:
 
         return window, prestadores_map
 
-    def vw_mostra_ocorrencia(self, ocorrencia: 'Ocorrencia', dirs: List[str]):
+    def vw_mostra_ocorrencia(self, ocorrencia: Ocorrencia, dirs: List[str]):
         window = self.__show_details_layout(ocorrencia, dirs)
         event, values = window.read()
         window.close()
         return event, values
 
-    def __show_details_layout(self, ocorrencia: 'Ocorrencia', dirs: List[str]):
+    def __show_details_layout(self, ocorrencia, dirs: List[str]):
         centrilizedButtons = [sg.Button("Voltar"), sg.Button("Editar", key="editar_ocorrencia"), sg.Button("Chat")]
         prestador_nome = self.prestadores_repository.get_name_by_id(
             ocorrencia.prestador_id) if ocorrencia.prestador_id else 'Nenhum'
