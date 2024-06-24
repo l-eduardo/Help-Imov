@@ -14,7 +14,7 @@ from infrastructure.repositories.chats_repository import ChatsRepository
 
 class ChatCrontroller:
     def __init__(self):
-        self.__chat_view = ChatView(self)
+        self.__chat_view = ChatView()
         self.__chat_repository = ChatsRepository()
 
     def mostra_chat(self, usuario_logado: Usuario, chat: Chat):
@@ -26,7 +26,7 @@ class ChatCrontroller:
         self.__chat_repository.insert_novas_mensagens(chat.id, novas_mensagens_obj)
 
         imagens = ImagensService.bulk_read(imagens_novas)
-        chat.incluir_imagem(imagens)
+        chat.incluir_imagens(imagens)
         self.__chat_repository.insert_novas_imagens(chat.id, imagens)
 
 
