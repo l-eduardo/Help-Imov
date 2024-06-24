@@ -103,12 +103,6 @@ class Ocorrencia(DomainModel):
             self.add_validation_error('Título é obrigatório')
         if not self.__descricao_e_valido():
             self.add_validation_error('Descrição é obrigatória')
-        if not self.__status_e_valido():
-            self.add_validation_error('Status é obrigatório')
-        if not self.__data_criacao_e_valido():
-            self.add_validation_error('Data de criação é obrigatória e deve ser anterior a data atual')
-        if not self.__criador_id_e_valido():
-            self.add_validation_error('Criador é obrigatório')
         if not self.__imagens_sao_validas():
             self.add_validation_error('Imagens inválidas. Por favor, selecione somente imagens com resolucao entre 1280x720 e 1820x1280 pixels!')
 
@@ -126,9 +120,6 @@ class Ocorrencia(DomainModel):
 
     def __data_criacao_e_valido(self) -> bool:
         return self._data_criacao is not None and self._data_criacao <= date.today()
-
-    def __criador_id_e_valido(self) -> bool:
-        return self._criador_id is not None
 
     def __imagens_sao_validas(self) -> bool:
         return self._imagens is not None and all([imagem.e_valida() for imagem in self._imagens])

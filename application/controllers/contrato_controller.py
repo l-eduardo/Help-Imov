@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime
 
 from application.controllers.chat_controller import ChatCrontroller
@@ -201,11 +202,23 @@ class ContratoController:
                     descricao = editar_ocorr_values["descricao"]
 
                     if editar_ocorr_events == "confirmar_edicao":
-                        if self.validar_campos_entidade(titulo, descricao):
-                            entidade["entity"].titulo = editar_ocorr_values["titulo"]
-                            entidade["entity"].descricao = editar_ocorr_values["descricao"]
-                            entidade["entity"].status = Status(editar_ocorr_values["status"])
-                            entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
+                        dummy = copy.copy(entidade["entity"])
+                        entidade["entity"].titulo = editar_ocorr_values["titulo"]
+                        entidade["entity"].descricao = editar_ocorr_values["descricao"]
+                        entidade["entity"].status = Status(editar_ocorr_values["status"])
+                        entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
+
+                        if not entidade["entity"].e_valida():
+                            errors = entidade["entity"].get_validation_errors()
+                            if len(errors) > 0:
+                                ValidationErrorsPopup.show_errors(errors)
+                                entidade["entity"].titulo = dummy.titulo
+                                entidade["entity"].descricao = dummy.descricao
+                                entidade["entity"].status = dummy.status
+                                entidade["entity"].prestador_id = dummy.prestador_id
+
+                                entidade["entity"].clear_validation_errors()
+                        else:
                             self.__ocorrencia_repository.update(entidade["entity"])
 
                 elif mostra_ocorr_event == "Chat":
