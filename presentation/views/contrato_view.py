@@ -80,11 +80,11 @@ class TelaContrato:
                   [sg.Button("Voltar"), sg.Button("Visualizar"), sg.Button("Adicionar", visible=btn_visible_locatario), sg.Button("Selecionar")], ]
 
         # Create the window
-        self.window = sg.Window("Contratos", layout, size=(900, 300), resizable=True)
+        window = sg.Window("Contratos", layout, size=(900, 300), resizable=True)
 
         while True:
-            event, values = self.window.read()
-            self.window.close()
+            event, values = window.read()
+            window.close()
             return event, values, btn_visible_locatario
 
     def mostra_contrato(self, contrato, btn_visible_locatario):

@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 from datetime import datetime
 from domain.models.usuario import Usuario
 from domain.models.chat import Chat
+from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.components.carrossel_cmpt import Carrossel
 
 
@@ -30,6 +31,7 @@ class ChatView:
             window['-CHAT-'].print(f"{mensagem.usuario.nome} [{mensagem_datetime}]:", text_color="DarkBlue", font='bold')
             window['-CHAT-'].print(f"\n{mensagem.mensagem}\n" + "_"*126, font='bold')
         mensagens_novas = []
+        imagens_teste = []
         imagens_novas = []
         documentos_novos = []
         while True:
@@ -41,18 +43,29 @@ class ChatView:
             if event == '-IMAGEM-':
                 datetime_atual = datetime.now()
                 event_imagem, values_imagem = self.pega_imagem()
-                print(event_imagem)
-                print(values_imagem["imagens"])
-                imagens_novas += values_imagem["imagens"].split(";")
-                window['-CHAT-'].print(f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:",
-                                       text_color="DarkBlue", font='bold')
-                imagens_to_view += imagens_novas
-                window['-CHAT-'].print(f"\nAdiciou um novo anexo \n" + "_" * 126, font='bold')
-                mensagens_novas.append({'usuario': usuario_logado,
-                                        'mensagem': 'Adiciou um novo anexo',
-                                        'datetime': datetime_atual.strftime("%Y-%m-%d %H:%M:%S")})
+                if event_imagem == 'Anexar':
+                        print(event_imagem)
+                        try:
+                            imagens_teste += values_imagem["imagens"].split(";")
+                            imagens_novas = ImagensService.bulk_read(imagens_teste)
+                            imagens_invalidas = [imagem for imagem in imagens_novas if not imagem.e_valida()]
+                            if imagens_invalidas and len(imagens_invalidas):
+                                self.mostra_msg(
+                                    "Imagens inválidas. Por favor, selecione imagens "
+                                    "com resolucao entre 1280x720 e 1820x1280 pixels!")
+                                imagens_novas = [imagem for imagem in imagens_novas if imagem.e_valida()]
 
-
+                            else:
+                                window['-CHAT-'].print(f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:",
+                                                       text_color="DarkBlue", font='bold')
+                                imagens_to_view += imagens_novas
+                                window['-CHAT-'].print(f"\nAdiciou um novo anexo \n" + "_" * 126, font='bold')
+                                mensagens_novas.append({'usuario': usuario_logado,
+                                                        'mensagem': 'Adiciou um novo anexo',
+                                                        'datetime': datetime_atual.strftime("%Y-%m-%d %H:%M:%S")})
+                        except:
+                            sg.popup(
+                                "Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
             if event == '-ANEXOS-':
                 print(chat.imagens)
@@ -144,3 +157,6 @@ class ChatView:
             if event == 'abrir_documento':
                 #self.abrir_documento(caminho_documento)
                 pass
+
+    def mostra_msg(self, msg):
+        sg.Popup(msg, font=('Arial', 14, 'bold'), title='Contrato', button_justification='left')

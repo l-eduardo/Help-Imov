@@ -191,7 +191,8 @@ class ContratoController:
                 imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
                 mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
                                                                 dirs=imagens_dir)
-                if entidade["entity"].criador_id != session.user_id:
+
+                if mostra_ocorr_event == "editar_ocorrencia" and entidade["entity"].criador_id != session.user_id:
                     sg.popup("Você não tem permissão para editar esta ocorrência")
                 elif mostra_ocorr_event == "editar_ocorrencia":
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
@@ -235,6 +236,7 @@ class ContratoController:
                                     entidade["entity"].status = Status(edit_solic_values["status"])
                                     self.__solicitacao_repository.update(entidade["entity"])
                                 break
+                            break
                     break
 
         if events == "vistoria_inicial":
