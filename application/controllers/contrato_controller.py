@@ -222,7 +222,7 @@ class ContratoController:
             if entidade["tipo"] == "Solicitação":
                 while True:
                     event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
-                    if entidade["entity"].criador_id != session.user_id:
+                    if entidade["entity"].criador_id != session.user_id and event_solic == "editar_solicitacao":
                         sg.popup("Você não tem permissão para editar esta solicitação")
                     elif event_solic == "editar_solicitacao":
                         while True:
@@ -237,6 +237,8 @@ class ContratoController:
                                     self.__solicitacao_repository.update(entidade["entity"])
                                 break
                             break
+                    elif event_solic == "Voltar":
+                        self.listar_relacionados_contrato(contrato_instancia)
                     break
 
         if events == "vistoria_inicial":
@@ -319,7 +321,7 @@ class ContratoController:
         elif events == sg.WIN_CLOSED:
             ImagensService.flush_temp_images()
             return
-        self.listar_relacionados_contrato(contrato_instancia)
+        #self.listar_relacionados_contrato(contrato_instancia)
 
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
