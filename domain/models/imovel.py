@@ -32,10 +32,6 @@ class Imovel:
     def imagens(self) -> List[Imagem]:
         return self._imagens
 
-    # @imagens.setter
-    # def imagens(self, value: List[Imagem]) -> None:
-    #     self._imagens = value
-
     @codigo.setter
     def codigo(self, codigo: int):
         self._codigo = codigo
