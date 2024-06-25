@@ -52,13 +52,12 @@ class ChatView:
                             if imagens_invalidas and len(imagens_invalidas):
                                 self.mostra_msg(
                                     "Imagens inválidas. Por favor, selecione imagens "
-                                    "com resolucao entre 1280x720 e 1820x1280 pixels!")
+                                    "com resolucao entre 1280x720 e 1920x1280 pixels!")
                                 imagens_novas = [imagem for imagem in imagens_novas if imagem.e_valida()]
-
                             else:
                                 window['-CHAT-'].print(f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:",
                                                        text_color="DarkBlue", font='bold')
-                                imagens_to_view += imagens_novas
+                                imagens_to_view += imagens_teste
                                 window['-CHAT-'].print(f"\nAdiciou um novo anexo \n" + "_" * 126, font='bold')
                                 mensagens_novas.append({'usuario': usuario_logado,
                                                         'mensagem': 'Adiciou um novo anexo',
@@ -86,14 +85,14 @@ class ChatView:
                 window['-MENSAGEM-'].update("")
                 window['-CHAR_COUNT-'].update("0/500")
 
-                # Atualiza a contagem de caracteres e limita a mensagem a 500 caracteres
-                num_char = len(values['-MENSAGEM-'])
-                if num_char < 500:
-                    window['-CHAR_COUNT-'].update(f"{num_char}/500", text_color='white')
-                elif num_char == 500:
-                    window['-CHAR_COUNT-'].update("LIMITE DE CARACTERES ATINGIDO! 500/500", text_color='DarkRed')
-                else:
-                    window['-MENSAGEM-'].update(values['-MENSAGEM-'][:500])
+            # Atualiza a contagem de caracteres e limita a mensagem a 500 caracteres
+            num_char = len(values['-MENSAGEM-'])
+            if num_char < 500:
+                window['-CHAR_COUNT-'].update(f"{num_char}/500", text_color='white')
+            elif num_char == 500:
+                window['-CHAR_COUNT-'].update("LIMITE DE CARACTERES ATINGIDO! 500/500", text_color='DarkRed')
+            else:
+                window['-MENSAGEM-'].update(values['-MENSAGEM-'][:500])
         window.close()
         return mensagens_novas, imagens_novas, documentos_novos, event
 

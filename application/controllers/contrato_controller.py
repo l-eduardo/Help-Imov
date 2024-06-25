@@ -207,6 +207,8 @@ class ContratoController:
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
                             entidade["entity"].prestador_id = prestador_id
                             self.__ocorrencia_repository.update(entidade["entity"])
+                elif mostra_ocorr_event == "Voltar":
+                    self.listar_relacionados_contrato(contrato_instancia)
 
                 elif mostra_ocorr_event == "Chat":
                     chat = entidade["entity"].chat

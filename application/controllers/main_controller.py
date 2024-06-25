@@ -46,7 +46,7 @@ class MainController:
             if evento == "Cancel" or evento[0] == None:
                 break
             if autenticado:
-                self.__set_session(autenticado)
+                self.__set_session(autenticado.id)
                 usuario_atual = self.__session_controller.get_current_user()
                 if usuario_atual.user_role == 'Prestador_servico':
                     self.abrir_tela_prestadores()
