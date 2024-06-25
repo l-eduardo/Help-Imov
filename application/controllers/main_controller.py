@@ -57,19 +57,19 @@ class MainController:
 
             self.__login_view.error_popup("Email ou senha incorretos")
 
-    def __set_session(self, usuario):
-        self.__session_controller.get_new_session(usuario.id)
+    def __set_session(self, id):
+        self.__session_controller.get_new_session(id)
         pass
-
 
     @SessionController.inject_session_data
     def abrir_tela_inicial(self, session: Session=None):
         while True:
-            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or
-                                                                      session.user_role == "Assistente")
+            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or session.user_role == "Assistente",
+                                                          visao_locatario=True if session.user_role != "Locatario" else False)
+
             match event:
                 case "usuarios":
-                        self.__usuarios_controller.lista_usuarios()
+                    self.__usuarios_controller.lista_usuarios()
                 case "imoveis":
                     self.__imoveis_controller.listar_imoveis()
                 case "contratos":
