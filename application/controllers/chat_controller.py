@@ -14,7 +14,7 @@ from infrastructure.repositories.chats_repository import ChatsRepository
 
 class ChatCrontroller:
     def __init__(self):
-        self.__chat_view = ChatView(self)
+        self.__chat_view = ChatView()
         self.__chat_repository = ChatsRepository()
 
     def mostra_chat(self, usuario_logado: Usuario, chat: Chat):

@@ -256,24 +256,17 @@ class ContratoController:
 
                     if event == "editar_vistoria":
                         if vistoria.esta_fechada():
-                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                            self.__tela_vistoria.mostra_msg("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
                         else:
                             self.editar_vistoria(contrato_instancia, vistoria)
-                    elif event == "excluir_vistoria":
-                        if vistoria.esta_fechada():
-                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
-                        else:
-                            contrato_instancia.remover_vistoria(vistoria)
-                            self.__vistoria_repository.delete(vistoria.id)
-                            sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+ 
             else:
                 if session.user_role == 'Locatario':
-                    sg.popup("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
+                    self.__tela_vistoria.mostra_msg("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
                 else:
-                    criar_contra_vistoria = sg.popup(
+                    criar_contra_vistoria = self.__tela_vistoria.mostra_msg(
                         "Não existe Vistoria Inicial cadastrada",
-                        title="Aviso",
-                        custom_text=("Criar", "Fechar")
+                        nova_vistoria=True
                     )
                     if criar_contra_vistoria == "Criar":
                         self.incluir_vistoria(contrato_instancia, e_contestacao = False)
@@ -332,9 +325,9 @@ class ContratoController:
                 imagens = ImagensService.bulk_read(values['imagens'].split(';'))
                 imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
-                if imagens_invalidas and len(imagens_invalidas):
+                if imagens_invalidas:
                     self.__tela_vistoria.mostra_msg(
-                        "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
+                        "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1920x1280 pixels!")
 
                 else:
                     contrato.incluir_vistoria(descricao=values["descricao"],
@@ -345,16 +338,19 @@ class ContratoController:
                     self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
                     self.__contratos_repository.update(contrato)
             except:
-                sg.popup("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
+                self.__tela_vistoria.mostra_msg("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
     def editar_vistoria(self, contrato_instancia, vistoria):
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
         if event == "Salvar":
             vistoria.descricao = values["descricao"]
-            self.__vistoria_repository.update(vistoria)
-            sg.popup("Vistoria atualizada com sucesso", title="Sucesso")
+            if self.valida_campos_vistoria(self, "descricao", vistoria.descricao):
+                self.__vistoria_repository.update(vistoria)
+                self.__tela_vistoria.mostra_msg("Vistoria atualizada com sucesso")
+            else:
+                self.__tela_vistoria.mostra_msg("O campo de descrição deve conter menos de 500 caracteres")
         elif event == "Cancelar":
-            sg.popup("Edição cancelada", title="Aviso")
+            self.__tela_vistoria.mostra_msg("Edição cancelada")
 
         self.listar_relacionados_contrato(contrato_instancia)
 
@@ -381,3 +377,8 @@ class ContratoController:
             sg.Popup("Selecione uma data")
             return False
         return True
+    
+    def valida_campos_vistoria(self, campo, valor):
+        match campo:
+            case 'descricao': 
+                return len(valor) <= 500

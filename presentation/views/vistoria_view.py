@@ -88,8 +88,8 @@ class TelaVistoria:
             if event == 'abrir_documento':
                 self.abrir_documento(caminho_documento)
 
-    def mostra_msg(self, msg):
-        sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')
+    def mostra_msg(self, msg, nova_vistoria = False):
+        return sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left', custom_text=("Criar","Cancelar") if nova_vistoria else "OK")
 
     def __layout_editar_vistoria(self, vistoria):
 

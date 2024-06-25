@@ -1,3 +1,4 @@
+from typing import List
 import PySimpleGUI as sg
 from datetime import datetime
 from domain.models.usuario import Usuario
@@ -6,12 +7,9 @@ from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.components.carrossel_cmpt import Carrossel
 
 
-
 class ChatView:
-    def __init__(self, controlador):
-        self.__controlador = controlador
 
-    def mostra_chat(self, usuario_logado: Usuario, chat: Chat, imagens_to_view):
+    def mostra_chat(self, usuario_logado: Usuario, chat: Chat, imagens_to_view: List[str]):
         layout = [
             [sg.Multiline(size=(160, 40), disabled=True, key='-CHAT-')],
             [sg.Multiline(size=(150, 5), key='-MENSAGEM-'),
@@ -69,7 +67,7 @@ class ChatView:
             if event == '-ANEXOS-':
                 print(chat.imagens)
                 self.mostra_anexos(imagens_to_view)
-
+        
             if event == '-ENVIAR-':
                 datetime_atual = datetime.now()
                 # Garante apenas 500 caracteres e informa usuário caso passou
@@ -93,9 +91,40 @@ class ChatView:
                 window['-CHAR_COUNT-'].update("LIMITE DE CARACTERES ATINGIDO! 500/500", text_color='DarkRed')
             else:
                 window['-MENSAGEM-'].update(values['-MENSAGEM-'][:500])
+            # Atualiza a contagem de caracteres e limita a mensagem a 500 caracteres em tempo real
+            mensagem_em_edicao = values['-MENSAGEM-']
+            self.atualiza_contador_mensagem(mensagem_em_edicao, window)
         window.close()
         return mensagens_novas, imagens_novas, documentos_novos, event
 
+    def mensagem_vazia(self, mensagem: str):
+        if len(mensagem) == 0:
+            return True
+        else:
+            return False
+
+    def mensagem_ultrapassou_limite(self, mensagem: str):
+        if len(mensagem) > 500:
+            return True
+        else:
+            return False
+        
+    def atualiza_contador_mensagem(self, mensagem_em_edicao: str, window: sg.Window):
+        quantidade_caracteres = len(mensagem_em_edicao)
+        if quantidade_caracteres < 500:
+            window['-CHAR_COUNT-'].update(f"{quantidade_caracteres}/500", text_color='white')
+        elif quantidade_caracteres == 500:
+            window['-CHAR_COUNT-'].update("LIMITE DE CARACTERES ATINGIDO! 500/500", text_color='DarkRed')
+        else:
+            window['-MENSAGEM-'].update(mensagem_em_edicao[:500])
+
+    def adiciona_mensagem_buffer(self, usuario: Usuario, mensagem: str, datetime_formatado: str, lista: List):
+        lista.append({'usuario': usuario,
+                      'mensagem': mensagem,
+                      'datetime': datetime_formatado})
+    
+    def mostra_popup(self, texto: str):
+        sg.popup(texto)
 
     def pega_imagem(self):
         centrilizedButtons = [sg.Button("Anexar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
@@ -113,7 +142,6 @@ class ChatView:
 
     def pega_documento(self):
         pass
-
 
     def mostra_anexos(self, imagens_to_view):
         image_index = 0

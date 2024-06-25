@@ -1,14 +1,14 @@
 from typing import List
 from uuid import UUID
 from domain.models.chat import Chat
+from domain.models.documento import Documento
 from domain.models.mensagem import Mensagem
-from domain.models.ocorrencia import Ocorrencia
 from infrastructure.configs.connection import Connection
 from infrastructure.mappers.ChatInput import ChatInputMapper
 from infrastructure.mappers.ChatOutput import ChatOutputMapper
+from infrastructure.mappers.DocumentoOutput import DocumentoOutputMapper
 from infrastructure.mappers.ImagemOutput import ImagemOutputMapper
 from infrastructure.models.chats import Chats
-from infrastructure.models.imagens import Imagens
 from domain.models.imagem import Imagem
 from infrastructure.models.mensagens import Mensagens
 from infrastructure.models.usuarios_ocorrencias import UsuariosOcorrencias
@@ -22,7 +22,7 @@ class ChatsRepository():
             result_mensagens = connection.session.query(Mensagens).filter(Mensagens.chat_id == str(id)).all()
             result_participantes = connection.session.query(UsuariosOcorrencias).filter(UsuariosOcorrencias.ocorrencia_id == str(id)).all()
             chat_mapped = ChatInputMapper.map_chat(result_chat_id, result_mensagens, result_participantes)
-            return result_chat_id
+            return chat_mapped
 
     def insert_chat(self, chat: Chat):
         chat_to_db = ChatOutputMapper.map_chat(chat)
@@ -45,4 +45,13 @@ class ChatsRepository():
                                                        chat_id=chat_id)
                 connection.session.add(imagem_mapped)
             connection.session.commit()
-            return 0
+            return novas_imagens
+
+    def insert_novos_documentos(self, chat_id: UUID, novos_documentos: List[Documento]):
+        with Connection() as connection:
+            for documento in novos_documentos:
+                documento_mapped = DocumentoOutputMapper.map(documento,
+                                                       chat_id=chat_id)
+                connection.session.add(documento_mapped)
+            connection.session.commit()
+            return novos_documentos
