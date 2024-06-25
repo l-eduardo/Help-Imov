@@ -62,7 +62,7 @@ class RelatorioView:
             [sg.Text("", size=(0, 1))],
             [sg.Column([[sg.Button("Contratos X Tempo", key="contratos", size=(30, 2))]], justification='center')],
             [sg.Column([[sg.Button("Ocorrencias X Contrato", key="ocorrencias", size=(30, 2))]], justification='center')],
-            [sg.Column([[sg.Button("Solicitacoes X Solicitacoes", key="solicitacoes", size=(30, 2))]], justification='center')],
+            [sg.Column([[sg.Button("Solicitacoes X Contrato", key="solicitacoes", size=(30, 2))]], justification='center')],
             [sg.Text("", size=(0, 2))],
             [sg.Column([[sg.Button("Voltar", key="voltar")]], justification='center')]
         ]

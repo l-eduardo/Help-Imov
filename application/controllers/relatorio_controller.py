@@ -61,6 +61,8 @@ class RelatorioController:
                     chart = CanvaChartService.create_stacked_bar_chart(top_values=solicitacoes_count_per_id,
                                                                     bottom_values=solicitacoes_concluidas_count_per_id,
                                                                     keys=contratos_id,
+                                                                    bottom_values_legenda="Concluidas",
+                                                                    top_values_legenda="Fechadas",
                                                                     title="Ocorrencias X Contratos")
 
                     self.__relatorio_view.mostrar_grafico(chart)
@@ -79,6 +81,8 @@ class RelatorioController:
                     chart = CanvaChartService.create_stacked_bar_chart(top_values=solicitacoes_count_per_id,
                                                                     bottom_values=solicitacoes_concluidas_count_per_id,
                                                                     keys=contratos_id,
+                                                                    bottom_values_legenda="Concluidas",
+                                                                    top_values_legenda="Fechadas",
                                                                     title="Solicitacoes X Contratos")
 
                     self.__relatorio_view.mostrar_grafico(chart)
