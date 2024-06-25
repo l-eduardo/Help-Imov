@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime
 
 from application.controllers.chat_controller import ChatCrontroller
@@ -110,7 +111,7 @@ class ContratoController:
         return [contrato.id for contrato in self.contratos]
 
     @SessionController.inject_session_data
-    def listar_relacionados_contrato(self, contrato_instancia: Contrato, session: Session = None):
+    def listar_relacionados_contrato(self, contrato_instancia: Contrato, session: Session=None):
         if contrato_instancia is None:
             self.__tela_contrato.mostra_msg("Nenhum contrato selecionado")
             return
@@ -176,17 +177,21 @@ class ContratoController:
 
         elif events == "Excluir" and values["-TABELA-"] is not None:
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
+
             if entidade["entity"].criador_id != session.user_id:
                 self.__ocorrencia_view.mostra_popup("Você não tem permissão para excluir esta ocorrência/solicitacao")
+
             elif entidade["tipo"] == "Ocorrência":
                 contrato_instancia.remover_ocorrencia(entidade["entity"])
                 self.__ocorrencia_repository.delete(entidade["entity"].id)
+
             elif entidade["tipo"] == "Solicitação":
                 contrato_instancia.remover_solicitacao(entidade["entity"])
                 self.__solicitacao_repository.delete(entidade["entity"].id)
 
         elif events == "Selecionar":
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
+
             if entidade["tipo"] == "Ocorrência":
                 imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
                 mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
@@ -194,6 +199,7 @@ class ContratoController:
 
                 if mostra_ocorr_event == "editar_ocorrencia" and entidade["entity"].criador_id != session.user_id:
                     sg.popup("Você não tem permissão para editar esta ocorrência")
+
                 elif mostra_ocorr_event == "editar_ocorrencia":
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
                         entidade["entity"])
@@ -206,6 +212,27 @@ class ContratoController:
                             entidade["entity"].descricao = editar_ocorr_values["descricao"]
                             entidade["entity"].status = Status(editar_ocorr_values["status"])
                             entidade["entity"].prestador_id = prestador_id
+                    titulo = editar_ocorr_values["titulo"]
+                    descricao = editar_ocorr_values["descricao"]
+
+                    if editar_ocorr_events == "confirmar_edicao":
+                        dummy = copy.copy(entidade["entity"])
+                        entidade["entity"].titulo = editar_ocorr_values["titulo"]
+                        entidade["entity"].descricao = editar_ocorr_values["descricao"]
+                        entidade["entity"].status = Status(editar_ocorr_values["status"])
+                        entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
+
+                        if not entidade["entity"].e_valida():
+                            errors = entidade["entity"].get_validation_errors()
+                            if len(errors) > 0:
+                                ValidationErrorsPopup.show_errors(errors)
+                                entidade["entity"].titulo = dummy.titulo
+                                entidade["entity"].descricao = dummy.descricao
+                                entidade["entity"].status = dummy.status
+                                entidade["entity"].prestador_id = dummy.prestador_id
+
+                                entidade["entity"].clear_validation_errors()
+                        else:
                             self.__ocorrencia_repository.update(entidade["entity"])
                 elif mostra_ocorr_event == "Voltar":
                     self.listar_relacionados_contrato(contrato_instancia)
@@ -259,7 +286,7 @@ class ContratoController:
                             self.__tela_vistoria.mostra_msg("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
                         else:
                             self.editar_vistoria(contrato_instancia, vistoria)
- 
+
             else:
                 if session.user_role == 'Locatario':
                     self.__tela_vistoria.mostra_msg("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
@@ -377,8 +404,8 @@ class ContratoController:
             sg.Popup("Selecione uma data")
             return False
         return True
-    
+
     def valida_campos_vistoria(self, campo, valor):
         match campo:
-            case 'descricao': 
+            case 'descricao':
                 return len(valor) <= 500
