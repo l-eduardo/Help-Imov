@@ -159,6 +159,9 @@ class ContratoController:
                 else:
                     self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
                                                         contrato_id=contrato_instancia.id)
+                    self.listar_relacionados_contrato(contrato_instancia)
+            elif event == "Cancelar":
+                self.listar_relacionados_contrato(contrato_instancia)
 
         elif events == "add_solicitacao":
             while True:
@@ -171,23 +174,28 @@ class ContratoController:
                         self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
                                                              id_contrato=contrato_instancia.id)
                         self.__solicitacao_view.mostra_msg("Solicitação registrada com sucesso")
+                        self.listar_relacionados_contrato(contrato_instancia)
                         break  # Sai do loop se validar os dados
-                else:
-                    break  # Sai do loop se clica em cancelar
+                elif event == "Cancelar":
+                    self.listar_relacionados_contrato(contrato_instancia)
+                    break
 
         elif events == "Excluir" and values["-TABELA-"] is not None:
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
 
             if entidade["entity"].criador_id != session.user_id:
                 self.__ocorrencia_view.mostra_popup("Você não tem permissão para excluir esta ocorrência/solicitacao")
+                self.listar_relacionados_contrato(contrato_instancia)
 
             elif entidade["tipo"] == "Ocorrência":
                 contrato_instancia.remover_ocorrencia(entidade["entity"])
                 self.__ocorrencia_repository.delete(entidade["entity"].id)
+                self.listar_relacionados_contrato(contrato_instancia)
 
             elif entidade["tipo"] == "Solicitação":
                 contrato_instancia.remover_solicitacao(entidade["entity"])
                 self.__solicitacao_repository.delete(entidade["entity"].id)
+                self.listar_relacionados_contrato(contrato_instancia)
 
         elif events == "Selecionar":
             entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
@@ -199,6 +207,7 @@ class ContratoController:
 
                 if mostra_ocorr_event == "editar_ocorrencia" and entidade["entity"].criador_id != session.user_id:
                     sg.popup("Você não tem permissão para editar esta ocorrência")
+                    self.listar_relacionados_contrato(contrato_instancia)
 
                 elif mostra_ocorr_event == "editar_ocorrencia":
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
@@ -246,7 +255,9 @@ class ContratoController:
 
                     usuario_logado_id = session.user_id
                     usuario_logado = self.__usuario_controller.usuario_by_id(usuario_logado_id)
-                    self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
+                    event_chat = self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
+                    if event_chat == "-SAIR-":
+                        self.listar_relacionados_contrato(contrato_instancia)
 
             if entidade["tipo"] == "Solicitação":
                 while True:
@@ -334,7 +345,13 @@ class ContratoController:
                         custom_text=("Criar", "Fechar")
                     )
                     if criar_contra_vistoria == "Criar":
-                            self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                            event = self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                            if event == "Cancelar":
+                                self.listar_relacionados_contrato(contrato_instancia)
+                    if criar_contra_vistoria == "Fechar":
+                        self.listar_relacionados_contrato(contrato_instancia)
+
+
 
         elif events == "Voltar":
             ImagensService.flush_temp_images()
@@ -366,6 +383,7 @@ class ContratoController:
                     self.__contratos_repository.update(contrato)
             except:
                 self.__tela_vistoria.mostra_msg("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
+        return event
 
     def editar_vistoria(self, contrato_instancia, vistoria):
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)

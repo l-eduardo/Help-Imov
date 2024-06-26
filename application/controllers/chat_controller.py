@@ -40,6 +40,8 @@ class ChatCrontroller:
         chat.incluir_documentos(documentos_novos)
         self.__chat_repository.insert_novos_documentos(chat.id, documentos_novos)
 
+        if event == "-SAIR-":
+            return "-SAIR-"
 
 
 
