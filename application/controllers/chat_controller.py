@@ -21,7 +21,6 @@ class ChatCrontroller:
         imagens_to_view = ImagensService.bulk_local_temp_save(chat.imagens)
         mensagens_novas, imagens_novas, documentos_novos, event = self.__chat_view.mostra_chat(usuario_logado, chat,
                                                                                                 imagens_to_view)
-        print(imagens_novas)
         novas_mensagens_obj = chat.incluir_mensagens(mensagens_novas)
         self.__chat_repository.insert_novas_mensagens(chat.id, novas_mensagens_obj)
 

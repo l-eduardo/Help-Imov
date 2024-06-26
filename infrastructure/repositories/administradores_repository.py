@@ -41,11 +41,16 @@ class AdministradoresRepository:
                 {"nome": administrador.nome,
                  "data_nascimento": administrador.data_nascimento})
             connection.session.commit()
+    
+    def delete(self, id: UUID) -> None:
+        with Connection() as connection:
+            connection.session.query(Administradores).filter(Administradores.id == str(id)).delete()
+            connection.session.commit()
 
     def is_root(self, id: UUID):
         with Connection() as connection:
             result = connection.session.query(Administradores)\
-            .filter(Administradores.id == id)\
+            .filter(Administradores.id == str(id))\
             .filter(Administradores.e_root == True)\
             .first()
 

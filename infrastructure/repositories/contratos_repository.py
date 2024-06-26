@@ -78,7 +78,12 @@ class ContratosRepositories:
         with Connection() as connection:
             result = connection.session.query(Contratos).filter(Contratos.data_inicio >= start_date, Contratos.data_inicio <= end_date).all()
             result_mapped = [ContratoInputMapper.map_contrato(x) for x in result]
-
-            print()
-
             return result_mapped
+
+    @staticmethod
+    def locatario_in_contrato_ativo(usuario_id: str):
+        with Connection() as connection:
+            return True if connection.session.query(Contratos).\
+                                                filter(Contratos.locatario_id == usuario_id,
+                                                       Contratos.esta_ativo == 1).first()\
+                        else False

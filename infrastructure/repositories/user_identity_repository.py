@@ -62,7 +62,9 @@ class UserIdentityRepository(UserRepository):
             connection.session.commit()
 
     def delete_user(self, user_id: UUID):
-        raise NotImplementedError
+        with Connection() as connection:
+            connection.session.query(UsuariosIdentityInfos).filter(UsuariosIdentityInfos.id == str(user_id)).delete()
+            connection.session.commit()
 
     def get_all_users(self):
         raise NotImplementedError

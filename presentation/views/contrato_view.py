@@ -84,7 +84,6 @@ class TelaContrato:
 
     def mostra_contrato(self, contrato, btn_visible_locatario):
         centrilizedButtons = [sg.Button("Encerrar Contrato", visible=btn_visible_locatario), sg.Button("Voltar")]
-        print(contrato)
         layout = [[sg.Text("Detalhes do contrato", font=('Arial', 18, 'bold'), text_color='Black',)],
                   [sg.Text("Data Inicio: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataInicio, key="dataInicio")],
                   #[sg.Text("Data Fim: ", font=('Arial', 14, 'bold')), sg.Text(contrato.dataFim, key="dataFim")],

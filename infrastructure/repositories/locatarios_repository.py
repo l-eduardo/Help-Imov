@@ -45,4 +45,4 @@ class LocatariosRepository:
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
-            connection.session.query(Locatarios).filter(Locatarios.id == id).delete()
+            connection.session.query(Locatarios).filter(Locatarios.id == str(id)).delete()

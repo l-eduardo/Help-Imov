@@ -3,8 +3,11 @@ import PySimpleGUI as sg
 from domain.models.usuario import Usuario
 
 class UsuarioView:
-    def mostra_popup(self, mensagem: str):
-        sg.popup(mensagem)
+    def mostra_popup(self, mensagem: str, confirmacao: bool = False):
+        if confirmacao:
+            return sg.popup_yes_no(mensagem)
+        else:
+            sg.popup(mensagem)
 
     def lista_usuarios(self, lista_usuarios: List[Usuario], e_admin: bool):
         window = self.__layout_lista_usuarios(lista_usuarios, e_admin)
@@ -55,7 +58,7 @@ class UsuarioView:
                           vertical_scroll_only=False)
         # Window layout
         layout = [[tabela],
-                  [sg.Button("Voltar"), 
+                  [sg.Button("Voltar", key="-VOLTAR-"), 
                    sg.Text("Adicionar usuário: ",
                            pad=((130,0), 0)),
                    sg.Combo(permissoes_editaveis,
@@ -145,8 +148,8 @@ class UsuarioView:
                                                 size=(50, 1),
                                                 pad=((58,0),5))]])
         layout_completo = [[layout_padrao],
-                           [sg.Button("Cancelar", pad=(10)), 
-                            sg.Button("Registrar", pad=(10))]]
+                           [sg.Button("Cancelar", key="-CANCELAR-", pad=(10)), 
+                            sg.Button("Registrar", key="-REGISTRAR-", pad=(10))]]
 
         return sg.Window(window_title, layout_completo)
     
@@ -168,44 +171,9 @@ class UsuarioView:
                                  [sg.Text("Empresa: "), 
                                    sg.Text(usuario.empresa)]])
         layout_completo = [[layout_padrao],
-                           [sg.Button("Voltar", pad=(10)), 
-                            sg.Button("Editar", pad=(10)),
-                            sg.Button("Excluir", pad=(10))]]
+                           [sg.Button("Voltar", key="-VOLTAR-", pad=(10)), 
+                            sg.Button("Editar", key="-EDITAR-", pad=(10)),
+                            sg.Button("Excluir", key="-EXCLUIR-", pad=(10))]]
 
         return sg.Window("Dados do Usuário", layout_completo)
 
-
-
-# TESTES ============================================================================================================================================
-# lista_usuarios = [{'permissao': "Administrador", 'nome': "Root", 'email': 'root@root.com', 'data_nascimento': '2000-01-01'},
-#                   {'permissao': "Administrador", 'nome': "José Carlos", 'email': 'jose.carlos@imov.com', 'data_nascimento': '1989-03-02'},
-#                   {'permissao': "Assistente", 'nome': "Amanda Silva", 'email': 'amanda.silva@imov.com', 'data_nascimento': '2001-01-01'},
-#                   {'permissao': "Locatario", 'nome': "Carlos Figueira", 'email': 'carlinho@gmail.com', 'data_nascimento': '1999-01-01'},
-#                   {'permissao': "Locatario", 'nome': "Suelen Almeida", 'email': 'sueli@hotmail.com', 'data_nascimento': '2002-01-01'},
-#                   {'permissao': "PrestadorServico", 'nome': "Ezequiel Marcos", 'email': 'ezequiel@solucoes.com', 'data_nascimento': '1980-01-01'}]
-# view = UsuarioView()
-# # Controler
-# while True:
-#     event_lista,values_lista = view.lista_usuarios(lista_usuarios) 
-#     if event_lista == '-ADC_USUARIO-':
-#         permissao = values_lista['-ADC_USUARIO-']
-#         event_usuario,values_usuario = view.pega_dados_usuario(permissao)
-#         if event_usuario == 'Registrar':
-#             # Cases qual é a permissão    
-#                 # Valida campos
-#                 # Se está certo
-#                     # Instancia o usuario
-#                     # Salva no banco
-#                 # Senão: Erro
-#             usuario = {'permissao': permissao, 
-#                         'nome': values_usuario['nome'], 
-#                         'email': values_usuario['email'], 
-#                         'data_nascimento': values_usuario['data_nascimento']}
-#             lista_usuarios.append(usuario)
-#         elif event_usuario == 'Cancelar' or event_usuario == sg.WIN_CLOSED:
-#             pass
-#     elif event_lista == '-MOSTRA_USUARIO-':
-#         view.mostra_usuario(lista_usuarios[values_lista['-TABELA-'][0]])
-#         print(values_lista['-TABELA-'])
-#     elif event_lista == sg.WIN_CLOSED:
-#         break
