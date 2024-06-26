@@ -1,15 +1,8 @@
-
-import uuid
-from sqlalchemy import UUID
-from application.controllers.session_controller import SessionController
-from domain.models.session import Session
 from domain.models.chat import Chat
 from domain.models.usuario import Usuario
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.chat_view import ChatView
 from infrastructure.repositories.chats_repository import ChatsRepository
-
-
 
 
 class ChatCrontroller:
@@ -25,9 +18,9 @@ class ChatCrontroller:
         novas_mensagens_obj = chat.incluir_mensagens(mensagens_novas)
         self.__chat_repository.insert_novas_mensagens(chat.id, novas_mensagens_obj)
 
-        imagens = ImagensService.bulk_read(imagens_novas)
-        chat.incluir_imagem(imagens)
-        self.__chat_repository.insert_novas_imagens(chat.id, imagens)
+        #imagens = ImagensService.bulk_read(imagens_novas)
+        chat.incluir_imagem(imagens_novas)
+        self.__chat_repository.insert_novas_imagens(chat.id, imagens_novas)
 
 
 

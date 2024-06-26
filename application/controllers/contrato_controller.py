@@ -86,7 +86,6 @@ class ContratoController:
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
                 self.listar_relacionados_contrato(contrato_selecionado)
 
-
     def selecionar_contrato(self, contrato_selecionado: Contrato, btn_visible_locatario):
         contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado, btn_visible_locatario)
         self.__contratos_repository.update_contrato(contrato)
@@ -177,7 +176,7 @@ class ContratoController:
                     contrato_instancia.remover_solicitacao(entidade["entity"])
                     self.__solicitacao_repository.delete(entidade["entity"].id)
 
-            elif events == "-TABELA-DOUBLE-CLICK-" or "Selecionar":
+            elif events == "Selecionar":
                 entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
                 if entidade["tipo"] == "Ocorrência":
                     imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
@@ -229,7 +228,18 @@ class ContratoController:
                         break
 
             elif events == "vistoria_inicial":
-                if contrato_instancia.vistoria_inicial:
+                if not contrato_instancia.vistoria_inicial:
+                    if session.user_role == 'Locatario':
+                        sg.popup("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
+                    else:
+                        criar_contra_vistoria = sg.popup(
+                            "Não existe Vistoria Inicial cadastrada",
+                            title="Aviso",
+                            custom_text=("Criar", "Fechar")
+                        )
+                        if criar_contra_vistoria == "Criar":
+                            self.incluir_vistoria(contrato_instancia, e_contestacao=False)
+                else:
                     caminho_documento = DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
                     vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
                                                                            lista_paths_imagens=ImagensService.bulk_local_temp_save(
@@ -253,20 +263,24 @@ class ContratoController:
                                 contrato_instancia.remover_vistoria(vistoria)
                                 self.__vistoria_repository.delete(vistoria.id)
                                 sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
-                else:
-                    if session.user_role == 'Locatario':
-                        sg.popup("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
+
+            elif events == "contra_vistoria":
+                if not contrato_instancia.contra_vistoria:
+                    if contrato_instancia.esta_fechada():
+                        sg.popup(
+                            "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
+                            title="Aviso",
+                            custom_text="Fechar"
+                        )
                     else:
                         criar_contra_vistoria = sg.popup(
-                            "Não existe Vistoria Inicial cadastrada",
+                            "Não existe Contra-Vistoria cadastrada",
                             title="Aviso",
                             custom_text=("Criar", "Fechar")
                         )
                         if criar_contra_vistoria == "Criar":
-                            self.incluir_vistoria(contrato_instancia, e_contestacao=False)
-
-            elif events == "contra_vistoria":
-                if contrato_instancia.contra_vistoria:
+                            self.incluir_vistoria(contrato_instancia, e_contestacao=True)
+                else:
                     caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
                     vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
                                                                            lista_paths_imagens=ImagensService.bulk_local_temp_save(
@@ -290,21 +304,6 @@ class ContratoController:
                                 contrato_instancia.remover_vistoria(vistoria)
                                 self.__vistoria_repository.delete(vistoria.id)
                                 sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
-                else:
-                    if contrato_instancia.esta_fechada():
-                        sg.popup(
-                            "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
-                            title="Aviso",
-                            custom_text="Fechar"
-                        )
-                    else:
-                        criar_contra_vistoria = sg.popup(
-                            "Não existe Contra-Vistoria cadastrada",
-                            title="Aviso",
-                            custom_text=("Criar", "Fechar")
-                        )
-                        if criar_contra_vistoria == "Criar":
-                            self.incluir_vistoria(contrato_instancia, e_contestacao=True)
 
             elif events == "Voltar":
                 ImagensService.flush_temp_images()
@@ -313,6 +312,8 @@ class ContratoController:
             elif events == sg.WIN_CLOSED:
                 ImagensService.flush_temp_images()
                 return
+
+
 
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
@@ -327,9 +328,9 @@ class ContratoController:
 
                 else:
                     contrato.incluir_vistoria(descricao=values["descricao"],
-                                            imagens=imagens,
-                                            documento=DocumentosService.read_file(values["documento"]),
-                                            e_contestacao=e_contestacao)
+                                              imagens=imagens,
+                                              documento=DocumentosService.read_file(values["documento"]),
+                                              e_contestacao=e_contestacao)
                     vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
                     self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
                     self.__contratos_repository.update(contrato)
