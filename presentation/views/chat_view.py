@@ -190,32 +190,33 @@ class ChatView:
 
         while True:
             event, values = window.read()
-            window['-COUNT_IMG-'].bind("<Return>", "_Enter")
             if event == sg.WIN_CLOSED or event == "Voltar":
                 window.close()
                 break
+            if len(imagens_to_view) > 0:
+                window['-COUNT_IMG-'].bind("<Return>", "_Enter")
 
-            if event == "-PROX_IMG-":
-                image_index = (image_index + 1) % len(imagens_to_view)
-                window['-COUNT_IMG-'].update(f"{image_index + 1}")
-                window['-IMAGE-'].update(imagens_to_view[image_index])
+                if event == "-PROX_IMG-":
+                    image_index = (image_index + 1) % len(imagens_to_view)
+                    window['-COUNT_IMG-'].update(f"{image_index + 1}")
+                    window['-IMAGE-'].update(imagens_to_view[image_index])
 
-            if event == "-ANT_IMG-":
-                if image_index == 0:
-                    image_index = len(imagens_to_view) - 1
-                else:
-                    image_index -= 1
-                window['-COUNT_IMG-'].update(f"{image_index + 1}")
-                window['-IMAGE-'].update(imagens_to_view[image_index])
+                if event == "-ANT_IMG-":
+                    if image_index == 0:
+                        image_index = len(imagens_to_view) - 1
+                    else:
+                        image_index -= 1
+                    window['-COUNT_IMG-'].update(f"{image_index + 1}")
+                    window['-IMAGE-'].update(imagens_to_view[image_index])
 
-            if event == '-COUNT_IMG-' + "_Enter":
-                try:
-                    contador_input = int(values['-COUNT_IMG-'])
-                except:
-                    contador_input = image_index
-                if contador_input > 0 and contador_input <= len(imagens_to_view):
-                    image_index = contador_input - 1
-                window['-IMAGE-'].update(imagens_to_view[image_index])
+                if event == '-COUNT_IMG-' + "_Enter":
+                    try:
+                        contador_input = int(values['-COUNT_IMG-'])
+                    except:
+                        contador_input = image_index
+                    if contador_input > 0 and contador_input <= len(imagens_to_view):
+                        image_index = contador_input - 1
+                    window['-IMAGE-'].update(imagens_to_view[image_index])
 
             if event == 'abrir_documento':
                 self.mostra_documento(documentos_to_view)
