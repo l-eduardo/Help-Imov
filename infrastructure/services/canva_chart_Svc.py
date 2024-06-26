@@ -39,6 +39,8 @@ class CanvaChartService:
         plt.bar(keys, top_values, color='blue')
         plt.bar(keys, bottom_values, color='green')
 
+        plt.legend([top_values_legenda, bottom_values_legenda])
+
         plt.title(title)
 
         plt.grid(True)
