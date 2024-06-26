@@ -288,6 +288,8 @@ class ContratoController:
                     )
                     if criar_contra_vistoria == "Criar":
                         self.incluir_vistoria(contrato_instancia, e_contestacao = False)
+                    elif criar_contra_vistoria == "Fechar":
+                        self.listar_relacionados_contrato(contrato_instancia)
 
         if events == "contra_vistoria":
             if contrato_instancia.contra_vistoria:
