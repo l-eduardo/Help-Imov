@@ -348,7 +348,6 @@ class ContratoController:
                             self.listar_relacionados_contrato(contrato_instancia)
                         elif criar_contra_vistoria == "Fechar":
                             self.listar_relacionados_contrato(contrato_instancia)
-
         elif events == "Voltar":
             ImagensService.flush_temp_images()
             self.listar_contrato()
@@ -357,6 +356,8 @@ class ContratoController:
             ImagensService.flush_temp_images()
             return
         self.listar_relacionados_contrato(contrato_instancia)
+
+
 
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
@@ -371,9 +372,9 @@ class ContratoController:
 
                 else:
                     contrato.incluir_vistoria(descricao=values["descricao"],
-                                            imagens=imagens,
-                                            documento=DocumentosService.read_file(values["documento"]),
-                                            e_contestacao=e_contestacao)
+                                              imagens=imagens,
+                                              documento=DocumentosService.read_file(values["documento"]),
+                                              e_contestacao=e_contestacao)
                     vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
                     self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
                     self.__contratos_repository.update(contrato)

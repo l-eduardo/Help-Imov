@@ -1,16 +1,9 @@
-
-import uuid
-from sqlalchemy import UUID
-from application.controllers.session_controller import SessionController
-from domain.models.session import Session
 from domain.models.chat import Chat
 from domain.models.usuario import Usuario
 from infrastructure.services.Documentos_Svc import DocumentosService
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.views.chat_view import ChatView
 from infrastructure.repositories.chats_repository import ChatsRepository
-
-
 
 
 class ChatCrontroller:
@@ -35,6 +28,7 @@ class ChatCrontroller:
 
         chat.incluir_documentos(documentos_novos)
         self.__chat_repository.insert_novos_documentos(chat.id, documentos_novos)
+
 
 
 
