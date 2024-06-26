@@ -209,7 +209,7 @@ class ContratoController:
                         entidade["entity"].titulo = editar_ocorr_values["titulo"]
                         entidade["entity"].descricao = editar_ocorr_values["descricao"]
                         entidade["entity"].status = Status(editar_ocorr_values["status"])
-                        # entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
+                        entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
 
                         if not entidade["entity"].e_valida():
                             errors = entidade["entity"].get_validation_errors()
@@ -218,7 +218,7 @@ class ContratoController:
                                 entidade["entity"].titulo = dummy.titulo
                                 entidade["entity"].descricao = dummy.descricao
                                 entidade["entity"].status = dummy.status
-                                # entidade["entity"].prestador_id = dummy.prestador_id
+                                entidade["entity"].prestador_id = dummy.prestador_id
 
                                 entidade["entity"].clear_validation_errors()
                         else:
