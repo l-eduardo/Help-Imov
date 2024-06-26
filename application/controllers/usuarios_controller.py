@@ -35,7 +35,7 @@ class UsuariosController:
         self.__usuarios_mapper = UsuariosOutputMapper()
 
     @SessionController.inject_session_data
-    def lista_usuarios(self, session: Session = None):
+    def lista_usuarios(self, return_func=None, session: Session = None):
         self.obter_usuarios_do_banco()
         if session.user_role == 'Administrador':
             lista_usuarios = self.__todos_usuarios
@@ -50,7 +50,11 @@ class UsuariosController:
                 self.mostra_usuario(lista_usuarios[values_lista['-TABELA-'][0]])
             case '-ADC_USUARIO-':
                 self.cria_usuario(values_lista['-ADC_USUARIO-'])
-    
+            case '-VOLTAR-' | None:
+                if return_func:
+                    return_func()
+                pass
+
 
     def mostra_usuario(self, usuario_selecionado: Usuario):
         event_mostra,values_mostra = self.__tela_usuarios.mostra_usuario(usuario_selecionado)
@@ -70,6 +74,8 @@ class UsuariosController:
                 except SystemError as e:
                     self.__tela_usuarios.mostra_popup(e)
                     self.mostra_usuario(usuario_selecionado)
+
+        self.lista_usuarios()
 
     def cria_usuario(self, permissao):
         event,values = self.__tela_usuarios.pega_dados_usuario(permissao)
@@ -162,7 +168,6 @@ class UsuariosController:
                         self.__tela_usuarios.mostra_popup(e)
                 case '-CANCELAR-':
                     self.__tela_usuarios.mostra_popup("Operação cancelada, usuário não foi editado!")
-        self.lista_usuarios()
 
     @SessionController.inject_session_data
     def exclui_usuario(self, usuario: Usuario, session: Session):
@@ -171,7 +176,7 @@ class UsuariosController:
                      'Locatario': self.__locatarios_repository.delete,
                      'PrestadorServico': self.__prestadores_servicos_repository.delete}
         permissao = usuario.__class__.__name__
- 
+
         if permissao == 'Locatario' and ContratosRepositories.locatario_in_contrato_ativo(str(usuario.id)):
             raise SystemError("Este locatário está em um contrato ativo e não pode ser excluído! \nCaso não deseje mais seu acesso, considere alterar a senha.")
         elif permissao == 'Administrador' and self.__administradores_repository.is_root(usuario.id):
@@ -202,7 +207,7 @@ class UsuariosController:
         nomes_prestadores = [prestador.nome for prestador in prestadores]
 
         return nomes_prestadores
-    
+
     def valida_campos_usuario(self, values: dict, usuario: Usuario = None):
         # Valida Nome
         if len(values['nome']) > 100 or len(values['nome']) < 5:
@@ -249,7 +254,7 @@ class UsuariosController:
     @property
     def todos_usuarios(self) -> list[Usuario]:
         return self.obter_usuarios_do_banco()
-    
+
     def usuario_by_id(self, id) -> Usuario:
         for usuario in self.obter_usuarios_do_banco():
             if id == str(usuario.id):

@@ -30,6 +30,7 @@ class ImoveisController:
 
             if event == "Registrar":
                 try:
+                    codigo = (int(values['codigo']))
                     self.valida_endereco(values['endereco'])
                     imagens = ImagensService.bulk_read(values["imagens"].split(';'))
                     imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
@@ -39,7 +40,7 @@ class ImoveisController:
                             "Imagens inválidas. Por favor, selecione imagens com resolução entre 1280x720 e 1820x1280 pixels!"
                         )
                     else:
-                        imovel = Imovel(codigo=values['codigo'], endereco=values['endereco'],
+                        imovel = Imovel(codigo=codigo, endereco=values['endereco'],
                                         imagens=imagens)
                         self.__imoveis_repository.insert(imovel)
                         self.__imoveis_repository.update(imovel)

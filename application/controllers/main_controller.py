@@ -44,7 +44,7 @@ class MainController:
             autenticado = self.__session_controller.autheticate(inputs["email"], inputs["password"])
 
             if evento == "Cancel" or evento[0] == None:
-                break
+                exit(1000)
             if autenticado:
                 self.__set_session(autenticado.id)
                 usuario_atual = self.__session_controller.get_current_user()
@@ -69,7 +69,7 @@ class MainController:
 
             match event:
                 case "usuarios":
-                    self.__usuarios_controller.lista_usuarios()
+                    self.__usuarios_controller.lista_usuarios(self.abrir_tela_inicial)
                 case "imoveis":
                     self.__imoveis_controller.listar_imoveis()
                 case "contratos":
