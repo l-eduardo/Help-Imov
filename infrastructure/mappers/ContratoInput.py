@@ -49,7 +49,7 @@ class ContratoInputMapper:
                 data_criacao=ocorrencia.data_criacao,
                 prestador_id=ocorrencia.prestador_id,
                 id=UUID(ocorrencia.id),
-                chat=ChatInputMapper.map_chat(ocorrencia.chat) if ocorrencia.chat is not None else [])
+                chat=ChatInputMapper.map_chat(ocorrencia.chat) if ocorrencia.chat is not None else None)
 
         if contrato_from_db.vistoria_inicial is not None:
             contrato.incluir_vistoria(

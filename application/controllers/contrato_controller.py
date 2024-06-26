@@ -203,17 +203,6 @@ class ContratoController:
                 elif mostra_ocorr_event == "editar_ocorrencia":
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
                         entidade["entity"])
-                    if editar_ocorr_events == "confirmar_edicao":
-                        titulo = editar_ocorr_values["titulo"]
-                        descricao = editar_ocorr_values["descricao"]
-                        prestador_id = editar_ocorr_values.get("prestadores")
-                        if self.validar_campos_entidade(titulo, descricao):
-                            entidade["entity"].titulo = editar_ocorr_values["titulo"]
-                            entidade["entity"].descricao = editar_ocorr_values["descricao"]
-                            entidade["entity"].status = Status(editar_ocorr_values["status"])
-                            entidade["entity"].prestador_id = prestador_id
-                    titulo = editar_ocorr_values["titulo"]
-                    descricao = editar_ocorr_values["descricao"]
 
                     if editar_ocorr_events == "confirmar_edicao":
                         dummy = copy.copy(entidade["entity"])
