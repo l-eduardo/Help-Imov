@@ -10,7 +10,7 @@ class Locatarios(Base):
 
 
     id = Column(String(36), ForeignKey('USUARIOS_IDENTITY_INFOS.id'),  primary_key=True)
-    nome = Column(String(50), nullable=False, name='nome')
+    nome = Column(String(100), nullable=False, name='nome')
     data_nascimento = Column(Date, nullable=False, name='data_nascimento')
     celular = Column(String(50), nullable=False, name='celular')
     user_identity = relationship('UsuariosIdentityInfos')
