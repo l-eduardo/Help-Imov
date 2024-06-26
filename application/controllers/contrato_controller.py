@@ -332,25 +332,25 @@ class ContratoController:
                             self.listar_relacionados_contrato(contrato_instancia)
                     elif event == "Voltar":
                         self.listar_relacionados_contrato(contrato_instancia)
-            else:
-                if contrato_instancia.esta_fechada():
-                    sg.popup(
-                        "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
-                        title="Aviso",
-                        custom_text="Fechar"
-                    )
                 else:
-                    criar_contra_vistoria = sg.popup(
-                        "Não existe Contra-Vistoria cadastrada",
-                        title="Aviso",
-                        custom_text=("Criar", "Fechar")
-                    )
-                    if criar_contra_vistoria == "Criar":
-                        self.incluir_vistoria(contrato_instancia, e_contestacao = True)
-                        self.listar_relacionados_contrato(contrato_instancia)
-                    elif criar_contra_vistoria == "Fechar":
-                        self.listar_relacionados_contrato(contrato_instancia)
-                        
+                    if contrato_instancia.esta_fechada():
+                        sg.popup(
+                            "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
+                            title="Aviso",
+                            custom_text="Fechar"
+                        )
+                    else:
+                        criar_contra_vistoria = sg.popup(
+                            "Não existe Contra-Vistoria cadastrada",
+                            title="Aviso",
+                            custom_text=("Criar", "Fechar")
+                        )
+                        if criar_contra_vistoria == "Criar":
+                            self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                            self.listar_relacionados_contrato(contrato_instancia)
+                        elif criar_contra_vistoria == "Fechar":
+                            self.listar_relacionados_contrato(contrato_instancia)
+
         elif events == "Voltar":
             ImagensService.flush_temp_images()
             self.listar_contrato()
