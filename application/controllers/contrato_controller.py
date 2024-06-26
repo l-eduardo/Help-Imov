@@ -219,10 +219,10 @@ class ContratoController:
                                 entidade["entity"].descricao = dummy.descricao
                                 entidade["entity"].status = dummy.status
                                 entidade["entity"].prestador_id = dummy.prestador_id
-
                                 entidade["entity"].clear_validation_errors()
                         else:
                             self.__ocorrencia_repository.update(entidade["entity"])
+                            self.listar_relacionados_contrato(contrato_instancia)
                 elif mostra_ocorr_event == "Voltar":
                     self.listar_relacionados_contrato(contrato_instancia)
 
@@ -285,8 +285,9 @@ class ContratoController:
                         if vistoria.esta_fechada():
                             self.__tela_vistoria.mostra_msg("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
                         else:
-                            self.editar_vistoria(contrato_instancia, vistoria, e_vistoria_inicial=True)
-                            self.listar_relacionados_contrato(contrato_instancia)
+                            self.editar_vistoria(contrato_instancia, vistoria)
+                    elif event == "Voltar":
+                        self.listar_relacionados_contrato(contrato_instancia)
 
         if events == "contra_vistoria":
             if contrato_instancia.contra_vistoria == None:
@@ -303,6 +304,7 @@ class ContratoController:
                         custom_text=("Criar", "Fechar")
                     )
                     if criar_contra_vistoria == "Criar":
+
                             self.incluir_vistoria(contrato_instancia, e_contestacao = True)
                             self.listar_relacionados_contrato(contrato_instancia)
             else:
@@ -328,7 +330,27 @@ class ContratoController:
                             self.__vistoria_repository.delete(vistoria.id)
                             sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
                             self.listar_relacionados_contrato(contrato_instancia)
-
+                    elif event == "Voltar":
+                        self.listar_relacionados_contrato(contrato_instancia)
+            else:
+                if contrato_instancia.esta_fechada():
+                    sg.popup(
+                        "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
+                        title="Aviso",
+                        custom_text="Fechar"
+                    )
+                else:
+                    criar_contra_vistoria = sg.popup(
+                        "Não existe Contra-Vistoria cadastrada",
+                        title="Aviso",
+                        custom_text=("Criar", "Fechar")
+                    )
+                    if criar_contra_vistoria == "Criar":
+                        self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                        self.listar_relacionados_contrato(contrato_instancia)
+                    elif criar_contra_vistoria == "Fechar":
+                        self.listar_relacionados_contrato(contrato_instancia)
+                        
         elif events == "Voltar":
             ImagensService.flush_temp_images()
             self.listar_contrato()
@@ -356,6 +378,7 @@ class ContratoController:
                     vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
                     self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
                     self.__contratos_repository.update(contrato)
+
             except:
                 self.__tela_vistoria.mostra_msg("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
