@@ -51,9 +51,6 @@ class TelaVistoria:
         while True:
             event, values = window.read()
             window['-COUNT_IMG-'].bind("<Return>", "_Enter")
-            if event == sg.WIN_CLOSED or event == "Voltar":
-                window.close()
-                break
 
             if event == "Editar":
                 window.close()
@@ -62,6 +59,10 @@ class TelaVistoria:
             if event == "Excluir":
                 window.close()
                 return "excluir_vistoria", vistoria
+
+            if event == "Voltar":
+                window.close()
+                return "Voltar", vistoria
 
             if event == "-PROX_IMG-":
                 image_index = (image_index + 1) % len(lista_paths_imagens)

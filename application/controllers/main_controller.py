@@ -26,7 +26,7 @@ class MainController:
         self.__imoveis_controller = ImoveisController(self)
         self.__chat_controller = ChatCrontroller()
         self.user_identity_repository = UserIdentityRepository()
-        self.ocorrencias_repository = OcorrenciasRepository()
+        self.__ocorrencias_repository = OcorrenciasRepository()
         self.__chat_repository = ChatsRepository()
 
         self.__main_window = None
@@ -83,7 +83,7 @@ class MainController:
     @SessionController.inject_session_data
     def abrir_tela_prestadores(self, session: Session = None):
         while True:
-            ocorrencias = self.ocorrencias_repository.get_all_to_domain()
+            ocorrencias = self.__ocorrencias_repository.get_all_to_domain()
             prestador_atual = self.__session_controller.get_current_user()
             ocorrencias_para_tela = []
 
@@ -121,6 +121,7 @@ class MainController:
                             if not isinstance(chat, Chat):
                                 chat = entidade["entity"].incluir_chat()
                                 self.__chat_repository.insert_chat(chat)
+                                self.__ocorrencias_repository.update(entidade["entity"])
 
                             usuario_logado_id = session.user_id
                             usuario_logado = self.__usuarios_controller.usuario_by_id(usuario_logado_id)

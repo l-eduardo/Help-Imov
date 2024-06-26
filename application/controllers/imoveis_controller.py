@@ -25,45 +25,54 @@ class ImoveisController:
         return True
 
     def inclui_imovel(self):
-        event, values = self.__tela_imovel.pega_dados_imovel()
+        while True:
+            event, values = self.__tela_imovel.pega_dados_imovel()
 
-        if event == "Registrar":
-            try:
-                self.valida_endereco(values['endereco'])
-                imagens = ImagensService.bulk_read(values["imagens"].split(';'))
-                imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
+            if event == "Registrar":
+                try:
+                    self.valida_endereco(values['endereco'])
+                    imagens = ImagensService.bulk_read(values["imagens"].split(';'))
+                    imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
-                if imagens_invalidas:
-                    self.__tela_imovel.mostra_msg(
-                        "Imagens inválidas. Por favor, selecione imagens com resolução entre 1280x720 e 1820x1280 pixels!")
-                else:
-                    imovel = Imovel(codigo=values['codigo'], endereco=values['endereco'],
-                                    imagens=imagens)
-                    self.__imoveis_repository.insert(imovel)
-                    self.__imoveis_repository.update(imovel)
-                    self.listar_imoveis()
-            except ValueError as e:
-                sg.Popup(f"Erro de validação: {str(e)}")
-            except FileNotFoundError as e:
-                sg.Popup(f"Erro ao ler as imagens: {str(e)}")
-            except Exception as e:
-                sg.Popup(f"Algo deu errado, tente novamente. \n\nErro: {str(e)}")
+                    if imagens_invalidas:
+                        self.__tela_imovel.mostra_msg(
+                            "Imagens inválidas. Por favor, selecione imagens com resolução entre 1280x720 e 1820x1280 pixels!"
+                        )
+                    else:
+                        imovel = Imovel(codigo=values['codigo'], endereco=values['endereco'],
+                                        imagens=imagens)
+                        self.__imoveis_repository.insert(imovel)
+                        self.__imoveis_repository.update(imovel)
+                        self.listar_imoveis()
+                        break
+                except ValueError as e:
+                    sg.Popup(f"Erro de validação: {str(e)}")
+                except FileNotFoundError as e:
+                    sg.Popup(f"Erro ao ler as imagens: {str(e)}")
+                except Exception as e:
+                    sg.Popup(f"Algo deu errado, tente novamente. \n\nErro: {str(e)}")
+            elif event in ("Cancelar", sg.WIN_CLOSED):
+                break
 
     def editar_imovel(self, imovel):
-        event, values = self.__tela_imovel.pega_dados_editar_imovel(imovel)
-        if event == "Salvar":
-            try:
-                self.valida_endereco(values['endereco'])
-                imovel.codigo = values["codigo"]
-                imovel.endereco = values["endereco"]
-                self.__imoveis_repository.update(imovel)
-                sg.popup("Imóvel atualizado com sucesso", title="Sucesso")
-            except ValueError as e:
-                sg.Popup(f"Erro de validação: {str(e)}")
-            except Exception as e:
-                sg.Popup(f"Algo deu errado ao atualizar o imóvel. \n\nErro: {str(e)}")
-        elif event == "Cancelar":
-            sg.popup("Edição cancelada", title="Aviso")
+        while True:
+            event, values = self.__tela_imovel.pega_dados_editar_imovel(imovel)
+
+            if event == "Salvar":
+                try:
+                    self.valida_endereco(values['endereco'])
+                    imovel.codigo = values["codigo"]
+                    imovel.endereco = values["endereco"]
+                    self.__imoveis_repository.update(imovel)
+                    sg.popup("Imóvel atualizado com sucesso", title="Sucesso")
+                    break  # Sai do loop e retorna para a lista de imóveis
+                except ValueError as e:
+                    sg.Popup(f"Erro de validação: {str(e)}")
+                except Exception as e:
+                    sg.Popup(f"Algo deu errado ao imovel: \n Lembres-se de que o código precisa ser um inteiro")
+            elif event in ("Cancelar", sg.WIN_CLOSED):
+                sg.popup("Edição cancelada", title="Aviso")
+                break  # Sai do loop e fecha a tela de edição
 
         self.listar_imoveis()
 
@@ -78,7 +87,7 @@ class ImoveisController:
         except KeyError as e:
             sg.Popup(f"Erro ao excluir o imóvel: {str(e)}")
         except Exception as e:
-            sg.Popup(f"Algo deu errado ao excluir o imóvel. \n\nErro: {str(e)}")
+            sg.Popup(f"Algo deu errado ao imovel: \n Lembres-se de que o código precisa ser um inteiro")
 
     def contrato_associado(self, imovel_id):
         from application.controllers.contrato_controller import ContratoController
