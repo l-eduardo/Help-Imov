@@ -23,10 +23,6 @@ class ChatCrontroller:
         documentos_to_view = []
         for documento in chat.documentos:
             documentos_to_view.append(DocumentosService.save_file(documento))
-            print(documento)
-            print(documentos_to_view)
-
-
 
         mensagens_novas, imagens_novas, documentos_novos, event = self.__chat_view.mostra_chat(usuario_logado, chat,
                                                                                                 imagens_to_view, documentos_to_view)

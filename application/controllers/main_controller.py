@@ -102,7 +102,7 @@ class MainController:
             event_lista, values_lista = self.__main_view.tela_inicial_prestadores(ocorrencias_para_tela)
 
             if event_lista == "Sair":
-                break
+                self.run()
 
             if event_lista == "-TABELA-DOUBLE-CLICK-":
                 while True:
