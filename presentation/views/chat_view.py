@@ -5,11 +5,13 @@ from domain.models.usuario import Usuario
 from domain.models.chat import Chat
 from infrastructure.services.Imagens_Svc import ImagensService
 from presentation.components.carrossel_cmpt import Carrossel
+from infrastructure.services.Documentos_Svc import DocumentosService
+import subprocess, os, platform
 
 
 class ChatView:
 
-    def mostra_chat(self, usuario_logado: Usuario, chat: Chat, imagens_to_view: List[str]):
+    def mostra_chat(self, usuario_logado: Usuario, chat: Chat, imagens_to_view: List[str], documentos_to_view: List[str]):
         layout = [
             [sg.Multiline(size=(160, 40), disabled=True, key='-CHAT-')],
             [sg.Multiline(size=(150, 5), key='-MENSAGEM-'),
@@ -32,6 +34,7 @@ class ChatView:
         imagens_teste = []
         imagens_novas = []
         documentos_novos = []
+        print(documentos_to_view)
         while True:
             event, values = window.read(timeout=100)
 
@@ -42,7 +45,6 @@ class ChatView:
                 datetime_atual = datetime.now()
                 event_imagem, values_imagem = self.pega_imagem()
                 if event_imagem == 'Anexar':
-                        print(event_imagem)
                         try:
                             imagens_teste += values_imagem["imagens"].split(";")
                             imagens_novas = ImagensService.bulk_read(imagens_teste)
@@ -64,10 +66,31 @@ class ChatView:
                             sg.popup(
                                 "Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
+            if event == '-DOCUMENTO-':
+                datetime_atual = datetime.now()
+                event_documento, value_documento = self.pega_documento()
+                if event_documento == "Anexar":
+                    documentos_novos = []
+                    if value_documento["documento"] != "":
+                        for documento in value_documento["documento"].split(";"):
+                            documentos_novos.append(DocumentosService.read_file(documento))
+                            documentos_to_view.append(documento)
+
+                            window['-CHAT-'].print(
+                                f"{usuario_logado.nome} [{datetime_atual.strftime('%d/%m/%Y %H:%M:%S')}]:",
+                                text_color="DarkBlue", font='bold')
+                            imagens_to_view += imagens_teste
+                            window['-CHAT-'].print(f"\nAdiciou um novo anexo \n" + "_" * 126, font='bold')
+                            mensagens_novas.append({'usuario': usuario_logado,
+                                                    'mensagem': 'Adiciou um novo anexo',
+                                                    'datetime': datetime_atual.strftime("%Y-%m-%d %H:%M:%S")})
+                    else:
+                        self.mostra_msg("Por favor, selecione pelo menos um documento")
+
             if event == '-ANEXOS-':
                 print(chat.imagens)
-                self.mostra_anexos(imagens_to_view)
-        
+                self.mostra_anexos(imagens_to_view, documentos_to_view)
+
             if event == '-ENVIAR-':
                 datetime_atual = datetime.now()
                 # Garante apenas 500 caracteres e informa usuário caso passou
@@ -108,7 +131,7 @@ class ChatView:
             return True
         else:
             return False
-        
+
     def atualiza_contador_mensagem(self, mensagem_em_edicao: str, window: sg.Window):
         quantidade_caracteres = len(mensagem_em_edicao)
         if quantidade_caracteres < 500:
@@ -122,7 +145,7 @@ class ChatView:
         lista.append({'usuario': usuario,
                       'mensagem': mensagem,
                       'datetime': datetime_formatado})
-    
+
     def mostra_popup(self, texto: str):
         sg.popup(texto)
 
@@ -141,11 +164,24 @@ class ChatView:
         return event, values
 
     def pega_documento(self):
-        pass
+        centrilizedButtons = [sg.Button("Anexar", size=(10, 1)), sg.Button("Cancelar", size=(10, 1))]
+        layout = [
+            [sg.Text("Documento *")],
+            [[sg.Input(key='documento', readonly=True, disabled_readonly_background_color='#ECECEC',
+                       disabled_readonly_text_color='#545454'),
+              sg.FilesBrowse(file_types=(('ALL Files', '*.pdf'),))]],
+            [sg.Column([centrilizedButtons], justification="center")]]
 
-    def mostra_anexos(self, imagens_to_view):
+        window = sg.Window("Anexar Documento", layout)
+        event, values = window.read()
+        window.close()
+        return event, values
+
+    def mostra_anexos(self, imagens_to_view, documentos_to_view):
         image_index = 0
         layout = [
+            [sg.Text("Documentos:", size=(22, 1), justification='left'),
+             sg.Button("Abrir", key="abrir_documento")],
             Carrossel.carrossel_layout(imagens_to_view)
         ]
         window = sg.Window('Anexos', layout, element_justification='center',
@@ -182,8 +218,32 @@ class ChatView:
                 window['-IMAGE-'].update(imagens_to_view[image_index])
 
             if event == 'abrir_documento':
-                #self.abrir_documento(caminho_documento)
-                pass
+                self.mostra_documento(documentos_to_view)
+
 
     def mostra_msg(self, msg):
         sg.Popup(msg, font=('Arial', 14, 'bold'), title='Contrato', button_justification='left')
+
+    def mostra_documento(self, documentos_to_view):
+        for documento in documentos_to_view:
+            caminho_documento = documento
+            try:
+                if not os.path.isfile(caminho_documento):
+                    raise FileNotFoundError(f"Arquivo não encontrado: {caminho_documento}")
+
+                if platform.system() == 'Darwin':  # macOS
+                    teste = subprocess.call(('open', caminho_documento))
+                elif platform.system() == 'Windows':  # Windows
+                    os.startfile(caminho_documento)
+                else:  # linux variants
+                    teste = subprocess.call(('xdg-open', caminho_documento))
+
+            except FileNotFoundError as e:
+                print(e)
+                caminho_documento = os.path.dirname(caminho_documento)
+                if platform.system() == 'Darwin':  # macOS
+                    teste = subprocess.call(('open', caminho_documento))
+                elif platform.system() == 'Windows':  # Windows
+                    os.startfile(caminho_documento)
+                else:  # linux variants
+                    teste = subprocess.call(('xdg-open', caminho_documento))
