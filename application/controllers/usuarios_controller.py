@@ -1,4 +1,6 @@
 import uuid
+from application.controllers.session_controller import SessionController
+from domain.models.session import Session
 from presentation.views.usuario_view import UsuarioView
 from domain.models.administrador import Administrador
 from domain.models.assistente import Assistente
@@ -28,15 +30,21 @@ class UsuariosController:
         self.__user_identity_repository = UserIdentityRepository()
         self.__usuarios_mapper = UsuariosOutputMapper()
 
-    def lista_usuarios(self):
+    @SessionController.inject_session_data
+    def lista_usuarios(self, session: Session = None):
         self.obter_usuarios_do_banco()
-        event_lista,values_lista = self.__tela_usuarios.lista_usuarios(self.__todos_usuarios)
+        if session.user_role == 'Administrador':
+            event_lista,values_lista = self.__tela_usuarios.lista_usuarios(self.__todos_usuarios, e_admin = True)
+        elif session.user_role == 'Assistente':
+            event_lista,values_lista = self.__tela_usuarios.lista_usuarios(self.__locatarios+self.__prestadores_servicos, e_admin = False)
+        else:
+            self.__tela_usuarios.mostra_popup("Você não possui permissão para essa ação")
         match event_lista:
             case '-MOSTRA_USUARIO-':
                 self.mostra_usuario(self.__todos_usuarios[values_lista['-TABELA-'][0]])
             case '-ADC_USUARIO-':
                 self.cria_usuario(values_lista['-ADC_USUARIO-'])
-
+    
     def mostra_usuario(self, usuario_selecionado):
         event_mostra,values_mostra = self.__tela_usuarios.mostra_usuario(usuario_selecionado)
         match event_mostra:

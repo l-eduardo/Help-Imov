@@ -1,16 +1,13 @@
+from typing import List
 import PySimpleGUI as sg
 from domain.models.usuario import Usuario
-from domain.models.administrador import Administrador
-from domain.models.assistente import Assistente
-from domain.models.locatario import Locatario
-from domain.models.prestador_servico import PrestadorServico
 
 class UsuarioView:
     def mostra_popup(self, mensagem: str):
         sg.popup(mensagem)
 
-    def lista_usuarios(self, lista_usuarios):
-        window = self.__layout_lista_usuarios(lista_usuarios)
+    def lista_usuarios(self, lista_usuarios: List[Usuario], e_admin: bool):
+        window = self.__layout_lista_usuarios(lista_usuarios, e_admin)
         event, values = window.read()
         window.close()
         return event, values
@@ -27,7 +24,7 @@ class UsuarioView:
         window.close()
         return event, values
 
-    def __layout_lista_usuarios(self, usuarios_listados):
+    def __layout_lista_usuarios(self, usuarios_listados: List[Usuario], e_admin: bool):
 
         header = ["Permissão",
                   "Nome", 
@@ -39,6 +36,9 @@ class UsuarioView:
                        usuario.email, 
                        usuario.data_nascimento]
                        for usuario in usuarios_listados]
+        
+        permissoes_editaveis = ['Administrador', 'Assistente', 'Locatario', 'PrestadorServico']\
+                                 if e_admin else ['Locatario', 'PrestadorServico']
 
         # Table layout
         tabela = sg.Table(table_data,
@@ -58,7 +58,7 @@ class UsuarioView:
                   [sg.Button("Voltar"), 
                    sg.Text("Adicionar usuário: ",
                            pad=((130,0), 0)),
-                   sg.Combo(['Administrador', 'Assistente', 'Locatario', 'PrestadorServico'],
+                   sg.Combo(permissoes_editaveis,
                              default_value='Escolha a permissão...',
                              enable_events=True,
                              key='-ADC_USUARIO-',
@@ -115,6 +115,9 @@ class UsuarioView:
                                             password_char='*')],
                           [sg.Text("Data de Nascimento: "), 
                             sg.InputText(default_text=data_nascimento,
+                                            readonly = True,
+                                            disabled_readonly_background_color='#ECECEC', 
+                                            disabled_readonly_text_color='#545454',
                                             key="data_nascimento", 
                                             tooltip="data de nascimento do usuário", 
                                             size=(50, 1)),
