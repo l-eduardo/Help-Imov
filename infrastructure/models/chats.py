@@ -8,4 +8,5 @@ class Chats(Base):
     id = Column(String(36), primary_key=True)
     mensagens = relationship('Mensagens', cascade='all, delete-orphan')
     imagens = relationship('Imagens', cascade='all, delete-orphan')
+    documentos = relationship('Documentos', cascade='all, delete-orphan')
 

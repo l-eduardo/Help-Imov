@@ -50,8 +50,7 @@ class ChatsRepository():
     def insert_novos_documentos(self, chat_id: UUID, novos_documentos: List[Documento]):
         with Connection() as connection:
             for documento in novos_documentos:
-                documento_mapped = DocumentoOutputMapper.map(documento,
-                                                       chat_id=chat_id)
+                documento_mapped = DocumentoOutputMapper.map(documento, None, chat_id)
                 connection.session.add(documento_mapped)
             connection.session.commit()
             return novos_documentos

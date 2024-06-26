@@ -16,3 +16,9 @@ class DocumentoInputMapper:
         )
 
         return documento
+
+    @staticmethod
+    def bulk_map_documento(documentos_from_db: list[Documentos]) -> list[Documento]:
+        if not documentos_from_db:
+            return []
+        return [DocumentoInputMapper.map_documento(documento) for documento in documentos_from_db]
