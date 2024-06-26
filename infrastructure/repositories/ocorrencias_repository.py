@@ -33,7 +33,7 @@ class OcorrenciasRepository:
                     "descricao": ocorrencia.descricao,
                     "prestador_id": ocorrencia.prestador_id,
                     "status": ocorrencia.status.name,
-                    "chat_id": ocorrencia.chat.id
+                    "chat_id": ocorrencia.chat.id if ocorrencia.chat else None
                 }
             )
             connection.session.commit()
