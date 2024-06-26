@@ -260,7 +260,18 @@ class ContratoController:
                     break
 
         if events == "vistoria_inicial":
-            if contrato_instancia.vistoria_inicial:
+            if contrato_instancia.vistoria_inicial == None:
+                if session.user_role == 'Locatario':
+                    self.__tela_vistoria.mostra_msg("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
+                else:
+                    criar_contra_vistoria = self.__tela_vistoria.mostra_msg(
+                        "Não existe Vistoria Inicial cadastrada",
+                        nova_vistoria=True
+                    )
+                    if criar_contra_vistoria == "Criar":
+                        self.incluir_vistoria(contrato_instancia, e_contestacao = False)
+                        self.listar_relacionados_contrato(contrato_instancia)
+            else:
                 caminho_documento = DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
                                                      lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens),
@@ -274,42 +285,11 @@ class ContratoController:
                         if vistoria.esta_fechada():
                             self.__tela_vistoria.mostra_msg("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
                         else:
-                            self.editar_vistoria(contrato_instancia, vistoria)
-
-            else:
-                if session.user_role == 'Locatario':
-                    self.__tela_vistoria.mostra_msg("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
-                else:
-                    criar_contra_vistoria = self.__tela_vistoria.mostra_msg(
-                        "Não existe Vistoria Inicial cadastrada",
-                        nova_vistoria=True
-                    )
-                    if criar_contra_vistoria == "Criar":
-                        self.incluir_vistoria(contrato_instancia, e_contestacao = False)
+                            self.editar_vistoria(contrato_instancia, vistoria, e_vistoria_inicial=True)
+                            self.listar_relacionados_contrato(contrato_instancia)
 
         if events == "contra_vistoria":
-            if contrato_instancia.contra_vistoria:
-                caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
-                vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
-                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),
-                                                     caminho_documento=caminho_documento,
-                                                     e_contestacao=True,
-                                                     user_role=session.user_role)
-                if vistoria_result is not None:
-                    event, vistoria = vistoria_result
-                    if event == "editar_vistoria":
-                        if vistoria.esta_fechada():
-                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
-                        else:
-                            self.editar_vistoria(contrato_instancia, vistoria)
-                    elif event == "excluir_vistoria":
-                        if vistoria.esta_fechada():
-                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
-                        else:
-                            contrato_instancia.remover_vistoria(vistoria)
-                            self.__vistoria_repository.delete(vistoria.id)
-                            sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
-            else:
+            if contrato_instancia.contra_vistoria == None:
                 if contrato_instancia.esta_fechada():
                     sg.popup(
                         "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
@@ -324,6 +304,30 @@ class ContratoController:
                     )
                     if criar_contra_vistoria == "Criar":
                             self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                            self.listar_relacionados_contrato(contrato_instancia)
+            else:
+                caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
+                vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
+                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),
+                                                     caminho_documento=caminho_documento,
+                                                     e_contestacao=True,
+                                                     user_role=session.user_role)
+                if vistoria_result is not None:
+                    event, vistoria = vistoria_result
+                    if event == "editar_vistoria":
+                        if vistoria.esta_fechada():
+                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
+                            self.editar_vistoria(contrato_instancia, vistoria)
+                            self.listar_relacionados_contrato(contrato_instancia)
+                    elif event == "excluir_vistoria":
+                        if vistoria.esta_fechada():
+                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
+                            contrato_instancia.remover_vistoria(vistoria)
+                            self.__vistoria_repository.delete(vistoria.id)
+                            sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+                            self.listar_relacionados_contrato(contrato_instancia)
 
         elif events == "Voltar":
             ImagensService.flush_temp_images()
@@ -332,7 +336,6 @@ class ContratoController:
         elif events == sg.WIN_CLOSED:
             ImagensService.flush_temp_images()
             return
-        #self.listar_relacionados_contrato(contrato_instancia)
 
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
@@ -356,15 +359,19 @@ class ContratoController:
             except:
                 self.__tela_vistoria.mostra_msg("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
-    def editar_vistoria(self, contrato_instancia, vistoria):
+    def editar_vistoria(self, contrato_instancia, vistoria, e_vistoria_inicial = False):
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
         if event == "Salvar":
-            vistoria.descricao = values["descricao"]
-            if self.valida_campos_vistoria(self, "descricao", vistoria.descricao):
-                self.__vistoria_repository.update(vistoria)
-                self.__tela_vistoria.mostra_msg("Vistoria atualizada com sucesso")
+            if e_vistoria_inicial:
+                if self.valida_campos_vistoria("descricao", values["descricao"]):
+                    vistoria.descricao = values["descricao"]
+                    self.__vistoria_repository.update(vistoria)
+                    self.__tela_vistoria.mostra_msg("Vistoria atualizada com sucesso")
+                else:
+                    self.__tela_vistoria.mostra_msg("O campo de descrição deve conter entre 1 e 500 caracteres")
             else:
-                self.__tela_vistoria.mostra_msg("O campo de descrição deve conter menos de 500 caracteres")
+                vistoria.descricao = values["descricao"]
+                self.__vistoria_repository.update(vistoria)
         elif event == "Cancelar":
             self.__tela_vistoria.mostra_msg("Edição cancelada")
 
@@ -397,4 +404,4 @@ class ContratoController:
     def valida_campos_vistoria(self, campo, valor):
         match campo:
             case 'descricao':
-                return len(valor) <= 500
+                return len(valor) <= 500 and len(valor) >= 1
