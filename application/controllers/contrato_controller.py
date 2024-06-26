@@ -198,7 +198,7 @@ class ContratoController:
                                                                 dirs=imagens_dir)
 
                 if mostra_ocorr_event == "editar_ocorrencia" and entidade["entity"].criador_id != session.user_id:
-                    sg.popup("Você não tem permissão para editar esta ocorrência")
+                    self.__ocorrencia_view.mostra_popup("Você não tem permissão para editar esta ocorrência")
 
                 elif mostra_ocorr_event == "editar_ocorrencia":
                     editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
