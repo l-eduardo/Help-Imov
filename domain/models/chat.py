@@ -25,7 +25,7 @@ class Chat:
     @property
     def mensagens(self) -> List[Mensagem]:
         return self.__mensagens
-    
+
     @property
     def documentos(self) -> List[Documento]:
         return self.__documentos
@@ -47,4 +47,4 @@ class Chat:
 
     def incluir_documentos(self, novos_documentos: List[Documento]):
         for documento in novos_documentos:
-            self.__imagens.append(documento)
+            self.__documentos.append(documento)
