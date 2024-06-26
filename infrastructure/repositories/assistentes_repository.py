@@ -44,4 +44,4 @@ class AssistentesRepository:
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
-            connection.session.query(Assistentes).filter(Assistentes.id == id).delete()
+            connection.session.query(Assistentes).filter(Assistentes.id == str(id)).delete()

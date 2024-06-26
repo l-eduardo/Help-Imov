@@ -14,9 +14,7 @@ class OcorrenciasRepository:
 
     def insert(self, ocorrencia: Ocorrencia, contrato_id: UUID) -> Ocorrencia:
         ocorrencia_to_db = OcorrenciaOutputMapper.map_ocorrencia(ocorrencia_from_domain=ocorrencia, contrato_id=contrato_id)
-
         with Connection() as connection:
-
             connection.session.add(ocorrencia_to_db)
             connection.session.commit()
             return ocorrencia
@@ -35,7 +33,7 @@ class OcorrenciasRepository:
                     "descricao": ocorrencia.descricao,
                     "prestador_id": ocorrencia.prestador_id,
                     "status": ocorrencia.status.name,
-                    "chat_id": ocorrencia.chat.id
+                    "chat_id": ocorrencia.chat.id if ocorrencia.chat else None
                 }
             )
             connection.session.commit()

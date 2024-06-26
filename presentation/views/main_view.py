@@ -1,19 +1,16 @@
 import os
 import PySimpleGUI as sg
-from infrastructure.repositories.prestadores_servicos_repository import PrestadoresServicosRepository
-
 
 class MainView:
-
-    def tela_inicial(self, show_report=False):
+    def tela_inicial(self, show_report=False, visao_locatario=True):
         image_path = os.path.join(os.path.dirname(__file__), '../assets/help-imov-logo.png')
 
         layout = [
             [sg.Image(filename=image_path, subsample=3),
              sg.Text('Help Imov', font=('Any', 18), justification='right')],
             [sg.Text("", size=(0, 1))],
-            [sg.Button("Usuários", size=(15, 1), key="usuarios", visible=show_report)],
-            [sg.Button("Imoveis", size=(15, 1), key="imoveis")],
+            [sg.Button("Usuários", size=(15, 1), key="usuarios", visible=visao_locatario)],
+            [sg.Button("Imoveis", size=(15, 1), key="imoveis", visible=visao_locatario)],
             [sg.Button("Contratos", key="contratos", size=(15, 1))],
             [sg.Button("Relatórios", key="relatorios", size=(15, 1), visible=show_report)],
             [sg.Button("Sair")]

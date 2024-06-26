@@ -17,7 +17,6 @@ class PrestadoresServicosRepository:
                     if user.id == idInfo.id:
                         result.append((user, idInfo))
             result_mapped = [UsuariosInputMapper.map_prestadorServico(x) for x in result]
-            print(result_mapped)
             return result_mapped
 
     def __convert_to_uuid(self, id_str_or_uuid):
@@ -67,4 +66,4 @@ class PrestadoresServicosRepository:
 
     def delete(self, id: UUID) -> None:
         with Connection() as connection:
-            connection.session.query(PrestadoresServicos).filter(PrestadoresServicos.id == id).delete()
+            connection.session.query(PrestadoresServicos).filter(PrestadoresServicos.id == str(id)).delete()

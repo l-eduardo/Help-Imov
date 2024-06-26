@@ -14,8 +14,9 @@ class CanvaChartService:
 
         plt.tight_layout()
         plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-
-        return plt.gcf()
+        figure = plt.gcf()
+        plt.figure().clear()
+        return figure
 
     @staticmethod
     def create_bar_chart(x_axis_values, y_axis_values, title: str = "Grafico") -> None:
@@ -29,13 +30,16 @@ class CanvaChartService:
         plt.tight_layout()
         plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
-        return plt.gcf()
+        figure = plt.gcf()
+        plt.figure().clear()
+        return figure
 
     @staticmethod
-    def create_stacked_bar_chart(keys, top_values, bottom_values, title: str = "Grafico") -> None:
+    def create_stacked_bar_chart(keys, top_values, bottom_values, top_values_legenda, bottom_values_legenda, title: str = "Grafico") -> None:
         plt.bar(keys, top_values, color='blue')
         plt.bar(keys, bottom_values, color='green')
-        plt.legend(['Ocorrencias abertas', 'Ocorrencias concluidas'])
+
+        plt.legend([top_values_legenda, bottom_values_legenda])
 
         plt.title(title)
 
@@ -45,4 +49,6 @@ class CanvaChartService:
         plt.tight_layout()
         plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
-        return plt.gcf()
+        figure = plt.gcf()
+        plt.figure().clear()
+        return figure

@@ -22,11 +22,11 @@ class MainController:
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
         self.__session_controller = SessionController()
         self.__usuarios_controller = UsuariosController()
-        self.__contrato_controller = ContratoController(self.__usuarios_controller)
+        self.__contrato_controller = ContratoController(self.__usuarios_controller, self)
         self.__imoveis_controller = ImoveisController(self)
         self.__chat_controller = ChatCrontroller()
         self.user_identity_repository = UserIdentityRepository()
-        self.ocorrencias_repository = OcorrenciasRepository()
+        self.__ocorrencias_repository = OcorrenciasRepository()
         self.__chat_repository = ChatsRepository()
 
         self.__main_window = None
@@ -44,9 +44,9 @@ class MainController:
             autenticado = self.__session_controller.autheticate(inputs["email"], inputs["password"])
 
             if evento == "Cancel" or evento[0] == None:
-                break
+                exit(1000)
             if autenticado:
-                self.__set_session(autenticado)
+                self.__set_session(autenticado.id)
                 usuario_atual = self.__session_controller.get_current_user()
                 if usuario_atual.user_role == 'Prestador_servico':
                     self.abrir_tela_prestadores()
@@ -57,19 +57,19 @@ class MainController:
 
             self.__login_view.error_popup("Email ou senha incorretos")
 
-    def __set_session(self, usuario):
-        self.__session_controller.get_new_session(usuario.id)
+    def __set_session(self, id):
+        self.__session_controller.get_new_session(id)
         pass
-
 
     @SessionController.inject_session_data
     def abrir_tela_inicial(self, session: Session=None):
         while True:
-            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or
-                                                                      session.user_role == "Assistente")
+            event, values = self.__main_view.tela_inicial(show_report=session.user_role == "Administrador" or session.user_role == "Assistente",
+                                                          visao_locatario=True if session.user_role != "Locatario" else False)
+
             match event:
                 case "usuarios":
-                        self.__usuarios_controller.lista_usuarios()
+                    self.__usuarios_controller.lista_usuarios(self.abrir_tela_inicial)
                 case "imoveis":
                     self.__imoveis_controller.listar_imoveis()
                 case "contratos":
@@ -83,7 +83,7 @@ class MainController:
     @SessionController.inject_session_data
     def abrir_tela_prestadores(self, session: Session = None):
         while True:
-            ocorrencias = self.ocorrencias_repository.get_all_to_domain()
+            ocorrencias = self.__ocorrencias_repository.get_all_to_domain()
             prestador_atual = self.__session_controller.get_current_user()
             ocorrencias_para_tela = []
 
@@ -102,7 +102,7 @@ class MainController:
             event_lista, values_lista = self.__main_view.tela_inicial_prestadores(ocorrencias_para_tela)
 
             if event_lista == "Sair":
-                break
+                self.run()
 
             if event_lista == "-TABELA-DOUBLE-CLICK-":
                 while True:
@@ -121,6 +121,7 @@ class MainController:
                             if not isinstance(chat, Chat):
                                 chat = entidade["entity"].incluir_chat()
                                 self.__chat_repository.insert_chat(chat)
+                                self.__ocorrencias_repository.update(entidade["entity"])
 
                             usuario_logado_id = session.user_id
                             usuario_logado = self.__usuarios_controller.usuario_by_id(usuario_logado_id)

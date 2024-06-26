@@ -52,15 +52,17 @@ class RelatorioController:
                     contratos = self.__contrato_repository.get_all()
 
                     contratos_id = [str(contrato.id)[:8] + "..." for contrato in contratos[-10:]]
-                    solicitacoes_count_per_id = [len(contrato.ocorrencias) for contrato in contratos[-10:]]
-                    solicitacoes_concluidas_count_per_id = [
+                    ocorrencias_count_per_id = [len(contrato.ocorrencias) for contrato in contratos[-10:]]
+                    ocorrencias_concluidas_count_per_id = [
                         len([ocorrencia for ocorrencia in contrato.ocorrencias if ocorrencia.status == Status.FECHADO])
                         for contrato in contratos[-10:]
                     ]
 
-                    chart = CanvaChartService.create_stacked_bar_chart(top_values=solicitacoes_count_per_id,
-                                                                    bottom_values=solicitacoes_concluidas_count_per_id,
+                    chart = CanvaChartService.create_stacked_bar_chart(top_values=ocorrencias_count_per_id,
+                                                                    bottom_values=ocorrencias_concluidas_count_per_id,
                                                                     keys=contratos_id,
+                                                                    bottom_values_legenda="Concluidas",
+                                                                    top_values_legenda="Abertas",
                                                                     title="Ocorrencias X Contratos")
 
                     self.__relatorio_view.mostrar_grafico(chart)
@@ -79,6 +81,8 @@ class RelatorioController:
                     chart = CanvaChartService.create_stacked_bar_chart(top_values=solicitacoes_count_per_id,
                                                                     bottom_values=solicitacoes_concluidas_count_per_id,
                                                                     keys=contratos_id,
+                                                                    bottom_values_legenda="Concluidas",
+                                                                    top_values_legenda="Abertas",
                                                                     title="Solicitacoes X Contratos")
 
                     self.__relatorio_view.mostrar_grafico(chart)

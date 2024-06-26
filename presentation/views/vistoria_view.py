@@ -51,9 +51,6 @@ class TelaVistoria:
         while True:
             event, values = window.read()
             window['-COUNT_IMG-'].bind("<Return>", "_Enter")
-            if event == sg.WIN_CLOSED or event == "Voltar":
-                window.close()
-                break
 
             if event == "Editar":
                 window.close()
@@ -62,6 +59,10 @@ class TelaVistoria:
             if event == "Excluir":
                 window.close()
                 return "excluir_vistoria", vistoria
+
+            if event == "Voltar":
+                window.close()
+                return "Voltar", vistoria
 
             if event == "-PROX_IMG-":
                 image_index = (image_index + 1) % len(lista_paths_imagens)
@@ -88,8 +89,8 @@ class TelaVistoria:
             if event == 'abrir_documento':
                 self.abrir_documento(caminho_documento)
 
-    def mostra_msg(self, msg):
-        sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left')
+    def mostra_msg(self, msg, nova_vistoria = False):
+        return sg.Popup(msg, font=('Arial', 14, 'bold'), title='Vistoria', button_justification='left', custom_text=("Criar","Cancelar") if nova_vistoria else "OK")
 
     def __layout_editar_vistoria(self, vistoria):
 
@@ -122,9 +123,6 @@ class TelaVistoria:
                 os.startfile(caminho_documento)
             else:  # linux variants
                 teste = subprocess.call(('xdg-open', caminho_documento))
-
-            #if teste == 1:
-                #raise ValueError("Não há programa padrão para abrir, abrindo diretório")
 
         except FileNotFoundError as e:
             print(e)

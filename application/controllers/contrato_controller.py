@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime
 
 from application.controllers.chat_controller import ChatCrontroller
@@ -29,7 +30,8 @@ import PySimpleGUI as sg
 
 
 class ContratoController:
-    def __init__(self, user_controller):
+    def __init__(self, user_controller, main_controller):
+        self.__main_controller = main_controller
         self.__chat_controller = ChatCrontroller()
         self.__usuario_controller = user_controller
         self.__tela_vistoria = TelaVistoria(self)
@@ -62,29 +64,40 @@ class ContratoController:
         self.listar_contrato()
 
     @SessionController.inject_session_data
-    def listar_contrato(self, session: Session = None):
+    def listar_contrato(self, session: Session=None):
+        contrato_instancia = None
         self.contratos = self.obter_contratos_do_banco()
-        btn_visible_locatario = session.user_role != "Locatario"
+        btn_visible_locatario = True
+        if session.user_role == "Locatario":
+            btn_visible_locatario = False
         contratos_listados = []
-
         for contrato in self.contratos:
-            if session.user_id == contrato.locatario.id and contrato.estaAtivo:
-                contratos_listados.append(contrato)
-            elif session.user_role in ["Administrador", "Assistente"]:
+            if session.user_id == contrato.locatario.id:
+                if contrato.estaAtivo:
+                    contratos_listados.append(contrato)
+            if session.user_role in ["Administrador", "Assistente"]:
                 contratos_listados = self.obter_contratos_do_banco()
 
-        while True:
-            event, values, _ = self.__tela_contrato.mostra_contratos(contratos_listados, btn_visible_locatario)
-            if event == "Voltar":
-                break
-            if event == "Visualizar" and values["-TABELA-"]:
+        event, values, btn_visible_locatario = self.__tela_contrato.mostra_contratos(contratos_listados, btn_visible_locatario)
+        if event == "Visualizar":
+            if values["-TABELA-"]:
                 contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
                 self.selecionar_contrato(contrato_selecionado, btn_visible_locatario)
-            elif event == "Adicionar":
-                self.inclui_contrato()
-            elif event == "Selecionar" and values["-TABELA-"]:
-                contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
-                self.listar_relacionados_contrato(contrato_selecionado)
+
+            else:
+                sg.popup("Nenhum contrato selecionado")
+        if event == "Adicionar":
+            self.inclui_contrato()
+        if event == "Selecionar":
+            contrato_selecionado = contratos_listados[values["-TABELA-"][0]]
+            for contrato in self.contratos:
+                if contrato_selecionado.id == contrato.id:
+                    contrato_instancia = contrato
+                    break
+            self.listar_relacionados_contrato(contrato_instancia)
+            return contrato_selecionado
+        if event == "Voltar" or sg.WIN_CLOSED:
+            self.__main_controller.abrir_tela_inicial()
 
     def selecionar_contrato(self, contrato_selecionado: Contrato, btn_visible_locatario):
         contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado, btn_visible_locatario)
@@ -99,173 +112,225 @@ class ContratoController:
         return [contrato.id for contrato in self.contratos]
 
     @SessionController.inject_session_data
-    def listar_relacionados_contrato(self, contrato_instancia: Contrato, session: Session = None):
+    def listar_relacionados_contrato(self, contrato_instancia: Contrato, session: Session=None):
         if contrato_instancia is None:
             self.__tela_contrato.mostra_msg("Nenhum contrato selecionado")
             return
 
-        while True:
-            ocorrencias_para_tela = []
-            for ocorrencia in contrato_instancia.ocorrencias:
-                ocorrencias_para_tela.append({
-                    "tipo": "Ocorrência",
-                    "titulo": ocorrencia.titulo,
-                    "status": ocorrencia.status.value,
-                    "dataCriacao": ocorrencia.data_criacao,
-                    "prestador_id": ocorrencia.prestador_id,
-                    "entity": ocorrencia
-                })
+        ocorrencias_para_tela = []
+        for ocorrencia in contrato_instancia.ocorrencias:
+            ocorrencias_para_tela.append({
+                "tipo": "Ocorrência",
+                "titulo": ocorrencia.titulo,
+                "status": ocorrencia.status.value,
+                "dataCriacao": ocorrencia.data_criacao,
+                "prestador_id": ocorrencia.prestador_id,
+                "entity": ocorrencia
+            })
 
-            solicitacoes_para_tela = []
-            for solicitacao in contrato_instancia.solicitacoes:
-                solicitacoes_para_tela.append({
-                    "tipo": "Solicitação",
-                    "titulo": solicitacao.titulo,
-                    "status": solicitacao.status.value,
-                    "dataCriacao": solicitacao.data_criacao,
-                    "entity": solicitacao
-                })
+        solicitacoes_para_tela = []
+        for solicitacao in contrato_instancia.solicitacoes:
+            solicitacoes_para_tela.append({
+                "tipo": "Solicitação",
+                "titulo": solicitacao.titulo,
+                "status": solicitacao.status.value,
+                "dataCriacao": solicitacao.data_criacao,
+                "entity": solicitacao
+            })
 
-            solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
+        solicitacoes_ocorrencias = ocorrencias_para_tela + solicitacoes_para_tela
 
-            if solicitacoes_ocorrencias:
-                events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato(solicitacoes_ocorrencias,
-                                                                                             contrato_instancia)
-            else:
-                self.__tela_contrato.mostra_msg("Não há solicitações ou ocorrências cadastradas neste contrato")
-                events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato(solicitacoes_ocorrencias,
-                                                                                             contrato_instancia)
+        if solicitacoes_ocorrencias:
+            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato(solicitacoes_ocorrencias,
+                                                                                         contrato_instancia)
+        else:
+            self.__tela_contrato.mostra_msg("Não há solicitações ou ocorrências cadastradas neste contrato")
+            events, values, contrato = self.__tela_contrato.mostra_relacionados_contrato(solicitacoes_ocorrencias,
+                                                                                         contrato_instancia)
 
-            if events == "add_ocorrencia":
-                event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
-                if event == "Salvar":
-                    imagens = ImagensService.bulk_read(values['imagens'])
-                    errors = contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"],
-                                                                   session.user_id,
-                                                                   imagens=imagens, prestador_id=None)
-                    if len(errors) > 0:
-                        ValidationErrorsPopup.show_errors(errors)
-                    else:
-                        self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
-                                                            contrato_id=contrato_instancia.id)
+        if events == "add_ocorrencia":
+            event, values = self.__ocorrencia_view.vw_nova_ocorrencia()
+            if event == "Salvar":
+                imagens = ImagensService.bulk_read(values['imagens'])
+                errors = contrato_instancia.incluir_ocorrencia(values["titulo"], values["descricao"], session.user_id,
+                                                               imagens=imagens, prestador_id=None)
 
-            elif events == "add_solicitacao":
-                while True:
-                    event, values = self.__solicitacao_view.pega_dados_solicitacao()
-                    titulo = values["titulo"]
-                    descricao = values["descricao"]
-                    if event == "Registrar":
-                        if self.validar_campos_entidade(titulo, descricao):
-                            contrato_instancia.incluir_solicitacao(titulo, descricao, session.user_id)
-                            self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
-                                                                 id_contrato=contrato_instancia.id)
-                            self.__solicitacao_view.mostra_msg("Solicitação registrada com sucesso")
-                            break  # Sai do loop se validar os dados
-                    else:
-                        break  # Sai do loop se clica em cancelar
-
-            elif events == "Excluir" and values["-TABELA-"] is not None:
-                entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
-                if entidade["entity"].criador_id != session.user_id:
-                    self.__ocorrencia_view.mostra_popup(
-                        "Você não tem permissão para excluir esta ocorrência/solicitacao")
-                elif entidade["tipo"] == "Ocorrência":
-                    contrato_instancia.remover_ocorrencia(entidade["entity"])
-                    self.__ocorrencia_repository.delete(entidade["entity"].id)
-                elif entidade["tipo"] == "Solicitação":
-                    contrato_instancia.remover_solicitacao(entidade["entity"])
-                    self.__solicitacao_repository.delete(entidade["entity"].id)
-
-            elif events == "Selecionar":
-                entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
-                if entidade["tipo"] == "Ocorrência":
-                    imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
-                    mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
-                                                                                        dirs=imagens_dir)
-                    if entidade["entity"].criador_id != session.user_id:
-                        sg.popup("Você não tem permissão para editar esta ocorrência")
-                    elif mostra_ocorr_event == "editar_ocorrencia":
-                        editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
-                            entidade["entity"])
-                        if editar_ocorr_events == "confirmar_edicao":
-                            titulo = editar_ocorr_values["titulo"]
-                            descricao = editar_ocorr_values["descricao"]
-                            prestador_id = editar_ocorr_values.get("prestadores")
-                            if self.validar_campos_entidade(titulo, descricao):
-                                entidade["entity"].titulo = editar_ocorr_values["titulo"]
-                                entidade["entity"].descricao = editar_ocorr_values["descricao"]
-                                entidade["entity"].status = Status(editar_ocorr_values["status"])
-                                entidade["entity"].prestador_id = prestador_id
-                                self.__ocorrencia_repository.update(entidade["entity"])
-
-                    elif mostra_ocorr_event == "Chat":
-                        chat = entidade["entity"].chat
-                        if not isinstance(chat, Chat):
-                            chat = entidade["entity"].incluir_chat()
-                            self.__chat_repository.insert_chat(chat)
-                        usuario_logado_id = session.user_id
-                        usuario_logado = self.__usuario_controller.usuario_by_id(usuario_logado_id)
-                        self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
-
-                if entidade["tipo"] == "Solicitação":
-                    while True:
-                        event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
-                        if entidade["entity"].criador_id != session.user_id:
-                            sg.popup("Você não tem permissão para editar esta solicitação")
-                        elif event_solic == "editar_solicitacao":
-                            while True:
-                                edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(
-                                    entidade["entity"])
-                                titulo = edit_solic_values["titulo"]
-                                descricao = edit_solic_values["descricao"]
-                                if edit_solic_events == "confirmar_edicao":
-                                    if self.validar_campos_entidade(titulo, descricao):
-                                        entidade["entity"].titulo = edit_solic_values["titulo"]
-                                        entidade["entity"].descricao = edit_solic_values["descricao"]
-                                        entidade["entity"].status = Status(edit_solic_values["status"])
-                                        self.__solicitacao_repository.update(entidade["entity"])
-                                    break
-                        break
-
-            elif events == "vistoria_inicial":
-                if not contrato_instancia.vistoria_inicial:
-                    if session.user_role == 'Locatario':
-                        sg.popup("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
-                    else:
-                        criar_contra_vistoria = sg.popup(
-                            "Não existe Vistoria Inicial cadastrada",
-                            title="Aviso",
-                            custom_text=("Criar", "Fechar")
-                        )
-                        if criar_contra_vistoria == "Criar":
-                            self.incluir_vistoria(contrato_instancia, e_contestacao=False)
+                if len(errors) > 0:
+                    ValidationErrorsPopup.show_errors(errors)
                 else:
-                    caminho_documento = DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
-                    vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
-                                                                           lista_paths_imagens=ImagensService.bulk_local_temp_save(
-                                                                               contrato_instancia.vistoria_inicial.imagens),
-                                                                           caminho_documento=caminho_documento,
-                                                                           e_contestacao=False,
-                                                                           user_role=session.user_role)
-                    if vistoria_result is not None:
-                        event, vistoria = vistoria_result
-                        if event == "editar_vistoria":
-                            if vistoria.esta_fechada():
-                                sg.Popup(
-                                    "Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
-                            else:
-                                self.editar_vistoria(contrato_instancia, vistoria)
-                        elif event == "excluir_vistoria":
-                            if vistoria.esta_fechada():
-                                sg.Popup(
-                                    "Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
-                            else:
-                                contrato_instancia.remover_vistoria(vistoria)
-                                self.__vistoria_repository.delete(vistoria.id)
-                                sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+                    self.__ocorrencia_repository.insert(ocorrencia=contrato_instancia.ocorrencias[-1],
+                                                        contrato_id=contrato_instancia.id)
 
-            elif events == "contra_vistoria":
-                if not contrato_instancia.contra_vistoria:
+        elif events == "add_solicitacao":
+            while True:
+                event, values = self.__solicitacao_view.pega_dados_solicitacao()
+                titulo = values["titulo"]
+                descricao = values["descricao"]
+                if event == "Registrar":
+                    if self.validar_campos_entidade(titulo, descricao):
+                        contrato_instancia.incluir_solicitacao(titulo, descricao, session.user_id)
+                        self.__solicitacao_repository.insert(solicitacao=contrato_instancia.solicitacoes[-1],
+                                                             id_contrato=contrato_instancia.id)
+                        self.__solicitacao_view.mostra_msg("Solicitação registrada com sucesso")
+                        break  # Sai do loop se validar os dados
+                else:
+                    break  # Sai do loop se clica em cancelar
+
+        elif events == "Excluir" and values["-TABELA-"] is not None:
+            entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
+
+            if entidade["entity"].criador_id != session.user_id:
+                self.__ocorrencia_view.mostra_popup("Você não tem permissão para excluir esta ocorrência/solicitacao")
+
+            elif entidade["tipo"] == "Ocorrência":
+                contrato_instancia.remover_ocorrencia(entidade["entity"])
+                self.__ocorrencia_repository.delete(entidade["entity"].id)
+
+            elif entidade["tipo"] == "Solicitação":
+                contrato_instancia.remover_solicitacao(entidade["entity"])
+                self.__solicitacao_repository.delete(entidade["entity"].id)
+
+        elif events == "Selecionar":
+            entidade = solicitacoes_ocorrencias[values["-TABELA-"][0]]
+
+            if entidade["tipo"] == "Ocorrência":
+                imagens_dir = ImagensService.bulk_local_temp_save(entidade["entity"].imagens)
+                mostra_ocorr_event, _ = self.__ocorrencia_view.vw_mostra_ocorrencia(entidade["entity"],
+                                                                dirs=imagens_dir)
+
+                if mostra_ocorr_event == "editar_ocorrencia" and entidade["entity"].criador_id != session.user_id:
+                    self.__ocorrencia_view.mostra_popup("Você não tem permissão para editar esta ocorrência")
+
+                elif mostra_ocorr_event == "editar_ocorrencia":
+                    editar_ocorr_events, editar_ocorr_values = self.__ocorrencia_view.vw_editar_ocorrencia(
+                        entidade["entity"])
+
+                    if editar_ocorr_events == "confirmar_edicao":
+                        dummy = copy.copy(entidade["entity"])
+                        entidade["entity"].titulo = editar_ocorr_values["titulo"]
+                        entidade["entity"].descricao = editar_ocorr_values["descricao"]
+                        entidade["entity"].status = Status(editar_ocorr_values["status"])
+                        entidade["entity"].prestador_id = editar_ocorr_values["prestadores"]
+
+                        if not entidade["entity"].e_valida():
+                            errors = entidade["entity"].get_validation_errors()
+                            if len(errors) > 0:
+                                ValidationErrorsPopup.show_errors(errors)
+                                entidade["entity"].titulo = dummy.titulo
+                                entidade["entity"].descricao = dummy.descricao
+                                entidade["entity"].status = dummy.status
+                                entidade["entity"].prestador_id = dummy.prestador_id
+                                entidade["entity"].clear_validation_errors()
+                        else:
+                            self.__ocorrencia_repository.update(entidade["entity"])
+
+
+                elif mostra_ocorr_event == "Chat":
+                    chat = entidade["entity"].chat
+                    if not isinstance(chat, Chat):
+                        chat = entidade["entity"].incluir_chat()
+                        self.__chat_repository.insert_chat(chat)
+                        self.__ocorrencia_repository.update(entidade["entity"])
+
+                    usuario_logado_id = session.user_id
+                    usuario_logado = self.__usuario_controller.usuario_by_id(usuario_logado_id)
+                    self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
+
+
+            if entidade["tipo"] == "Solicitação":
+                while True:
+                    event_solic, _ = self.__solicitacao_view.mostra_solicitacao(entidade["entity"])
+                    if entidade["entity"].criador_id != session.user_id and event_solic == "editar_solicitacao":
+                        sg.popup("Você não tem permissão para editar esta solicitação")
+                    elif event_solic == "editar_solicitacao":
+                        while True:
+                            edit_solic_events, edit_solic_values = self.__solicitacao_view.editar_solicitacao(entidade["entity"])
+                            titulo = edit_solic_values["titulo"]
+                            descricao = edit_solic_values["descricao"]
+                            if edit_solic_events == "confirmar_edicao":
+                                if self.validar_campos_entidade(titulo, descricao):
+                                    entidade["entity"].titulo = edit_solic_values["titulo"]
+                                    entidade["entity"].descricao = edit_solic_values["descricao"]
+                                    entidade["entity"].status = Status(edit_solic_values["status"])
+                                    self.__solicitacao_repository.update(entidade["entity"])
+                                break
+                            break
+                    break
+
+        if events == "vistoria_inicial":
+            if contrato_instancia.vistoria_inicial == None:
+                if session.user_role == 'Locatario':
+                    self.__tela_vistoria.mostra_msg("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
+                    self.listar_relacionados_contrato(contrato_instancia)
+                else:
+                    criar_contra_vistoria = self.__tela_vistoria.mostra_msg(
+                        "Não existe Vistoria Inicial cadastrada",
+                        nova_vistoria=True
+                    )
+                    if criar_contra_vistoria == "Criar":
+                        self.incluir_vistoria(contrato_instancia, e_contestacao = False)
+                        self.listar_relacionados_contrato(contrato_instancia)
+            else:
+                caminho_documento = DocumentosService.save_file(contrato_instancia.vistoria_inicial.documento)
+                vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.vistoria_inicial,
+                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.vistoria_inicial.imagens),
+                                                     caminho_documento=caminho_documento,
+                                                     e_contestacao = False,
+                                                     user_role=session.user_role)
+                if vistoria_result is not None:
+                    event, vistoria = vistoria_result
+
+                    if event == "editar_vistoria":
+                        if vistoria.esta_fechada():
+                            self.__tela_vistoria.mostra_msg("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
+                            self.editar_vistoria(contrato_instancia, vistoria)
+                    elif event == "Voltar":
+                        self.listar_relacionados_contrato(contrato_instancia)
+
+        if events == "contra_vistoria":
+            if contrato_instancia.contra_vistoria == None:
+                if contrato_instancia.esta_fechada():
+                    sg.popup(
+                        "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
+                        title="Aviso",
+                        custom_text="Fechar"
+                    )
+                else:
+                    criar_contra_vistoria = sg.popup(
+                        "Não existe Contra-Vistoria cadastrada",
+                        title="Aviso",
+                        custom_text=("Criar", "Fechar")
+                    )
+                    if criar_contra_vistoria == "Criar":
+                        self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                        
+            else:
+                caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
+                vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
+                                                     lista_paths_imagens=ImagensService.bulk_local_temp_save(contrato_instancia.contra_vistoria.imagens),
+                                                     caminho_documento=caminho_documento,
+                                                     e_contestacao=True,
+                                                     user_role=session.user_role)
+                if vistoria_result is not None:
+                    event, vistoria = vistoria_result
+                    if event == "editar_vistoria":
+                        if vistoria.esta_fechada():
+                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
+                            self.editar_vistoria(contrato_instancia, vistoria)
+                            self.listar_relacionados_contrato(contrato_instancia)
+                    elif event == "excluir_vistoria":
+                        if vistoria.esta_fechada():
+                            sg.Popup("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
+                        else:
+                            contrato_instancia.remover_vistoria(vistoria)
+                            self.__vistoria_repository.delete(vistoria.id)
+                            sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+                            self.listar_relacionados_contrato(contrato_instancia)
+                    elif event == "Voltar":
+                        self.listar_relacionados_contrato(contrato_instancia)
+                else:
                     if contrato_instancia.esta_fechada():
                         sg.popup(
                             "Vistoria não pode ser incluida pois ja atingiu o prazo maximo de 14 dias",
@@ -279,39 +344,18 @@ class ContratoController:
                             custom_text=("Criar", "Fechar")
                         )
                         if criar_contra_vistoria == "Criar":
-                            self.incluir_vistoria(contrato_instancia, e_contestacao=True)
-                else:
-                    caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
-                    vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
-                                                                           lista_paths_imagens=ImagensService.bulk_local_temp_save(
-                                                                               contrato_instancia.contra_vistoria.imagens),
-                                                                           caminho_documento=caminho_documento,
-                                                                           e_contestacao=True,
-                                                                           user_role=session.user_role)
-                    if vistoria_result is not None:
-                        event, vistoria = vistoria_result
-                        if event == "editar_vistoria":
-                            if vistoria.esta_fechada():
-                                sg.Popup(
-                                    "Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
-                            else:
-                                self.editar_vistoria(contrato_instancia, vistoria)
-                        elif event == "excluir_vistoria":
-                            if vistoria.esta_fechada():
-                                sg.Popup(
-                                    "Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
-                            else:
-                                contrato_instancia.remover_vistoria(vistoria)
-                                self.__vistoria_repository.delete(vistoria.id)
-                                sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+                            self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                            self.listar_relacionados_contrato(contrato_instancia)
+                        elif criar_contra_vistoria == "Fechar":
+                            self.listar_relacionados_contrato(contrato_instancia)
+        elif events == "Voltar":
+            ImagensService.flush_temp_images()
+            self.listar_contrato()
 
-            elif events == "Voltar":
-                ImagensService.flush_temp_images()
-                break
-
-            elif events == sg.WIN_CLOSED:
-                ImagensService.flush_temp_images()
-                return
+        elif events == sg.WIN_CLOSED:
+            ImagensService.flush_temp_images()
+            return
+        self.listar_relacionados_contrato(contrato_instancia)
 
 
 
@@ -322,9 +366,9 @@ class ContratoController:
                 imagens = ImagensService.bulk_read(values['imagens'].split(';'))
                 imagens_invalidas = [imagem for imagem in imagens if not imagem.e_valida()]
 
-                if imagens_invalidas and len(imagens_invalidas):
+                if imagens_invalidas:
                     self.__tela_vistoria.mostra_msg(
-                        "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1820x1280 pixels!")
+                        "Imagens inválidas. Por favor, selecione imagens com resolucao entre 1280x720 e 1920x1280 pixels!")
 
                 else:
                     contrato.incluir_vistoria(descricao=values["descricao"],
@@ -334,17 +378,25 @@ class ContratoController:
                     vistoria_to_insert = contrato.contra_vistoria if e_contestacao else contrato.vistoria_inicial
                     self.__vistoria_repository.insert(vistoria=vistoria_to_insert)
                     self.__contratos_repository.update(contrato)
-            except:
-                sg.popup("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
 
-    def editar_vistoria(self, contrato_instancia, vistoria):
+            except:
+                self.__tela_vistoria.mostra_msg("Algo deu errado, tente novamente. \n\nLembre-se que todos os dados são necessários!")
+
+    def editar_vistoria(self, contrato_instancia, vistoria, e_vistoria_inicial = False):
         event, values = self.__tela_vistoria.pega_dados_editar_vistoria(vistoria)
         if event == "Salvar":
-            vistoria.descricao = values["descricao"]
-            self.__vistoria_repository.update(vistoria)
-            sg.popup("Vistoria atualizada com sucesso", title="Sucesso")
+            if e_vistoria_inicial:
+                if self.valida_campos_vistoria("descricao", values["descricao"]):
+                    vistoria.descricao = values["descricao"]
+                    self.__vistoria_repository.update(vistoria)
+                    self.__tela_vistoria.mostra_msg("Vistoria atualizada com sucesso")
+                else:
+                    self.__tela_vistoria.mostra_msg("O campo de descrição deve conter entre 1 e 500 caracteres")
+            else:
+                vistoria.descricao = values["descricao"]
+                self.__vistoria_repository.update(vistoria)
         elif event == "Cancelar":
-            sg.popup("Edição cancelada", title="Aviso")
+            self.__tela_vistoria.mostra_msg("Edição cancelada")
 
         self.listar_relacionados_contrato(contrato_instancia)
 
@@ -371,3 +423,8 @@ class ContratoController:
             sg.Popup("Selecione uma data")
             return False
         return True
+
+    def valida_campos_vistoria(self, campo, valor):
+        match campo:
+            case 'descricao':
+                return len(valor) <= 500 and len(valor) >= 1
