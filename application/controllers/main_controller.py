@@ -22,7 +22,7 @@ class MainController:
         self.__ocorrencia_view: OcorrenciaView = OcorrenciaView()
         self.__session_controller = SessionController()
         self.__usuarios_controller = UsuariosController()
-        self.__contrato_controller = ContratoController(self.__usuarios_controller)
+        self.__contrato_controller = ContratoController(self.__usuarios_controller, self)
         self.__imoveis_controller = ImoveisController(self)
         self.__chat_controller = ChatCrontroller()
         self.user_identity_repository = UserIdentityRepository()
