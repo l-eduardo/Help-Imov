@@ -30,7 +30,8 @@ import PySimpleGUI as sg
 
 
 class ContratoController:
-    def __init__(self, user_controller):
+    def __init__(self, user_controller, main_controller):
+        self.__main_controller = main_controller
         self.__chat_controller = ChatCrontroller()
         self.__usuario_controller = user_controller
         self.__tela_vistoria = TelaVistoria(self)
@@ -96,7 +97,7 @@ class ContratoController:
             self.listar_relacionados_contrato(contrato_instancia)
             return contrato_selecionado
         if event == "Voltar" or sg.WIN_CLOSED:
-            return 0
+            self.__main_controller.abrir_tela_inicial()
 
     def selecionar_contrato(self, contrato_selecionado: Contrato, btn_visible_locatario):
         contrato, _ = self.__tela_contrato.mostra_contrato(contrato_selecionado, btn_visible_locatario)
@@ -222,9 +223,7 @@ class ContratoController:
                                 entidade["entity"].clear_validation_errors()
                         else:
                             self.__ocorrencia_repository.update(entidade["entity"])
-                            self.listar_relacionados_contrato(contrato_instancia)
-                elif mostra_ocorr_event == "Voltar":
-                    self.listar_relacionados_contrato(contrato_instancia)
+
 
                 elif mostra_ocorr_event == "Chat":
                     chat = entidade["entity"].chat
@@ -236,6 +235,7 @@ class ContratoController:
                     usuario_logado_id = session.user_id
                     usuario_logado = self.__usuario_controller.usuario_by_id(usuario_logado_id)
                     self.__chat_controller.mostra_chat(usuario_logado=usuario_logado, chat=chat)
+
 
             if entidade["tipo"] == "Solicitação":
                 while True:
@@ -255,14 +255,13 @@ class ContratoController:
                                     self.__solicitacao_repository.update(entidade["entity"])
                                 break
                             break
-                    elif event_solic == "Voltar":
-                        self.listar_relacionados_contrato(contrato_instancia)
                     break
 
         if events == "vistoria_inicial":
             if contrato_instancia.vistoria_inicial == None:
                 if session.user_role == 'Locatario':
                     self.__tela_vistoria.mostra_msg("Não há vistoria inicial cadastrada ainda.\n\nVocê não possui permissão para criá-la")
+                    self.listar_relacionados_contrato(contrato_instancia)
                 else:
                     criar_contra_vistoria = self.__tela_vistoria.mostra_msg(
                         "Não existe Vistoria Inicial cadastrada",
@@ -304,9 +303,8 @@ class ContratoController:
                         custom_text=("Criar", "Fechar")
                     )
                     if criar_contra_vistoria == "Criar":
-
-                            self.incluir_vistoria(contrato_instancia, e_contestacao = True)
-                            self.listar_relacionados_contrato(contrato_instancia)
+                        self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                        
             else:
                 caminho_documento = DocumentosService.save_file(contrato_instancia.contra_vistoria.documento)
                 vistoria_result = self.__tela_vistoria.mostra_vistoria(vistoria=contrato_instancia.contra_vistoria,
@@ -358,6 +356,7 @@ class ContratoController:
         elif events == sg.WIN_CLOSED:
             ImagensService.flush_temp_images()
             return
+        self.listar_relacionados_contrato(contrato_instancia)
 
     def incluir_vistoria(self, contrato: Contrato, e_contestacao):
         event, values = self.__tela_vistoria.pega_dados_vistoria()
