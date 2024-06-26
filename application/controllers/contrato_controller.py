@@ -230,7 +230,7 @@ class ContratoController:
                                 entidade["entity"].descricao = dummy.descricao
                                 entidade["entity"].status = dummy.status
                                 entidade["entity"].prestador_id = dummy.prestador_id
-
+                                entidade["entity"].chat = dummy.chat.id
                                 entidade["entity"].clear_validation_errors()
                         else:
                             self.__ocorrencia_repository.update(entidade["entity"])
@@ -286,6 +286,8 @@ class ContratoController:
                             self.__tela_vistoria.mostra_msg("Vistoria não pode ser excluida ou editada pois ja atingiu o prazo maximo de 14 dias")
                         else:
                             self.editar_vistoria(contrato_instancia, vistoria)
+                    elif event == "Voltar":
+                        self.listar_relacionados_contrato(contrato_instancia)
 
             else:
                 if session.user_role == 'Locatario':
@@ -320,6 +322,8 @@ class ContratoController:
                             contrato_instancia.remover_vistoria(vistoria)
                             self.__vistoria_repository.delete(vistoria.id)
                             sg.popup("Contestação de vistoria excluida com sucesso", title="Aviso")
+                    elif event == "Voltar":
+                        self.listar_relacionados_contrato(contrato_instancia)
             else:
                 if contrato_instancia.esta_fechada():
                     sg.popup(
@@ -334,7 +338,9 @@ class ContratoController:
                         custom_text=("Criar", "Fechar")
                     )
                     if criar_contra_vistoria == "Criar":
-                            self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                        self.incluir_vistoria(contrato_instancia, e_contestacao = True)
+                    elif criar_contra_vistoria == "Fechar":
+                        self.listar_relacionados_contrato(contrato_instancia)
 
         elif events == "Voltar":
             ImagensService.flush_temp_images()
