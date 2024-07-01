@@ -34,7 +34,6 @@ class TelaImovel:
 
         event, values = window.read()
 
-
         window.close()
         return event, values
 
