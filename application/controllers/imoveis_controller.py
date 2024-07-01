@@ -88,12 +88,12 @@ class ImoveisController:
         except KeyError as e:
             sg.Popup(f"Erro ao excluir o imóvel: {str(e)}")
         except Exception as e:
-            sg.Popup(f"Algo deu errado ao imovel: \n Lembres-se de que o código precisa ser um inteiro")
+            sg.Popup(f"Erro ao excluir o imóvel: {str(e)}")
 
     def contrato_associado(self, imovel_id):
         from application.controllers.contrato_controller import ContratoController
 
-        contratos_controller = ContratoController(self)
+        contratos_controller = ContratoController(self, self.__main_controller)
         self.contratos = contratos_controller.obter_contratos_do_banco()
         for contrato in self.contratos:
             if contrato.imovel.id == str(imovel_id):
